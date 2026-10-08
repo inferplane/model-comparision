@@ -2,6 +2,7 @@ import './styles.css';
 import { h } from './dom.ts';
 import { loadData } from './data.ts';
 import { renderHeader } from './components/header.ts';
+import { renderChart } from './views/chart.ts';
 import { renderDetail } from './views/detail.ts';
 import { renderTable } from './views/table.ts';
 import { subscribe } from './state.ts';
@@ -20,16 +21,18 @@ async function start() {
   const view = h('div', { id: 'view' });
   app.replaceChildren(header, view);
 
-  const route = () => {
+  const paint = () => {
     const m = location.hash.match(/^#\/model\/(.+)$/);
-    view.replaceChildren(m ? renderDetail(models, decodeURIComponent(m[1])) : renderTable(models));
+    view.replaceChildren(m ? renderDetail(models, decodeURIComponent(m[1])) : location.hash === '#/chart' ? renderChart(models) : renderTable(models));
+  };
+  const route = () => {
+    paint();
     window.scrollTo(0, 0);
   };
   // Filters and sorting repaint in place; keep scroll position for those.
   subscribe(() => {
     const y = window.scrollY;
-    const m = location.hash.match(/^#\/model\/(.+)$/);
-    view.replaceChildren(m ? renderDetail(models, decodeURIComponent(m[1])) : renderTable(models));
+    paint();
     window.scrollTo(0, y);
   });
   window.addEventListener('hashchange', route);

@@ -70,3 +70,32 @@ td.name { font-weight: 600; }
 td.mode { font-size: 12.5px; color: var(--muted); }
 tr.long td { background: var(--accent-soft); }
 .facts b.modes { font-size: 14px; font-family: inherit; }
+
+.nav { display: flex; gap: 4px; }
+.nav a { padding: 5px 10px; border-radius: 8px; color: var(--muted); }
+.nav a:hover { background: var(--accent-soft); text-decoration: none; }
+.nav a[aria-current='page'] { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.chart-title { margin: 4px 0 0; font-size: 22px; letter-spacing: -0.02em; }
+.plot { position: relative; margin-top: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
+.scatter { display: block; width: 100%; height: auto; overflow: visible; }
+.scatter .grid { stroke: var(--line); stroke-width: 1; }
+.scatter .axis { stroke: var(--muted); stroke-width: 1; opacity: 0.5; }
+.scatter .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.scatter .axis-title { fill: var(--muted); font-size: 11.5px; }
+.scatter .dlabel { fill: var(--ink); font-size: 11.5px; paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
+.scatter .frontier-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; opacity: 0.55; }
+/* Marks carry a 2px surface ring so overlapping dots stay legible; no borders in the data color. */
+.scatter .dot { fill: var(--muted); fill-opacity: 0.55; stroke: var(--panel); stroke-width: 2; transition: r 0.1s; }
+.scatter .dot.frontier { fill: var(--accent); fill-opacity: 1; }
+.scatter .dot.hit { stroke: var(--ink); stroke-width: 2; fill-opacity: 1; }
+.scatter .dot.active { r: 7; fill-opacity: 1; }
+.hitlayer { cursor: pointer; }
+.tip { position: absolute; z-index: 3; pointer-events: none; min-width: 180px; max-width: 260px; padding: 8px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 20px rgb(0 0 0 / 0.14); font-size: 12px; }
+.tip-val { font-size: 18px; font-weight: 700; line-height: 1.2; }
+.tip-name { font-weight: 600; margin-bottom: 4px; }
+.tip-row { color: var(--muted); }
+.legend { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--muted); opacity: 0.55; margin-left: 8px; }
+.swatch.frontier { background: var(--accent); opacity: 1; margin-left: 0; }
+.twin { margin-top: 14px; }
+.twin summary { cursor: pointer; color: var(--accent); margin-bottom: 8px; }

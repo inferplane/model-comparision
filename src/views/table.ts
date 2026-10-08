@@ -26,6 +26,7 @@ const COLS: Col[] = [
   { key: 'mode', label: '추론', value: (r) => r.label, show: (r) => r.label + (r.inferred ? '?' : ''), title: (r) => (r.inferred ? 'models.dev에 없는 모델이라 가격 존재 여부로 추정한 값입니다.' : undefined) },
   { key: 'ctx', label: 'Context', num: true, value: (r) => r.m.contextWindow, show: (r) => tokens(r.m.contextWindow) },
   { key: 'out', label: 'Max out', num: true, value: (r) => r.m.maxOutput, show: (r) => tokens(r.m.maxOutput) },
+  { key: 'ai', label: 'Intelligence', num: true, value: (r) => r.m.benchmarks?.intelligenceIndex, show: (r) => (r.m.benchmarks?.intelligenceIndex === undefined ? '—' : r.m.benchmarks.intelligenceIndex.toFixed(1)), title: () => 'Artificial Analysis Intelligence Index' },
   { key: 'in', label: 'Input', num: true, value: p('input') },
   { key: 'output', label: 'Output', num: true, value: p('output') },
   { key: 'cr', label: 'Cache read', num: true, value: p('cacheRead') },

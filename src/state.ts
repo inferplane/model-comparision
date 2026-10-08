@@ -9,10 +9,12 @@ export interface State {
   onlyCache: boolean;
   onlyInRegion: boolean;
   sort: { key: string; dir: 1 | -1 };
+  chartY: string;
+  chartX: 'blend' | 'input' | 'output';
 }
 
 const KEY = 'bme-prefs';
-const defaults: State = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 } };
+const defaults: State = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend' };
 
 function load(): State {
   try {

@@ -173,6 +173,18 @@ for (const m of models.values()) {
   }
 }
 
+// Some Price List entries are named by raw Bedrock id ("google.gemma-4-e2b"); show models.dev's display name instead (the id/slug stays as is).
+const taken = new Set([...models.values()].map((m) => m.name));
+for (const m of models.values()) {
+  if (!/^[a-z0-9-]+\.[a-z0-9]/i.test(m.name) || /\s/.test(m.name)) continue;
+  const ctx = contextById.get(m.name);
+  const pretty = ctx?.name.replace(/\s+IT$/, '');
+  if (pretty && !taken.has(pretty)) {
+    taken.add(pretty);
+    m.name = pretty;
+  }
+}
+
 // Embedding/image/speech models have no token prices in the table; keep only models with at least one text-token price.
 const out = [...models.values()].filter((m) => m.regions.length > 0).sort((a, b) => a.provider.localeCompare(b.provider) || a.name.localeCompare(b.name));
 await mkdir('public/data', { recursive: true });

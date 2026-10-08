@@ -16,7 +16,7 @@ export function renderHeader(models: Model[], generatedAt: string): HTMLElement 
     results.replaceChildren();
     const q = input.value.trim();
     // On the list view the table already filters live, so suggestions would only cover it.
-    const onList = location.hash === '' || location.hash === '#/';
+    const onList = location.hash === '' || location.hash === '#/' || location.hash === '#/chart';
     if (!q || onList) return close();
     const hits = models.filter((m) => matches(m, q)).slice(0, 8);
     hits.forEach((m, i) =>
@@ -69,8 +69,19 @@ export function renderHeader(models: Model[], generatedAt: string): HTMLElement 
     try { localStorage.setItem('bme-theme', next); } catch { /* ignore */ }
   } }, '◐');
 
+  const nav = h('nav', { class: 'nav', 'aria-label': '보기' },
+    h('a', { href: '#/', 'data-view': 'table' }, '표'),
+    h('a', { href: '#/chart', 'data-view': 'chart' }, '성능 대비 비용'));
+  const markNav = () => {
+    const view = location.hash === '#/chart' ? 'chart' : location.hash.startsWith('#/model/') ? '' : 'table';
+    nav.querySelectorAll('a').forEach((a) => (a.dataset.view === view ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
+  };
+  markNav();
+  window.addEventListener('hashchange', markNav);
+
   return h('header', { class: 'top' },
     h('a', { class: 'brand', href: '#/' }, 'Bedrock ', h('b', null, 'Model Explorer')),
+    nav,
     h('div', { class: 'search' }, input, results),
     h('div', { class: 'ctrls' }, region, modes, theme),
     h('div', { class: 'stamp' }, `가격 기준 ${generatedAt.slice(0, 10)}`),

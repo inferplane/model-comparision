@@ -22,3 +22,13 @@ export function h<K extends keyof HTMLElementTagNameMap>(
   for (const c of children) if (c) el.append(c);
   return el;
 }
+
+type SvgChild = Node | string | null | undefined | false;
+
+/** SVG counterpart of h(): elements need the SVG namespace, and text still goes through text nodes. */
+export function s(tag: string, attrs: Record<string, string | number | undefined> = {}, ...children: SvgChild[]): SVGElement {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs)) if (v !== undefined) el.setAttribute(k, String(v));
+  for (const c of children) if (c) el.append(c);
+  return el;
+}
