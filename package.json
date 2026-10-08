@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "fetch": "tsx scripts/fetch-pricing.ts && tsx scripts/fetch-context.ts && tsx scripts/fetch-benchmarks.ts",
+    "fetch": "tsx scripts/fetch-pricing.ts && tsx scripts/fetch-context.ts && tsx scripts/fetch-cards.ts && tsx scripts/fetch-benchmarks.ts",
     "data": "npm run fetch && tsx scripts/build-data.ts",
     "test": "vitest run"
   },

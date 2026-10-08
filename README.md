@@ -7,9 +7,11 @@ Static site (GitHub Pages) that lists every Amazon Bedrock model with per-1M-tok
 | Data | Source |
 |---|---|
 | Prices | AWS Price List API, services `AmazonBedrock` and `AmazonBedrockFoundationModels`, all regions |
-| Context window / max output | [models.dev](https://models.dev) `amazon-bedrock` (third party; may differ from the model card) |
+| In-region / Geo CRIS / Global CRIS per region, context window, max output, lifecycle/EOL | [AWS Bedrock model cards](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html) (one markdown page per model, fetched as `.md`). These are the authority; `bedrock-runtime` and `bedrock-mantle` availability are tracked separately |
+| Fallback for context / profile ids | [models.dev](https://models.dev) `amazon-bedrock` (third party; used when no card matches, and for the long-context threshold of models without a card) |
 | Benchmarks | [Artificial Analysis](https://artificialanalysis.ai/) API (attribution required); needs the `AA_API_KEY` repo secret, skipped without it |
-| Gaps | `data/overrides.yaml` for models the Price List does not list yet (each entry names its source) |
+| Prices for models the Price List lacks | The model card's price tables (commercial regions, standard tier), e.g. GPT-6.1 Sol; shown as `priceSource: model-card` |
+| Gaps | `data/overrides.yaml` for anything else (each entry names its source) |
 
 Only text-token prices are shown. Image, video, audio, provisioned-throughput and customization SKUs are skipped. The AWS price list has no long-context pricing tiers.
 

@@ -49,7 +49,7 @@ function collect(models: Model[], metric: Metric): Pt[] {
   for (const m of models) {
     const raw = m.benchmarks?.[metric.key];
     if (raw === undefined) continue;
-    for (const v of variants(m, state.modes)) {
+    for (const v of variants(m, state.modes, state.region)) {
       const x = basis.price(priceOf(m, state.region, v.scope, state.tier, 'input'), priceOf(m, state.region, v.scope, state.tier, 'output'));
       if (x === undefined || x <= 0) continue;
       pts.push({ m, label: both && v.scope === 'global' ? `${m.name} (Global)` : m.name, scope: v.label, x, y: metric.pct ? raw * 100 : raw, frontier: false, hit: !!state.query && matches(m, state.query) });

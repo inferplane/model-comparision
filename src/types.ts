@@ -48,6 +48,11 @@ export interface Model {
   regions: string[];
   /** Invocation modes seen in models.dev profile ids; undefined when models.dev does not list the model. */
   modes?: Mode[];
+  /** Per region and endpoint, from the AWS model card; the exact source for in-region / geo / global support. */
+  availability?: Availability;
+  card?: { url: string; lifecycle?: string; launchDate?: string; eolDate?: string };
+  /** Where the prices came from when not the AWS Price List. */
+  priceSource?: 'model-card' | 'override';
   geoPrefixes?: string[];
   /** Prices that replace the base prices above the threshold (Price List `long_ctx` SKUs). */
   longContext?: { thresholdTokens?: number; pricing: PriceTable };
@@ -56,3 +61,6 @@ export interface Model {
   /** The Artificial Analysis entry the scores came from; AA lists reasoning/effort variants separately, so this says which one. */
   benchmarkSource?: { name: string; slug: string };
 }
+
+/** Per region and endpoint: "i" in-region, "g" geo CRIS, "G" global CRIS. */
+export type Availability = Record<string, Partial<Record<'runtime' | 'mantle', string>>>;

@@ -196,3 +196,8 @@ tbody tr:hover td:first-child { background: var(--accent-soft); }
 td.mode { white-space: normal; min-width: 96px; max-width: 130px; }
 /* Tighter cell padding so the default columns fit a 1280px screen without sideways scrolling. */
 .scroll th, .scroll td { padding-left: 9px; padding-right: 9px; }
+
+.cardlink { margin-left: 12px; font-size: 13px; font-weight: 400; }
+table.avail td.ck { text-align: center; color: var(--muted); }
+table.avail td.ck.on { color: var(--accent); font-weight: 700; }
+table.avail tr.sel td { background: var(--accent-soft); }

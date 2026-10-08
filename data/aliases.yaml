@@ -1,6 +1,16 @@
 # Price List model name -> Bedrock model id (as listed by models.dev, without CRIS prefix).
 # Only needed when the names do not match after normalization. The build prints unmatched names.
-aliases: {}
+aliases:
+  # Price List name -> Bedrock model id, where the Price List spells the model differently from models.dev and the model card.
+  Devstral: mistral.devstral-2-123b
+  Ministral 3B 3.0: mistral.ministral-3-3b-instruct
+  Ministral 8B 3.0: mistral.ministral-3-8b-instruct
+  Voxtral Mini 1.0: mistral.voxtral-mini-3b-2507
+  Voxtral Small 1.0: mistral.voxtral-small-24b-2507
+  NVIDIA Nemotron Nano 2: nvidia.nemotron-nano-9b-v2
+  NVIDIA Nemotron Nano 2 VL: nvidia.nemotron-nano-12b-v2
+  Cohere Command R: cohere.command-r-v1:0
+  Cohere Command R+: cohere.command-r-plus-v1:0
 
 # Price List model name -> Artificial Analysis slug, for names that do not match after normalization.
 benchmarkAliases:
