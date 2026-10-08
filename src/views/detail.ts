@@ -64,6 +64,11 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
     h('p', { class: 'note' }, lc
       ? `장문 구간: 프롬프트가 ${lc.thresholdTokens ? tokens(lc.thresholdTokens) : '임계값(미확인)'}을 넘으면 해당 요청 전체에 장문 단가가 적용됩니다(AWS 가격표 Long Context SKU${lc.thresholdTokens ? ', 임계값은 models.dev' : ''}).`
       : '이 모델은 AWS 가격표에 길이별 가격 구간(long-context)이 없습니다. 단가는 모든 길이에 동일합니다.'),
+    m.priceSource === 'model-card' || m.priceSource === 'mixed'
+      ? h('p', { class: 'note' }, m.priceSource === 'model-card'
+        ? '이 모델은 AWS Price List에 아직 없어, AWS 모델 카드에 적힌 상용 리전 공통 단가를 지원 리전마다 적용했습니다. 리전별로 실제 청구액이 다르면 모델 카드를 확인하세요.'
+        : 'AWS Price List에 단가가 없는 일부 리전(예: GovCloud 외 상용 리전)은 AWS 모델 카드의 상용 리전 공통 단가로 보충했습니다.')
+      : null,
     m.geoPrefixes?.length ? h('p', { class: 'note' }, `Geo CRIS 프로파일: ${m.geoPrefixes.map((x) => x + '.').join(', ')}`) : null,
     availabilitySection(m),
     h('h2', null, '리전별 Standard 단가'),
@@ -85,7 +90,7 @@ function availabilitySection(m: Model): HTMLElement | null {
     h('h2', null, '리전별 추론 방식 (AWS 모델 카드)'),
     h('p', { class: 'note' }, 'In-region은 해당 리전에서 바로 호출, Geo/Global CRIS는 프로파일 ID로 호출합니다. bedrock-mantle은 OpenAI 호환 API 엔드포인트이며, runtime과 지원 리전이 다를 수 있습니다.'),
     h('div', { class: 'scroll' }, h('table', { class: 'avail' },
-      h('thead', null, h('tr', null, h('th', null, '리전'), h('th', null, 'In-region (runtime)'), h('th', null, 'In-region (mantle)'), h('th', null, 'Geo CRIS'), h('th', null, 'Global CRIS'))),
+      h('thead', null, h('tr', null, h('th', null, '리전'), h('th', null, 'In-region (runtime)'), h('th', null, 'In-region (mantle)'), h('th', null, 'Geo CRIS'), h('th', null, 'Global CRIS'), m.availabilityEol ? h('th', null, 'EOL') : null)),
       h('tbody', null, ...regions.map((r) => h('tr', { class: r === state.region ? 'sel' : '' }, h('td', null, r),
-        yes(has(r, 'runtime', 'i')), yes(has(r, 'mantle', 'i')), yes(has(r, 'runtime', 'g') || has(r, 'mantle', 'g')), yes(has(r, 'runtime', 'G') || has(r, 'mantle', 'G'))))))));
+        yes(has(r, 'runtime', 'i')), yes(has(r, 'mantle', 'i')), yes(has(r, 'runtime', 'g') || has(r, 'mantle', 'g')), yes(has(r, 'runtime', 'G') || has(r, 'mantle', 'G')), m.availabilityEol ? h('td', { class: 'ck eol' }, m.availabilityEol[r] ?? '') : null))))));
 }

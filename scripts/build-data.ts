@@ -111,19 +111,19 @@ for (const m of models.values()) {
   }
 }
 
-/** A model the Price List lacks: build it from the card's commercial price tables (standard tier, text tokens). */
-function modelFromCard(c: CardRecord): Model | undefined {
-  const base = c.prices.filter((x) => !x.long && x.input !== undefined && x.output !== undefined);
-  if (!base.length) return undefined;
-  const m = modelFor(c.title, c.vendor);
-  m.priceSource = 'model-card';
+/**
+ * Fill prices from the card's commercial price tables, only where `m` has none yet for that region and price scope.
+ * Returns how many region/scope slots were filled. GovCloud has its own price list, so it is skipped.
+ */
+function fillFromCard(m: Model, c: CardRecord): number {
+  let filled = 0;
   const pick = (scope: 'regional' | 'global', long: boolean) => c.prices.find((x) => x.scope === scope && x.long === long);
   for (const [region, av] of Object.entries(c.availability)) {
-    if (region.startsWith('us-gov')) continue; // GovCloud has its own price list
+    if (region.startsWith('us-gov')) continue;
     const flags = (av.runtime ?? '') + (av.mantle ?? '');
     const scopes: ['regional' | 'global', boolean][] = [['regional', /[ig]/.test(flags)], ['global', flags.includes('G')]];
     for (const [scope, on] of scopes) {
-      if (!on) continue;
+      if (!on || m.pricing[region]?.[scope]?.standard?.input !== undefined) continue;
       for (const long of [false, true]) {
         const row = pick(scope, long);
         if (!row) continue;
@@ -131,10 +131,32 @@ function modelFromCard(c: CardRecord): Model | undefined {
         for (const [kind, v] of [['input', row.input], ['output', row.output], ['cacheRead', row.cacheRead], ['cacheWrite', row.cacheWrite]] as const) {
           if (v !== undefined) setPrice(table, region, scope, 'standard', kind, v);
         }
+        if (!long) filled++;
       }
     }
   }
+  return filled;
+}
+
+/** A model the Price List lacks entirely: build it from the card. */
+function modelFromCard(c: CardRecord): Model | undefined {
+  if (!c.prices.some((x) => !x.long && x.input !== undefined && x.output !== undefined)) return undefined;
+  const m = modelFor(c.title, c.vendor);
+  m.priceSource = 'model-card';
+  fillFromCard(m, c);
   return m;
+}
+
+// Models the Price List only partly covers (e.g. GovCloud rows but no commercial ones) get the missing regions from their card.
+const filledFromCards: string[] = [];
+for (const [m, c] of cardOf) {
+  if (m.priceSource === 'model-card') continue;
+  const before = Object.keys(m.pricing).length;
+  const n = fillFromCard(m, c);
+  if (n) {
+    m.priceSource = before ? 'mixed' : 'model-card';
+    filledFromCards.push(`${m.name} (+${n})`);
+  }
 }
 const unusedCards = cards.filter((c) => !usedCards.has(c));
 const addedFromCards: string[] = [];
@@ -168,6 +190,7 @@ for (const m of models.values()) {
     m.contextWindow = card.contextWindow ?? m.contextWindow;
     m.maxOutput = card.maxOutput ?? m.maxOutput;
     if (Object.keys(card.availability).length) m.availability = card.availability;
+    if (card.eol && Object.keys(card.eol).length) m.availabilityEol = card.eol;
     if (card.geoPrefixes.length) m.geoPrefixes = card.geoPrefixes;
     const longRow = card.prices.find((x) => x.long && x.thresholdTokens);
     if (m.longContext && longRow) m.longContext.thresholdTokens = longRow.thresholdTokens;
@@ -263,7 +286,7 @@ const withCtx = out.filter((m) => m.contextWindow).length;
 const withCache = out.filter((m) => m.regions.some((r) => Object.values(m.pricing[r]).some((s) => s?.standard?.cacheRead !== undefined))).length;
 const report = [
   `models: ${out.length}, with context: ${withCtx}, with cache read price: ${withCache}`,
-  `model cards: ${cards.length} loaded, ${cardOf.size} models matched, ${addedFromCards.length} models added from cards (${addedFromCards.join(', ')}); cards unused: ${cards.filter((c) => !usedCards.has(c)).map((c) => c.title).join(', ') || 'none'}`,
+  `model cards: ${cards.length} loaded, ${cardOf.size} models matched, ${addedFromCards.length} models added from cards (${addedFromCards.join(', ')}); prices filled from cards for ${filledFromCards.length} Price List models (${filledFromCards.join(', ')}); cards unused: ${cards.filter((c) => !usedCards.has(c)).map((c) => c.title).join(', ') || 'none'}`,
   `card vs models.dev context differences (${contextDiffs.length}): ${contextDiffs.join('; ')}`,
   `no context match (${unmatched.length}): ${unmatched.join(', ')}`,
   `price cross-check vs models.dev (${mismatches.length} mismatches)${mismatches.length ? ':\n  ' + mismatches.join('\n  ') : ''}`,

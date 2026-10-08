@@ -13,6 +13,10 @@ export interface CardRecord {
   launchDate?: string;
   eolDate?: string;
   availability: Availability;
+  /** Where `availability` came from: the consolidated regions page (complete) or the card's own tables. */
+  availabilitySource?: 'region-page' | 'card';
+  /** Earliest per-region EOL date from the regions page. */
+  eol?: Record<string, string>;
   /** Geo CRIS prefixes (us, eu, jp…) seen in the geo inference ids. */
   geoPrefixes: string[];
   /** Source regions per Geo profile, from the "Geo: US" style tables. */

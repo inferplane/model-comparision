@@ -201,3 +201,4 @@ td.mode { white-space: normal; min-width: 96px; max-width: 130px; }
 table.avail td.ck { text-align: center; color: var(--muted); }
 table.avail td.ck.on { color: var(--accent); font-weight: 700; }
 table.avail tr.sel td { background: var(--accent-soft); }
+table.avail td.eol { color: var(--accent); font-size: 12px; }

@@ -50,9 +50,11 @@ export interface Model {
   modes?: Mode[];
   /** Per region and endpoint, from the AWS model card; the exact source for in-region / geo / global support. */
   availability?: Availability;
+  /** Earliest EOL per region (YYYY-MM-DD) from the regions page. */
+  availabilityEol?: Record<string, string>;
   card?: { url: string; lifecycle?: string; launchDate?: string; eolDate?: string };
   /** Where the prices came from when not the AWS Price List. */
-  priceSource?: 'model-card' | 'override';
+  priceSource?: 'model-card' | 'mixed' | 'override';
   geoPrefixes?: string[];
   /** Prices that replace the base prices above the threshold (Price List `long_ctx` SKUs). */
   longContext?: { thresholdTokens?: number; pricing: PriceTable };

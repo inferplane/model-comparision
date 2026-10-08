@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { parseCard, type CardRecord } from './parse-card.ts';
+import { parseRegionPage } from './parse-regions.ts';
 
 const BASE = 'https://docs.aws.amazon.com/bedrock/latest/userguide';
 
@@ -36,9 +37,30 @@ await Promise.all(
   }),
 );
 records.sort((a, b) => a.slug.localeCompare(b.slug));
+
+// The consolidated "Regional availability by models" page lists every model's per-region options in one uniform table,
+// including global availability that scope-style cards leave out. Prefer it; keep the card's own tables as the fallback.
+let fromPage = 0;
+try {
+  const regions = parseRegionPage(await get(`${BASE}/models-region-compatibility.md`));
+  for (const r of records) {
+    const e = regions[r.slug];
+    if (!e) {
+      r.availabilitySource = 'card';
+      continue;
+    }
+    r.availability = e.availability;
+    r.eol = e.eol;
+    r.availabilitySource = 'region-page';
+    fromPage++;
+  }
+} catch (e) {
+  console.warn(`regions page unavailable, using per-card availability: ${(e as Error).message}`);
+  for (const r of records) r.availabilitySource = 'card';
+}
 await mkdir('data/raw', { recursive: true });
 await writeFile('data/raw/cards.json', JSON.stringify(records));
 const withAvail = records.filter((r) => Object.keys(r.availability).length).length;
-console.log(`model cards: ${records.length}/${slugs.length} fetched, ${withAvail} with availability${failed.length ? `, FAILED: ${failed.join('; ')}` : ''}`);
+console.log(`model cards: ${records.length}/${slugs.length} fetched, ${withAvail} with availability (${fromPage} from the regions page)${failed.length ? `, FAILED: ${failed.join('; ')}` : ''}`);
 // A few missing cards only degrade the site to models.dev fallbacks, but losing most of them means the page layout changed.
 if (failed.length > slugs.length * 0.3) throw new Error('more than 30% of model cards failed to load');
