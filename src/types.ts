@@ -50,4 +50,6 @@ export interface Model {
   longContext?: { thresholdTokens?: number; pricing: PriceTable };
   firstSeen: string;
   benchmarks?: BenchmarkScores;
+  /** The Artificial Analysis entry the scores came from; AA lists reasoning/effort variants separately, so this says which one. */
+  benchmarkSource?: { name: string; slug: string };
 }

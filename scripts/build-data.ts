@@ -106,14 +106,30 @@ for (const m of models.values()) {
   } else unmatched.push(m.name);
 }
 
-// Artificial Analysis lists reasoning/non-reasoning variants separately; when several share a name, keep the highest intelligence index.
-const benchmarkByLoose = new Map<string, BenchmarkRecord>();
-for (const b of benchmarks) {
-  const k = loose(b.name);
-  const prev = benchmarkByLoose.get(k);
-  if (!prev || (b.scores.intelligenceIndex ?? -1) > (prev.scores.intelligenceIndex ?? -1)) benchmarkByLoose.set(k, b);
-}
+// Artificial Analysis slugs are kebab-case and list effort/reasoning variants of one model separately ("kimi-k3", "kimi-k3-low", "claude-opus-5-xhigh").
+// Only these suffixes count as variants: "glm-5-turbo" or "claude-opus-5-5" are different models and must not match "glm-5" / "claude-opus-5".
+const VARIANT = /^(low|medium|high|xhigh|max|reasoning|non-reasoning|thinking|adaptive|instruct)(-(low|medium|high|xhigh|max|reasoning|non-reasoning|thinking|adaptive|instruct))*$/;
+const aaSlug = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/^[a-z0-9-]+\./, '') // raw ids such as "openai.gpt-5.6-terra"
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 const benchmarkBySlug = new Map(benchmarks.map((b) => [b.slug, b]));
+
+function findBenchmark(name: string): BenchmarkRecord | undefined {
+  const aliased = benchmarkAliases[name];
+  if (aliased) return benchmarkBySlug.get(aliased);
+  const base = aaSlug(name);
+  const bases = [base, base.replace(/^(openai|google|meta|writer)-/, '')];
+  for (const b of bases) if (benchmarkBySlug.has(b)) return benchmarkBySlug.get(b);
+  // No default entry: take the strongest variant of the same model.
+  for (const b of bases) {
+    const variants = benchmarks.filter((x) => x.slug.startsWith(b + '-') && VARIANT.test(x.slug.slice(b.length + 1)));
+    if (variants.length) return variants.reduce((best, x) => ((x.scores.intelligenceIndex ?? -1) > (best.scores.intelligenceIndex ?? -1) ? x : best));
+  }
+  return undefined;
+}
 const noBenchmark: string[] = [];
 const tokensOf = (s: string) => new Set(s.toLowerCase().replace(/[()\-_:]/g, ' ').split(/\s+/).filter((t) => t && !NOISE.has(t)));
 // For an unmatched model, the closest Artificial Analysis names by token overlap, so aliases can be written without seeing the raw feed.
@@ -133,9 +149,11 @@ function nearestBenchmarks(name: string): string {
 }
 if (benchmarks.length) {
   for (const m of models.values()) {
-    const b = (benchmarkAliases[m.name] && benchmarkBySlug.get(benchmarkAliases[m.name])) || benchmarkByLoose.get(loose(m.name));
-    if (b) m.benchmarks = b.scores;
-    else noBenchmark.push(`${m.name} -> ${nearestBenchmarks(m.name) || '?'}`);
+    const b = findBenchmark(m.name);
+    if (b) {
+      m.benchmarks = b.scores;
+      m.benchmarkSource = { name: b.name, slug: b.slug };
+    } else noBenchmark.push(`${m.name} -> ${nearestBenchmarks(m.name) || '?'}`);
   }
 }
 

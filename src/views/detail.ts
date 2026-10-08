@@ -62,6 +62,8 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
     m.geoPrefixes?.length ? h('p', { class: 'note' }, `Geo CRIS 프로파일: ${m.geoPrefixes.map((x) => x + '.').join(', ')}`) : null,
     h('h2', null, '리전별 Standard 단가'),
     h('div', { class: 'scroll' }, h('table', null, h('thead', null, h('tr', null, h('th', null, '리전'), h('th', { class: 'num' }, 'In (regional)'), h('th', { class: 'num' }, 'Out (regional)'), h('th', { class: 'num' }, 'In (global)'), h('th', { class: 'num' }, 'Out (global)'))), h('tbody', null, ...regionRows))),
-    h('h2', null, '벤치마크'), bench,
+    h('h2', null, '벤치마크'),
+    m.benchmarkSource ? h('p', { class: 'note' }, `Artificial Analysis 항목: ${m.benchmarkSource.name} (${m.benchmarkSource.slug}). 같은 모델의 설정(reasoning/effort) 변형이 여럿이면 기본 항목 또는 지능 지수가 가장 높은 변형입니다.`) : null,
+    bench,
     h('p', { class: 'note' }, '벤치마크: ', h('a', { href: 'https://artificialanalysis.ai/', rel: 'noopener' }, 'Artificial Analysis'), ' · 가격: AWS Price List API · context: ', h('a', { href: 'https://models.dev/', rel: 'noopener' }, 'models.dev')));
 }
