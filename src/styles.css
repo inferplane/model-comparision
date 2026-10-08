@@ -187,3 +187,12 @@ td.barcell { position: relative; min-width: 96px; }
 
 .scatter .quad { fill: var(--accent-soft); opacity: 0.7; }
 .scatter .quad-label { fill: var(--accent); font-size: 11px; opacity: 0.85; }
+
+/* Keep the model name in view while the wide table scrolls sideways. */
+.scroll table th:first-child, .scroll table td:first-child { position: sticky; left: 0; z-index: 2; background: var(--panel); }
+.scroll table th:first-child { z-index: 4; }
+tbody tr:hover td:first-child { background: var(--accent-soft); }
+.cnote { display: block; color: var(--muted); font-size: 11px; line-height: 1.1; }
+td.mode { white-space: normal; min-width: 96px; max-width: 130px; }
+/* Tighter cell padding so the default columns fit a 1280px screen without sideways scrolling. */
+.scroll th, .scroll td { padding-left: 9px; padding-right: 9px; }

@@ -15,11 +15,12 @@ export interface State {
   weights: '' | 'open' | 'closed';
   reasoning: '' | 'yes' | 'no';
   compare: string[];
+  expandCols: boolean;
   chartX: 'blend' | 'input' | 'output';
 }
 
 const KEY = 'bme-prefs';
-const defaults: State = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [] };
+const defaults: State = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
 
 function load(): State {
   try {
