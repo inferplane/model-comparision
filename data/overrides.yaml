@@ -1,0 +1,11 @@
+# Manual data for models that the AWS Price List API does not list yet, or corrections to it.
+# Every entry needs a `source` so the site can show where the number came from.
+# Prices are USD per 1M tokens, standard tier. Cache write is the default TTL (30m for Kimi/GLM, 5m for Claude).
+extraModels:
+  - name: GLM 5.3
+    provider: Z AI
+    source: https://aws.amazon.com/bedrock/pricing/ (Z AI > GLM 5.3), checked 2026-10-08
+    pricing:
+      us-east-1:
+        regional: { input: 1.848, output: 5.808, cacheRead: 0.3432, cacheWrite: 2.31 }  # "US CRIS"
+        global:   { input: 1.68,  output: 5.28,  cacheRead: 0.312,  cacheWrite: 2.10 }  # "Global CRIS"

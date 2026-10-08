@@ -1,0 +1,6 @@
+# Price List model name -> Bedrock model id (as listed by models.dev, without CRIS prefix).
+# Only needed when the names do not match after normalization. The build prints unmatched names.
+aliases: {}
+
+# Price List model name -> Artificial Analysis slug, for names that do not match after normalization.
+benchmarkAliases: {}
