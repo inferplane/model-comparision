@@ -13,7 +13,7 @@ export interface PriceListFile {
 }
 
 // Non-text modalities and non-inference SKUs are left out of the token price table.
-const NON_TEXT = /image|video|audio|speech|t2i|i2i|count|embedding|provisioned|reserved|customiz|storage/i;
+const NON_TEXT = /image|video|audio|speech|t2i|i2i|count|embedding|provisioned|reserved|customiz|custom.?model|storage/i;
 
 const BFM_PROVIDERS: [RegExp, string][] = [
   [/^claude/i, 'Anthropic'],
@@ -33,11 +33,12 @@ export function providerFromName(name: string): string | undefined {
 }
 
 /** Dollars per 1M tokens from a price dimension; undefined for units that are not per-token. */
-export function toUsdPer1M(dim: PriceDimension): number | undefined {
+export function toUsdPer1M(dim: PriceDimension, marketplace = false): number | undefined {
   const usd = Number(dim.pricePerUnit.USD);
   if (!Number.isFinite(usd)) return undefined;
   const unit = dim.unit.toLowerCase();
-  if (unit.startsWith('1m')) return usd;
+  // A few Marketplace token SKUs (Claude Haiku 5.5 long-context cache writes) are labelled just "Units"; their values match the 1M-token scale of the sibling SKUs.
+  if (unit.startsWith('1m') || (marketplace && unit === 'units')) return usd;
   if (unit.startsWith('1k')) return usd * 1000;
   return undefined;
 }
@@ -46,6 +47,7 @@ interface Classified {
   tier: Tier;
   scope: Scope;
   kind: TokenKind;
+  longContext: boolean;
 }
 
 function tierOf(s: string): Tier {
@@ -56,9 +58,14 @@ function tierOf(s: string): Tier {
 }
 
 /** AmazonBedrock products describe themselves in `inferenceType`, e.g. "Input tokens global priority". */
-export function classifyInferenceType(inferenceType: string): Classified | undefined {
-  const s = inferenceType.toLowerCase();
-  if (NON_TEXT.test(s.replace(/prompt cache/, ''))) return undefined;
+/** Older SKUs say only "Input tokens" in `inferenceType` and carry the tier/scope solely in the usagetype suffix ("…-input-tokens-batch"). */
+export function classifyInferenceType(inferenceType: string, usagetype = ''): Classified | undefined {
+  const bare = usagetype.toLowerCase().replace(/^[a-z0-9]+-/, '');
+  // Some SKUs (e.g. global cache reads) have no inferenceType at all; fall back to the usagetype words.
+  const s = (inferenceType || bare).toLowerCase().replace(/-/g, ' ').replace(/token[ -]count/g, 'token');
+  const tags = `${s} ${bare}`;
+  // Fine-tuned / imported custom models are billed separately from the on-demand price.
+  if (NON_TEXT.test(tags.replace(/prompt cache/, '').replace(/token[ -]count/g, 'token'))) return undefined;
   let kind: TokenKind;
   if (s.includes('cache')) {
     if (s.includes('read')) kind = 'cacheRead';
@@ -67,7 +74,7 @@ export function classifyInferenceType(inferenceType: string): Classified | undef
   } else if (s.includes('output')) kind = 'output';
   else if (s.includes('input')) kind = 'input';
   else return undefined;
-  return { tier: tierOf(s), scope: /\bglobal\b/.test(s) ? 'global' : 'regional', kind };
+  return { tier: tierOf(tags), scope: /\bglobal\b|-global\b/.test(tags) ? 'global' : 'regional', kind, longContext: /long/.test(tags) };
 }
 
 /** AmazonBedrockFoundationModels products only expose a Marketplace usagetype, e.g. "USE1-MP:USE1_cache_write_tokens_1h_global_standard-Units". */
@@ -81,7 +88,7 @@ export function classifyMarketplaceUsage(usagetype: string): Classified | undefi
   else if (flat.includes('output')) kind = 'output';
   else if (flat.includes('input')) kind = 'input';
   else return undefined;
-  return { tier: tierOf(flat), scope: /global/.test(flat) ? 'global' : 'regional', kind };
+  return { tier: tierOf(flat), scope: /global/.test(flat) ? 'global' : 'regional', kind, longContext: /longctx|longcontext/.test(flat) };
 }
 
 export function parsePriceList(service: 'AmazonBedrock' | 'AmazonBedrockFoundationModels', file: PriceListFile): PriceEntry[] {
@@ -93,10 +100,10 @@ export function parsePriceList(service: 'AmazonBedrock' | 'AmazonBedrockFoundati
     let provider: string | undefined;
     let cls: Classified | undefined;
     if (service === 'AmazonBedrock') {
-      if (!a.model || !a.inferenceType) continue;
+      if (!a.model) continue;
       model = a.model;
       provider = a.provider;
-      cls = classifyInferenceType(a.inferenceType);
+      cls = classifyInferenceType(a.inferenceType, a.usagetype);
     } else {
       if (!a.servicename || !a.usagetype.includes('-MP:')) continue;
       model = a.servicename.replace(/\s*\(Amazon Bedrock Edition\)\s*$/i, '');
@@ -106,9 +113,10 @@ export function parsePriceList(service: 'AmazonBedrock' | 'AmazonBedrockFoundati
     if (!cls || !a.regionCode) continue;
     for (const offer of Object.values(onDemand[sku] ?? {})) {
       for (const dim of Object.values(offer.priceDimensions)) {
-        const usdPer1M = toUsdPer1M(dim);
+        const usdPer1M = toUsdPer1M(dim, service === 'AmazonBedrockFoundationModels');
         if (usdPer1M === undefined) continue;
-        out.push({ model, provider, region: a.regionCode, ...cls, usdPer1M: Number(usdPer1M.toPrecision(10)) });
+        const { longContext, ...rest } = cls;
+        out.push({ model, provider, region: a.regionCode, ...rest, ...(longContext && { longContext }), usdPer1M: Number(usdPer1M.toPrecision(10)) });
       }
     }
   }

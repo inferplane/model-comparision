@@ -1,7 +1,7 @@
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { parse } from 'yaml';
-import type { Model, PriceEntry, Scope, Tier, TokenKind } from '../src/types.ts';
+import type { Model, PriceEntry, PriceTable, Scope, Tier, TokenKind } from '../src/types.ts';
 import type { BenchmarkRecord } from './fetch-benchmarks.ts';
 import type { ContextRecord } from './fetch-context.ts';
 import { providerFromName } from './parse-pricing.ts';
@@ -71,21 +71,23 @@ function modelFor(name: string, provider?: string): Model {
   } else if (provider && m.provider === 'Other') m.provider = canonProvider(provider);
   return m;
 }
-function setPrice(m: Model, region: string, scope: Scope, tier: Tier, kind: TokenKind, usd: number) {
-  const byScope = (m.pricing[region] ??= {});
+function setPrice(table: PriceTable, region: string, scope: Scope, tier: Tier, kind: TokenKind, usd: number) {
+  const byScope = (table[region] ??= {});
   const byTier = (byScope[scope] ??= {});
   (byTier[tier] ??= {})[kind] ??= usd;
 }
 
 for (const p of prices) {
   const m = modelFor(p.model, p.provider);
-  setPrice(m, p.region, p.scope, p.tier, p.kind, p.usdPer1M);
+  // Long-context SKUs replace the base price above the threshold, so they live in their own table instead of colliding with the base price.
+  const table = p.longContext ? ((m.longContext ??= { pricing: {} }).pricing) : m.pricing;
+  setPrice(table, p.region, p.scope, p.tier, p.kind, p.usdPer1M);
 }
 for (const x of overrides.extraModels ?? []) {
   const m = modelFor(x.name, x.provider);
   for (const [region, scopes] of Object.entries(x.pricing))
     for (const [scope, kinds] of Object.entries(scopes))
-      for (const [kind, usd] of Object.entries(kinds)) setPrice(m, region, scope as Scope, 'standard', kind as TokenKind, usd);
+      for (const [kind, usd] of Object.entries(kinds)) setPrice(m.pricing, region, scope as Scope, 'standard', kind as TokenKind, usd);
 }
 
 const unmatched: string[] = [];
@@ -98,6 +100,9 @@ for (const m of models.values()) {
   if (ctx) {
     m.contextWindow = ctx.context;
     m.maxOutput = ctx.maxOutput;
+    m.modes = ctx.modes;
+    m.geoPrefixes = ctx.geoPrefixes;
+    if (m.longContext) m.longContext.thresholdTokens = ctx.longContextThreshold;
   } else unmatched.push(m.name);
 }
 
@@ -134,6 +139,22 @@ if (benchmarks.length) {
   }
 }
 
+// Cross-check the Price List against models.dev's list prices (us-east-1 vs bare/us. ids). A mismatch means a parsing bug or a stale source.
+const mismatches: string[] = [];
+for (const m of models.values()) {
+  const ctx = contextByName.get(norm(m.name)) || contextByLoose.get(loose(m.name));
+  if (!ctx) continue;
+  for (const scope of ['regional', 'global'] as const) {
+    const theirs = ctx.cost[scope];
+    const ours = m.pricing['us-east-1']?.[scope]?.standard;
+    if (!theirs || !ours) continue;
+    for (const [kind, t] of [['input', theirs.input], ['output', theirs.output], ['cacheRead', theirs.cacheRead]] as const) {
+      const o = ours[kind];
+      if (t !== undefined && o !== undefined && Math.abs(o - t) / t > 0.01) mismatches.push(`${m.name} ${scope} ${kind}: aws=${o} models.dev=${t}`);
+    }
+  }
+}
+
 // Embedding/image/speech models have no token prices in the table; keep only models with at least one text-token price.
 const out = [...models.values()].filter((m) => m.regions.length > 0).sort((a, b) => a.provider.localeCompare(b.provider) || a.name.localeCompare(b.name));
 await mkdir('public/data', { recursive: true });
@@ -144,6 +165,7 @@ const withCache = out.filter((m) => m.regions.some((r) => Object.values(m.pricin
 const report = [
   `models: ${out.length}, with context: ${withCtx}, with cache read price: ${withCache}`,
   `no context match (${unmatched.length}): ${unmatched.join(', ')}`,
+  `price cross-check vs models.dev (${mismatches.length} mismatches)${mismatches.length ? ':\n  ' + mismatches.join('\n  ') : ''}`,
   benchmarks.length ? `no benchmark match (${noBenchmark.length}), model -> closest AA slugs:\n  ${noBenchmark.join('\n  ')}` : 'benchmarks: skipped (no AA_API_KEY)',
 ].join('\n');
 console.log(report);

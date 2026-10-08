@@ -1,9 +1,9 @@
-import type { Scope, Tier } from './types.ts';
+import type { Mode, Tier } from './types.ts';
 
 export interface State {
   query: string;
   region: string;
-  scope: Scope;
+  modes: Mode[];
   tier: Tier;
   provider: string;
   onlyCache: boolean;
@@ -12,7 +12,7 @@ export interface State {
 }
 
 const KEY = 'bme-prefs';
-const defaults: State = { query: '', region: 'us-east-1', scope: 'regional', tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 } };
+const defaults: State = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 } };
 
 function load(): State {
   try {

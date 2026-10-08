@@ -1,4 +1,4 @@
-import type { Model, Scope, Tier, TokenKind } from './types.ts';
+import type { Mode, Model, PriceTable, Scope, Tier, TokenKind } from './types.ts';
 
 export interface Dataset {
   generatedAt: string;
@@ -13,6 +13,41 @@ export async function loadData(): Promise<Dataset> {
 
 export function priceOf(m: Model, region: string, scope: Scope, tier: Tier, kind: TokenKind): number | undefined {
   return m.pricing[region]?.[scope]?.[tier]?.[kind];
+}
+
+export const MODE_LABEL: Record<Mode, string> = { 'in-region': 'In-region', geo: 'Geo CRIS', global: 'Global CRIS' };
+export const MODES: Mode[] = ['in-region', 'geo', 'global'];
+
+/** In-region and Geo CRIS share one Price List price ("regional"); Global CRIS has its own. */
+export const scopeOf = (mode: Mode): Scope => (mode === 'global' ? 'global' : 'regional');
+
+export function longPriceOf(m: Model, region: string, scope: Scope, tier: Tier, kind: TokenKind): number | undefined {
+  return m.longContext?.pricing[region]?.[scope]?.[tier]?.[kind];
+}
+
+const hasScope = (table: PriceTable, scope: Scope) => Object.values(table).some((r) => r[scope] !== undefined);
+
+/** True/false from models.dev profile ids; undefined when models.dev does not list the model (support is then only inferred from prices). */
+export function supports(m: Model, mode: Mode): { ok: boolean; inferred: boolean } {
+  if (m.modes) return { ok: m.modes.includes(mode), inferred: false };
+  return { ok: hasScope(m.pricing, scopeOf(mode)), inferred: true };
+}
+
+export interface Variant {
+  scope: Scope;
+  /** Selected modes this row stands for, e.g. "In-region · Geo CRIS". */
+  label: string;
+  inferred: boolean;
+}
+
+/** One row per price scope: in-region and Geo CRIS collapse into a single "regional" row because their price is the same. */
+export function variants(m: Model, modes: Mode[]): Variant[] {
+  const out: Variant[] = [];
+  const regional = modes.filter((x) => x !== 'global').map((x) => ({ x, ...supports(m, x) })).filter((x) => x.ok);
+  if (regional.length) out.push({ scope: 'regional', label: regional.map((r) => MODE_LABEL[r.x]).join(' · '), inferred: regional.some((r) => r.inferred) });
+  const g = modes.includes('global') ? supports(m, 'global') : undefined;
+  if (g?.ok) out.push({ scope: 'global', label: MODE_LABEL.global, inferred: g.inferred });
+  return out;
 }
 
 /** Input:output 4:1 weighted price with no cache, the same convention used for quick cost comparisons. */

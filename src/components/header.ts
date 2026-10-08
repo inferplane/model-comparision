@@ -1,6 +1,6 @@
 import { h } from '../dom.ts';
-import { allRegions, matches } from '../data.ts';
-import { state, update } from '../state.ts';
+import { allRegions, matches, MODE_LABEL, MODES } from '../data.ts';
+import { state, subscribe, update } from '../state.ts';
 import type { Model } from '../types.ts';
 
 export function renderHeader(models: Model[], generatedAt: string): HTMLElement {
@@ -53,9 +53,16 @@ export function renderHeader(models: Model[], generatedAt: string): HTMLElement 
 
   const region = h('select', { 'aria-label': '리전', onchange: (e: Event) => update({ region: (e.target as HTMLSelectElement).value }) },
     ...allRegions(models).map((r) => h('option', { value: r, selected: r === state.region }, r)));
-  const scope = h('select', { 'aria-label': '추론 범위', onchange: (e: Event) => update({ scope: (e.target as HTMLSelectElement).value as 'regional' | 'global' }) },
-    h('option', { value: 'regional', selected: state.scope === 'regional' }, 'In-region / Geo(US) CRIS'),
-    h('option', { value: 'global', selected: state.scope === 'global' }, 'Global CRIS'));
+  // Multi-select: at least one mode stays on, otherwise the table would be empty with no hint why.
+  const modes = h('div', { class: 'chips', role: 'group', 'aria-label': '추론 방식' },
+    ...MODES.map((mode) =>
+      h('button', { type: 'button', class: 'chip', 'aria-pressed': state.modes.includes(mode), onclick: () => {
+        const on = state.modes.includes(mode);
+        const next = on ? state.modes.filter((x) => x !== mode) : MODES.filter((x) => x === mode || state.modes.includes(x));
+        if (next.length) update({ modes: next });
+      } }, MODE_LABEL[mode])));
+  // The header is rendered once, so the chips have to follow state changes themselves.
+  subscribe(() => modes.querySelectorAll('button').forEach((btn, i) => btn.setAttribute('aria-pressed', String(state.modes.includes(MODES[i])))));
   const theme = h('button', { class: 'icon', type: 'button', 'aria-label': '테마 전환', title: '테마 전환', onclick: () => {
     const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
@@ -65,7 +72,7 @@ export function renderHeader(models: Model[], generatedAt: string): HTMLElement 
   return h('header', { class: 'top' },
     h('a', { class: 'brand', href: '#/' }, 'Bedrock ', h('b', null, 'Model Explorer')),
     h('div', { class: 'search' }, input, results),
-    h('div', { class: 'ctrls' }, region, scope, theme),
+    h('div', { class: 'ctrls' }, region, modes, theme),
     h('div', { class: 'stamp' }, `가격 기준 ${generatedAt.slice(0, 10)}`),
   );
 }

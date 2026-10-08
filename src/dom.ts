@@ -8,7 +8,13 @@ export function h<K extends keyof HTMLElementTagNameMap>(
 ): HTMLElementTagNameMap[K] {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(props ?? {})) {
-    if (v === undefined || v === false || v === null) continue;
+    if (v === undefined || v === null) continue;
+    // aria-* attributes carry the literal strings "true"/"false"; only plain boolean attributes (checked, hidden…) are presence-based.
+    if (k.startsWith('aria-')) {
+      el.setAttribute(k, String(v));
+      continue;
+    }
+    if (v === false) continue;
     if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v as EventListener);
     else if (k === 'class') el.className = String(v);
     else el.setAttribute(k, v === true ? '' : String(v));
