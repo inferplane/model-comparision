@@ -50,6 +50,18 @@ export function variants(m: Model, modes: Mode[]): Variant[] {
   return out;
 }
 
+/** A model seen through one price scope; the unit every ranking, table row, and chart point is built from. */
+export interface Row extends Variant {
+  m: Model;
+}
+
+/** Rows for the current mode selection, limited to scopes that have a price in the chosen region when that filter is on. */
+export function variantRows(models: Model[], opts: { region: string; modes: Mode[]; onlyInRegion: boolean }): Row[] {
+  return models
+    .flatMap((m) => variants(m, opts.modes).map((v) => ({ m, ...v })))
+    .filter((r) => !opts.onlyInRegion || r.m.pricing[opts.region]?.[r.scope] !== undefined);
+}
+
 /** Input:output 4:1 weighted price with no cache, the same convention used for quick cost comparisons. */
 export function blended(input?: number, output?: number): number | undefined {
   return input === undefined || output === undefined ? undefined : (input * 4 + output) / 5;

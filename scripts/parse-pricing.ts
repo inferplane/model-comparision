@@ -24,6 +24,7 @@ const BFM_PROVIDERS: [RegExp, string][] = [
   [/^openai|^gpt/i, 'OpenAI'],
   [/^palmyra|^writer/i, 'Writer'],
   [/^deepseek/i, 'DeepSeek'],
+  [/^grok/i, 'xAI'],
   [/^twelvelabs/i, 'TwelveLabs'],
   [/^stability/i, 'Stability AI'],
 ];

@@ -100,6 +100,8 @@ for (const m of models.values()) {
   if (ctx) {
     m.contextWindow = ctx.context;
     m.maxOutput = ctx.maxOutput;
+    m.openWeights = ctx.openWeights;
+    m.reasoning = ctx.reasoning;
     m.modes = ctx.modes;
     m.geoPrefixes = ctx.geoPrefixes;
     if (m.longContext) m.longContext.thresholdTokens = ctx.longContextThreshold;

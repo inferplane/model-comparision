@@ -41,6 +41,9 @@ export interface Model {
   provider: string;
   contextWindow?: number;
   maxOutput?: number;
+  /** From models.dev; undefined when the model is not listed there. */
+  openWeights?: boolean;
+  reasoning?: boolean;
   pricing: PriceTable;
   regions: string[];
   /** Invocation modes seen in models.dev profile ids; undefined when models.dev does not list the model. */

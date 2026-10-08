@@ -3,6 +3,8 @@ import { h } from './dom.ts';
 import { loadData } from './data.ts';
 import { renderHeader } from './components/header.ts';
 import { renderChart } from './views/chart.ts';
+import { renderCompare } from './views/compare.ts';
+import { renderRank } from './views/rank.ts';
 import { renderDetail } from './views/detail.ts';
 import { renderTable } from './views/table.ts';
 import { subscribe } from './state.ts';
@@ -23,7 +25,12 @@ async function start() {
 
   const paint = () => {
     const m = location.hash.match(/^#\/model\/(.+)$/);
-    view.replaceChildren(m ? renderDetail(models, decodeURIComponent(m[1])) : location.hash === '#/chart' ? renderChart(models) : renderTable(models));
+    const page = m ? renderDetail(models, decodeURIComponent(m[1]))
+      : location.hash === '#/chart' ? renderChart(models)
+      : location.hash === '#/rank' ? renderRank(models)
+      : location.hash === '#/compare' ? renderCompare(models)
+      : renderTable(models);
+    view.replaceChildren(page);
   };
   const route = () => {
     paint();

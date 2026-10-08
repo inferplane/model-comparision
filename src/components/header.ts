@@ -16,7 +16,7 @@ export function renderHeader(models: Model[], generatedAt: string): HTMLElement 
     results.replaceChildren();
     const q = input.value.trim();
     // On the list view the table already filters live, so suggestions would only cover it.
-    const onList = location.hash === '' || location.hash === '#/' || location.hash === '#/chart';
+    const onList = !location.hash.startsWith('#/model/');
     if (!q || onList) return close();
     const hits = models.filter((m) => matches(m, q)).slice(0, 8);
     hits.forEach((m, i) =>
@@ -71,9 +71,12 @@ export function renderHeader(models: Model[], generatedAt: string): HTMLElement 
 
   const nav = h('nav', { class: 'nav', 'aria-label': '보기' },
     h('a', { href: '#/', 'data-view': 'table' }, '표'),
-    h('a', { href: '#/chart', 'data-view': 'chart' }, '성능 대비 비용'));
+    h('a', { href: '#/rank', 'data-view': 'rank' }, '순위'),
+    h('a', { href: '#/chart', 'data-view': 'chart' }, '성능 대비 비용'),
+    h('a', { href: '#/compare', 'data-view': 'compare' }, '비교'));
   const markNav = () => {
-    const view = location.hash === '#/chart' ? 'chart' : location.hash.startsWith('#/model/') ? '' : 'table';
+    const hash = location.hash.replace(/^#\//, '');
+    const view = hash.startsWith('model/') ? '' : ['chart', 'rank', 'compare'].includes(hash) ? hash : 'table';
     nav.querySelectorAll('a').forEach((a) => (a.dataset.view === view ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
   };
   markNav();

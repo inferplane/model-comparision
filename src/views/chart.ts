@@ -117,6 +117,14 @@ export function renderChart(models: Model[]): HTMLElement {
       s('text', { x: M.l, y: 10, class: 'axis-title' }, `↑ ${metric.label}`),
     );
 
+    // "Most attractive" quadrant: at or below the median price and in the top quarter of scores. The score median alone would span almost the whole chart because most models score low.
+    const quantile = (v: number[], q: number) => [...v].sort((a, b) => a - b)[Math.min(v.length - 1, Math.floor(v.length * q))];
+    const [qx, qy] = [lx(quantile(xs, 0.5)), ly(quantile(ys, 0.75))];
+    svg.append(
+      s('rect', { x: M.l, y: M.t, width: Math.max(0, qx - M.l), height: Math.max(0, qy - M.t), class: 'quad' }),
+      s('text', { x: M.l + 8, y: M.t + 16, class: 'quad-label' }, '가성비 구간 (가격 중앙값 이하 · 점수 상위 25%)'),
+    );
+
     // Frontier line first so dots sit on top of it.
     // Staircase: at any price the best reachable score is the last frontier point to the left, so step right first, then up.
     if (frontierPts.length > 1) {

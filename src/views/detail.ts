@@ -1,6 +1,6 @@
 import { h } from '../dom.ts';
 import { blended, longPriceOf, MODE_LABEL, MODES, priceOf, tokens, usd } from '../data.ts';
-import { state } from '../state.ts';
+import { MAX_COMPARE, state, toggleCompare } from '../state.ts';
 import type { BenchmarkScores, Model, Scope, Tier, TokenKind } from '../types.ts';
 
 const KINDS: [TokenKind, string][] = [['input', 'Input'], ['output', 'Output'], ['cacheRead', 'Cache read'], ['cacheWrite', 'Cache write'], ['cacheWrite1h', 'Cache write 1h']];
@@ -48,7 +48,9 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
 
   return h('main', { class: 'detail' },
     h('a', { href: '#/' }, '← 전체 목록'),
-    h('h1', null, m.name, h('small', null, m.provider)),
+    h('h1', null, m.name, h('small', null, m.provider),
+      h('button', { type: 'button', class: 'cmp wide', 'aria-pressed': state.compare.includes(m.id), disabled: !state.compare.includes(m.id) && state.compare.length >= MAX_COMPARE, onclick: () => toggleCompare(m.id) },
+        state.compare.includes(m.id) ? '✓ 비교에 담김' : '＋ 비교에 추가')),
     h('div', { class: 'facts' },
       h('div', null, h('span', null, 'Context window'), h('b', null, tokens(m.contextWindow))),
       h('div', null, h('span', null, 'Max output'), h('b', null, tokens(m.maxOutput))),
