@@ -110,11 +110,27 @@ for (const b of benchmarks) {
 }
 const benchmarkBySlug = new Map(benchmarks.map((b) => [b.slug, b]));
 const noBenchmark: string[] = [];
+const tokensOf = (s: string) => new Set(s.toLowerCase().replace(/[()\-_:]/g, ' ').split(/\s+/).filter((t) => t && !NOISE.has(t)));
+// For an unmatched model, the closest Artificial Analysis names by token overlap, so aliases can be written without seeing the raw feed.
+function nearestBenchmarks(name: string): string {
+  const a = tokensOf(name);
+  return benchmarks
+    .map((b) => {
+      const t = tokensOf(b.name);
+      const shared = [...a].filter((x) => t.has(x)).length;
+      return { b, score: shared / (a.size + t.size - shared) };
+    })
+    .filter((x) => x.score >= 0.4)
+    .sort((x, y) => y.score - x.score)
+    .slice(0, 2)
+    .map((x) => `${x.b.slug}`)
+    .join(' | ');
+}
 if (benchmarks.length) {
   for (const m of models.values()) {
     const b = (benchmarkAliases[m.name] && benchmarkBySlug.get(benchmarkAliases[m.name])) || benchmarkByLoose.get(loose(m.name));
     if (b) m.benchmarks = b.scores;
-    else noBenchmark.push(m.name);
+    else noBenchmark.push(`${m.name} -> ${nearestBenchmarks(m.name) || '?'}`);
   }
 }
 
@@ -128,7 +144,7 @@ const withCache = out.filter((m) => m.regions.some((r) => Object.values(m.pricin
 const report = [
   `models: ${out.length}, with context: ${withCtx}, with cache read price: ${withCache}`,
   `no context match (${unmatched.length}): ${unmatched.join(', ')}`,
-  benchmarks.length ? `no benchmark match (${noBenchmark.length}): ${noBenchmark.join(', ')}` : 'benchmarks: skipped (no AA_API_KEY)',
+  benchmarks.length ? `no benchmark match (${noBenchmark.length}), model -> closest AA slugs:\n  ${noBenchmark.join('\n  ')}` : 'benchmarks: skipped (no AA_API_KEY)',
 ].join('\n');
 console.log(report);
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, '```\n' + report + '\n```\n');
