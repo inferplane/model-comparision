@@ -19,6 +19,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # AA_API_KEY is stored as an environment secret, so the job must declare the environment to read it.
+    environment: Analytics
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
