@@ -69,6 +69,9 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
         ? '이 모델은 AWS Price List에 아직 없어, AWS 모델 카드에 적힌 상용 리전 공통 단가를 지원 리전마다 적용했습니다. 리전별로 실제 청구액이 다르면 모델 카드를 확인하세요.'
         : 'AWS Price List에 단가가 없는 일부 리전(예: GovCloud 외 상용 리전)은 AWS 모델 카드의 상용 리전 공통 단가로 보충했습니다.')
       : null,
+    m.copiedGlobalRegions?.length
+      ? h('p', { class: 'note' }, `Global CRIS 단가는 상용 리전에서 모두 같아서(Amazon Nova 제외), 단가가 확인된 리전의 값을 ${m.copiedGlobalRegions.length}개 리전에도 적용했습니다. In-region·Geo CRIS 단가는 리전마다 달라 복사하지 않았습니다.`)
+      : null,
     m.geoPrefixes?.length ? h('p', { class: 'note' }, `Geo CRIS 프로파일: ${m.geoPrefixes.map((x) => x + '.').join(', ')}`) : null,
     availabilitySection(m),
     h('h2', null, '리전별 Standard 단가'),

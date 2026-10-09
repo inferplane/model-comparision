@@ -29,4 +29,4 @@ npm test          # parser unit tests
 
 The workflow `.github/workflows/update-and-deploy.yml` refreshes data daily, commits changes to `public/data/`, and deploys. In the repo settings, set Pages source to "GitHub Actions".
 
-Price List prices vary by region (Nova, and Global CRIS for some models), so a price is never copied from one region to another. Only the model cards' own "Commercial Regions" tables are used to fill regions the Price List lacks, and the detail page says so.
+In-region and Geo CRIS prices differ by region (59 models), so they are never copied between regions. Global CRIS prices are identical in every commercial region except for Amazon Nova (GovCloud is priced separately), so a known Global price is applied to every commercial region the regions page lists Global CRIS for. Regions the Price List lacks are otherwise filled only from the model cards' own "Commercial Regions" tables, and the detail page says so.

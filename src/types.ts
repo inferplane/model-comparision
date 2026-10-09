@@ -53,6 +53,8 @@ export interface Model {
   /** Earliest EOL per region (YYYY-MM-DD) from the regions page. */
   availabilityEol?: Record<string, string>;
   card?: { url: string; lifecycle?: string; launchDate?: string; eolDate?: string };
+  /** Regions whose Global CRIS price was copied from the model's other commercial regions (the price is region-independent). */
+  copiedGlobalRegions?: string[];
   /** Where the prices came from when not the AWS Price List. */
   priceSource?: 'model-card' | 'mixed' | 'override';
   geoPrefixes?: string[];

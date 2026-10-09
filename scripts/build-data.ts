@@ -86,7 +86,9 @@ for (const p of prices) {
   setPrice(table, p.region, p.scope, p.tier, p.kind, p.usdPer1M);
 }
 for (const x of overrides.extraModels ?? []) {
+  const isNew = !models.has(slug(x.name));
   const m = modelFor(x.name, x.provider);
+  if (isNew) m.priceSource = 'override';
   for (const [region, scopes] of Object.entries(x.pricing))
     for (const [scope, kinds] of Object.entries(scopes))
       for (const [kind, usd] of Object.entries(kinds)) setPrice(m.pricing, region, scope as Scope, 'standard', kind as TokenKind, usd);
@@ -198,6 +200,35 @@ for (const m of models.values()) {
   }
 }
 
+// Global CRIS is priced identically in every commercial region (checked against the Price List: only Amazon Nova differs),
+// so a Global price known for one region applies wherever the regions page says Global CRIS works. In-region and Geo prices
+// do differ by region and are never copied. GovCloud has separate, higher prices and is left out of both directions.
+const commercial = (r: string) => !r.startsWith('us-gov');
+for (const m of models.values()) {
+  if (!m.availability || m.provider === 'Amazon') continue;
+  const known = Object.entries(m.pricing).filter(([r, sc]) => commercial(r) && sc.global?.standard?.input !== undefined);
+  const prices = new Set(known.map(([, sc]) => JSON.stringify(sc.global!.standard)));
+  if (!known.length || prices.size !== 1) continue; // nothing to copy, or the model does vary by region
+  const [, source] = known[0];
+  const copied: string[] = [];
+  for (const [region, av] of Object.entries(m.availability)) {
+    if (!commercial(region) || m.pricing[region]?.global?.standard?.input !== undefined) continue;
+    if (!`${av.runtime ?? ''}${av.mantle ?? ''}`.includes('G')) continue;
+    for (const tier of Object.keys(source.global!) as Tier[]) {
+      for (const [kind, v] of Object.entries(source.global![tier]!) as [TokenKind, number][]) setPrice(m.pricing, region, 'global', tier, kind, v);
+    }
+    if (m.longContext && Object.values(m.longContext.pricing).some((sc) => sc.global)) {
+      const longSrc = Object.entries(m.longContext.pricing).find(([r, sc]) => commercial(r) && sc.global)![1].global!;
+      for (const tier of Object.keys(longSrc) as Tier[]) for (const [kind, v] of Object.entries(longSrc[tier]!) as [TokenKind, number][]) setPrice(m.longContext.pricing, region, 'global', tier, kind, v);
+    }
+    copied.push(region);
+  }
+  if (copied.length) {
+    m.copiedGlobalRegions = copied.sort();
+    m.regions = Object.keys(m.pricing).sort();
+  }
+}
+
 // Artificial Analysis slugs are kebab-case and list effort/reasoning variants of one model separately ("kimi-k3", "kimi-k3-low", "claude-opus-5-xhigh").
 // Only these suffixes count as variants: "glm-5-turbo" or "claude-opus-5-5" are different models and must not match "glm-5" / "claude-opus-5".
 const VARIANT = /^(low|medium|high|xhigh|max|reasoning|non-reasoning|thinking|adaptive|instruct)(-(low|medium|high|xhigh|max|reasoning|non-reasoning|thinking|adaptive|instruct))*$/;
@@ -289,6 +320,7 @@ const report = [
   `model cards: ${cards.length} loaded, ${cardOf.size} models matched, ${addedFromCards.length} models added from cards (${addedFromCards.join(', ')}); prices filled from cards for ${filledFromCards.length} Price List models (${filledFromCards.join(', ')}); cards unused: ${cards.filter((c) => !usedCards.has(c)).map((c) => c.title).join(', ') || 'none'}`,
   `card vs models.dev context differences (${contextDiffs.length}): ${contextDiffs.join('; ')}`,
   `no context match (${unmatched.length}): ${unmatched.join(', ')}`,
+  `Global price extended to other commercial regions for ${[...models.values()].filter((m) => m.copiedGlobalRegions).length} models: ${[...models.values()].filter((m) => m.copiedGlobalRegions).map((m) => `${m.name} (+${m.copiedGlobalRegions!.length})`).join(', ')}`,
   `price cross-check vs models.dev (${mismatches.length} mismatches)${mismatches.length ? ':\n  ' + mismatches.join('\n  ') : ''}`,
   benchmarks.length ? `no benchmark match (${noBenchmark.length}), model -> closest AA slugs:\n  ${noBenchmark.join('\n  ')}` : 'benchmarks: skipped (no AA_API_KEY)',
 ].join('\n');
