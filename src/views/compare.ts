@@ -3,6 +3,7 @@ import { matches, variantRows, type Row } from '../data.ts';
 import { METRICS, type Metric } from '../metrics.ts';
 import { MAX_COMPARE, state, toggleCompare } from '../state.ts';
 import type { Model } from '../types.ts';
+import { emptyState, icon, pageHeading } from '../components/ui.ts';
 
 const GROUPS: [string, string[]][] = [
   ['종합 성능', ['intelligence', 'coding', 'math']],
@@ -21,6 +22,7 @@ export function renderCompare(models: Model[]): HTMLElement {
   const all = variantRows(picked, state);
   // Rows keep the model's slot color; a model with two price scopes gets two bars in the same color.
   const cols = picked.flatMap((m, i) => all.filter((r) => r.m.id === m.id).map((r) => ({ r, c: color(i) })));
+  const unavailable = picked.filter((m) => !cols.some((x) => x.r.m.id === m.id));
   const multi = new Set(all.map((r) => r.scope)).size > 1;
   const nameOf = (r: Row) => (multi ? `${r.m.name} · ${r.label}` : r.m.name);
 
@@ -28,19 +30,47 @@ export function renderCompare(models: Model[]): HTMLElement {
     h('span', { class: 'pick' }, h('i', { class: 'sw', style: `background:${color(i)}` }), h('a', { href: `#/model/${m.id}` }, m.name),
       h('button', { type: 'button', 'aria-label': `${m.name} 제거`, onclick: () => toggleCompare(m.id) }, '×'))));
 
-  const results = h('ul', { class: 'suggest static', hidden: true });
-  const input = h('input', { type: 'search', placeholder: state.compare.length >= MAX_COMPARE ? `최대 ${MAX_COMPARE}개까지` : '비교할 모델 검색…', 'aria-label': '비교할 모델 검색', disabled: state.compare.length >= MAX_COMPARE });
+  const results = h('ul', { class: 'suggest static', hidden: true, id: 'compare-results' });
+  const noResults = h('p', { class: 'note compare-search-status', role: 'status', hidden: true }, '검색 결과가 없습니다. 다른 모델 이름이나 제공사를 입력해 보세요.');
+  const input = h('input', { type: 'search', placeholder: state.compare.length >= MAX_COMPARE ? `최대 ${MAX_COMPARE}개까지 선택했습니다` : '비교할 모델을 검색해 추가하세요', 'aria-label': '비교할 모델 검색', 'aria-controls': 'compare-results', 'aria-expanded': false, disabled: state.compare.length >= MAX_COMPARE });
   input.addEventListener('input', () => {
     const q = input.value.trim();
     const hits = q ? models.filter((m) => !state.compare.includes(m.id) && matches(m, q)).slice(0, 8) : [];
-    results.replaceChildren(...hits.map((m) => h('li', null, h('button', { type: 'button', onclick: () => toggleCompare(m.id) }, h('strong', null, m.name), h('span', null, m.provider)))));
+    results.replaceChildren(...hits.map((m) => h('li', null, h('button', { type: 'button', onclick: () => {
+      toggleCompare(m.id);
+      document.querySelector<HTMLInputElement>('[aria-label="비교할 모델 검색"]')?.focus({ preventScroll: true });
+    } }, h('strong', null, m.name), h('span', null, m.provider)))));
     results.hidden = hits.length === 0;
+    noResults.hidden = !q || hits.length > 0;
+    input.setAttribute('aria-expanded', String(hits.length > 0));
   });
-  const adder = h('div', { class: 'adder' }, input, results);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' && !results.hidden) { e.preventDefault(); results.querySelector('button')?.focus(); }
+    if (e.key === 'Escape') { results.hidden = true; input.setAttribute('aria-expanded', 'false'); }
+  });
+  results.addEventListener('keydown', (e) => {
+    const buttons = [...results.querySelectorAll('button')];
+    const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const next = index + (e.key === 'ArrowDown' ? 1 : -1);
+      if (next < 0) input.focus();
+      else buttons[next % buttons.length]?.focus();
+    } else if (e.key === 'Escape') { results.hidden = true; input.setAttribute('aria-expanded', 'false'); input.focus(); }
+  });
+  const adder = h('div', { class: 'adder' }, h('div', { class: 'search' }, icon('search'), input, results), noResults);
+  adder.addEventListener('focusout', (e) => {
+    if (!adder.contains(e.relatedTarget as Node | null)) {
+      results.hidden = true;
+      input.setAttribute('aria-expanded', 'false');
+    }
+  });
 
   if (!picked.length) {
-    return h('main', null, h('h1', { class: 'chart-title' }, '모델 비교'),
-      h('p', { class: 'note' }, '비교할 모델을 최대 6개까지 고르세요. 순위·표·상세 화면의 ＋ 버튼으로도 추가할 수 있습니다.'), adder);
+    return h('main', null,
+      pageHeading('SIDE BY SIDE', '같은 기준으로, 꼼꼼하게 비교하세요', '최대 6개 모델의 성능, 속도, 가격을 나란히 비교할 수 있습니다.'),
+      adder, emptyState('어떤 모델이 더 잘 맞을까요?', '위에서 모델을 검색하거나, 모델 탐색에서 ＋ 버튼을 눌러 비교할 모델을 담아보세요.',
+        h('a', { href: '#/', class: 'button secondary' }, '모델 탐색하기', icon('arrow'))));
   }
 
   const panel = (metric: Metric) => {
@@ -79,7 +109,10 @@ export function renderCompare(models: Model[]): HTMLElement {
       })))));
 
   return h('main', null,
-    h('h1', { class: 'chart-title' }, '모델 비교'),
+    pageHeading('SIDE BY SIDE', '같은 기준으로, 꼼꼼하게 비교하세요', '모델별 색상으로 차이를 살펴보세요. 별표는 해당 지표에서 가장 좋은 값입니다.'),
     h('p', { class: 'note' }, `${state.region} · ${state.tier}. 모델마다 고정된 색을 쓰며, 굵은 값이 그 지표의 최고입니다. 단가는 선택한 추론 방식 기준입니다.`),
-    chips, adder, ...groups, table);
+    chips, adder,
+    !cols.length ? emptyState('현재 조건에서 비교할 데이터가 없습니다', '선택한 모델의 지원 리전과 추론 방식을 확인하고, 상단에서 조건을 바꿔보세요.')
+      : unavailable.length ? h('p', { class: 'note' }, `${unavailable.map((m) => m.name).join(', ')}: 현재 리전과 추론 방식에서 비교할 데이터가 없어 차트에서 제외했습니다.`) : null,
+    ...groups, cols.length ? table : null);
 }

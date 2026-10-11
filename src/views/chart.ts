@@ -2,6 +2,7 @@ import { h, s } from '../dom.ts';
 import { blended, matches, priceOf, usd, variants, tokens } from '../data.ts';
 import { state, update } from '../state.ts';
 import type { BenchmarkScores, Model } from '../types.ts';
+import { emptyState, pageHeading } from '../components/ui.ts';
 
 interface Metric {
   key: keyof BenchmarkScores;
@@ -72,7 +73,10 @@ const fmtY = (v: number, metric: Metric) => (metric.pct ? `${v.toFixed(1)}%` : v
 export function renderChart(models: Model[]): HTMLElement {
   const available = Y_METRICS.filter((mt) => models.filter((m) => m.benchmarks?.[mt.key] !== undefined).length >= 3);
   const metric = available.find((mt) => mt.key === state.chartY) ?? available[0];
-  if (!metric) return h('main', null, h('p', { class: 'note' }, '벤치마크 데이터가 아직 없습니다. 데이터 빌드에 AA_API_KEY가 설정되어야 차트가 표시됩니다.'));
+  if (!metric) return h('main', null,
+    pageHeading('PERFORMANCE & COST', '성능 대비 비용', '성능과 가격 사이에서 서비스에 맞는 균형을 찾아보세요.'),
+    emptyState('벤치마크를 준비하고 있습니다', '아직 비교할 벤치마크 데이터가 없습니다. 모델 탐색에서 가격을 먼저 확인해 보세요.',
+      h('a', { class: 'button secondary', href: '#/' }, '모델 탐색하기')));
 
   const pts = collect(models, metric);
   const host = h('div', { class: 'plot' });
@@ -84,13 +88,16 @@ export function renderChart(models: Model[]): HTMLElement {
 
   function draw() {
     host.querySelector('svg')?.remove();
-    host.querySelectorAll('.note').forEach((n) => n.remove());
-    const W = Math.max(320, host.clientWidth || 900);
+    host.querySelectorAll('.note, .empty-state').forEach((n) => n.remove());
+    const style = getComputedStyle(host);
+    const insetX = parseFloat(style.paddingLeft);
+    const insetY = parseFloat(style.paddingTop);
+    const W = Math.max(240, (host.clientWidth || 900) - insetX - parseFloat(style.paddingRight));
     const H = W < 560 ? 400 : 520;
     const iw = W - M.l - M.r;
     const ih = H - M.t - M.b;
     if (!pts.length) {
-      host.append(h('p', { class: 'note' }, '선택한 설정에서 가격과 벤치마크가 모두 있는 모델이 없습니다.'));
+      host.append(emptyState('차트에 표시할 모델이 없습니다', '다른 리전이나 추론 방식을 선택해 보세요.'));
       return;
     }
     const xs = pts.map((p) => p.x);
@@ -175,13 +182,13 @@ export function renderChart(models: Model[]): HTMLElement {
       );
       tip.hidden = false;
       // Flip to the left/up side near the right/bottom edge so the tooltip stays inside the plot.
-      tip.style.left = `${cx > W * 0.6 ? cx - tip.offsetWidth - 12 : cx + 12}px`;
-      tip.style.top = `${Math.max(0, Math.min(cy - 20, H - tip.offsetHeight - 4))}px`;
+      tip.style.left = `${insetX + Math.max(0, Math.min(cx > W * 0.6 ? cx - tip.offsetWidth - 12 : cx + 12, W - tip.offsetWidth))}px`;
+      tip.style.top = `${insetY + Math.max(0, Math.min(cy - 20, H - tip.offsetHeight - 4))}px`;
     };
     const overlay = s('rect', { x: M.l, y: M.t, width: iw, height: ih, fill: 'transparent', class: 'hitlayer' });
     overlay.addEventListener('pointermove', (e) => {
       const r = svg.getBoundingClientRect();
-      const [px, py] = [e.clientX - r.left, e.clientY - r.top];
+      const [px, py] = [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height];
       let near: Pt | undefined;
       let d = 28 * 28;
       for (const p of pts) {
@@ -225,7 +232,7 @@ export function renderChart(models: Model[]): HTMLElement {
         h('td', null, p.frontier ? '효율 프런티어' : '')))))));
 
   return h('main', null,
-    h('h1', { class: 'chart-title' }, '성능 대비 비용'),
+    pageHeading('PERFORMANCE & COST', '좋은 성능, 합리적인 비용', '차트의 왼쪽 위에 있는 모델일수록 비용은 낮고 성능은 높습니다. 점을 선택해 자세히 살펴보세요.'),
     h('p', { class: 'note' }, `${state.region} · ${state.tier}. 왼쪽 위일수록 싸고 성능이 높습니다. 효율 프런티어는 "더 싸면서 더 높은 점수를 내는 모델이 없는" 모델이며, 선택한 추론 방식이 바뀌면 함께 바뀝니다. 벤치마크: Artificial Analysis(설정 변형이 여럿이면 기본 항목 또는 최고 변형). 점을 클릭하면 상세로 이동합니다.`),
     controls, host, table);
 }
