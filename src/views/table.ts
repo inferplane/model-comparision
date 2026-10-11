@@ -5,6 +5,7 @@ import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { Model, TokenKind } from '../types.ts';
 import { emptyState, icon, pageHeading, type IconName } from '../components/ui.ts';
 import { codingNotice } from '../components/coding-notice.ts';
+import { newBadge } from '../recent.ts';
 
 interface Col {
   key: string;
@@ -101,7 +102,7 @@ export function renderTable(models: Model[]): HTMLElement {
               return h('td', { class: 'name' },
                 h('div', { class: 'model-cell' },
                   h('button', { type: 'button', class: 'cmp mini-btn', 'aria-label': `${r.m.name} 비교 선택`, 'aria-pressed': on, disabled: !on && state.compare.length >= MAX_COMPARE, title: on ? '비교에서 제거' : state.compare.length >= MAX_COMPARE ? `비교는 최대 ${MAX_COMPARE}개` : '비교에 추가', onclick: () => toggleCompare(r.m.id) }, on ? icon('check') : '＋'),
-                  h('a', { href: `#/model/${r.m.id}` }, r.m.name)));
+                  h('a', { href: `#/model/${r.m.id}` }, r.m.name), newBadge(r.m.id)));
             }
             if (c.key === 'provider') return h('td', null, h('span', { class: 'provider-tag' }, r.m.provider));
             const v = c.value(r);

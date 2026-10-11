@@ -1,6 +1,9 @@
 import './styles.css';
 import { h } from './dom.ts';
 import { loadData } from './data.ts';
+import { recentlyAdded } from './changes.ts';
+import { loadChanges, setRecentlyAdded } from './recent.ts';
+import { renderChanges } from './views/changes.ts';
 import { renderHeader } from './components/header.ts';
 import { renderChart } from './views/chart.ts';
 import { renderCompare } from './views/compare.ts';
@@ -27,7 +30,8 @@ app.replaceChildren(h('main', { class: 'loading-state', role: 'status' },
   h('div', { class: 'loading-line' })));
 
 async function start() {
-  const { models, generatedAt } = await loadData();
+  const [{ models, generatedAt }, changes] = await Promise.all([loadData(), loadChanges()]);
+  setRecentlyAdded(recentlyAdded(changes.entries, new Date().toISOString().slice(0, 10)));
   // A shared link may name a region or provider this dataset doesn't have (typo, or removed since); fall back instead of showing an empty page.
   if (!allRegions(models).includes(state.region)) update({ region: DEFAULT_REGION });
   if (state.provider && !models.some((m) => m.provider === state.provider)) update({ provider: '' });
@@ -47,6 +51,7 @@ async function start() {
       : location.hash === '#/chart' ? renderChart(models)
       : location.hash === '#/rank' ? renderRank(models)
       : location.hash === '#/compare' ? renderCompare(models)
+      : location.hash === '#/changes' ? renderChanges(models, changes)
       : renderTable(models);
     view.replaceChildren(page);
   };

@@ -6,6 +6,7 @@ import type { Model } from '../types.ts';
 import { emptyState, icon, pageHeading } from '../components/ui.ts';
 import { rankModelRows } from '../ranking.ts';
 import { codingNotice } from '../components/coding-notice.ts';
+import { newBadge } from '../recent.ts';
 
 const TABS: [string, string][] = [
   ['intelligence', '지능'], ['coding', 'Coding Index'], ['scicode', 'SciCode'], ['math', '수학'], ['speed', '속도'], ['ttft', '지연'], ['price', '가격'], ['context', 'Context'],
@@ -33,6 +34,7 @@ function identity(r: Row, multiScope: boolean): HTMLElement {
     h('a', { href: `#/model/${r.m.id}`, class: 'nm' }, r.m.name),
     h('span', { class: 'sub' },
       r.m.provider,
+      newBadge(r.m.id),
       multiScope ? ` · ${r.label}${r.inferred ? '?' : ''}` : null,
       r.m.openWeights ? h('em', { class: 'badge' }, '오픈 웨이트') : null,
       r.m.reasoning ? h('em', { class: 'badge alt' }, '추론') : null,

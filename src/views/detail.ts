@@ -3,6 +3,7 @@ import { blended, longPriceOf, MODE_LABEL, MODES, priceOf, supports, tokens, usd
 import { MAX_COMPARE, state, toggleCompare } from '../state.ts';
 import type { BenchmarkScores, Model, Scope, Tier, TokenKind } from '../types.ts';
 import { codingNotice } from '../components/coding-notice.ts';
+import { newBadge } from '../recent.ts';
 
 const KINDS: [TokenKind, string][] = [['input', 'Input'], ['output', 'Output'], ['cacheRead', 'Cache read'], ['cacheWrite', 'Cache write'], ['cacheWrite1h', 'Cache write 1h']];
 const TIERS: Tier[] = ['standard', 'batch', 'priority', 'flex'];
@@ -49,7 +50,7 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
 
   return h('main', { class: 'detail' },
     h('a', { href: '#/' }, '← 전체 목록'),
-    h('h1', null, m.name, h('small', null, m.provider),
+    h('h1', null, m.name, h('small', null, m.provider), newBadge(m.id),
       h('button', { type: 'button', class: 'cmp wide', 'aria-label': `${m.name} 비교 선택`, 'aria-pressed': state.compare.includes(m.id), disabled: !state.compare.includes(m.id) && state.compare.length >= MAX_COMPARE, onclick: () => toggleCompare(m.id) },
         state.compare.includes(m.id) ? '✓ 비교에 담김' : '＋ 비교에 추가'),
       m.card ? h('a', { class: 'cardlink', href: m.card.url, rel: 'noopener' }, 'AWS 모델 카드 ↗') : null),

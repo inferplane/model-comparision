@@ -106,13 +106,16 @@ export function renderHeader(models: Model[], generatedAt: string): HTMLElement 
   const navItems: [string, IconName, string, string][] = [
     ['#/', 'table', '모델 탐색', 'table'], ['#/rank', 'rank', '모델 순위', 'rank'],
     ['#/chart', 'chart', '성능 대비 비용', 'chart'], ['#/compare', 'compare', '모델 비교', 'compare'],
+    ['#/changes', 'history', '변경 내역', 'changes'],
   ];
   const nav = h('nav', { class: 'nav', 'aria-label': '보기' },
     ...navItems.map(([href, glyph, label, view]) => h('a', { href, 'data-view': view }, icon(glyph), label, view === 'compare' ? compareCount : null)));
   const markNav = () => {
     const hash = location.hash.replace(/^#\//, '');
-    const view = hash.startsWith('model/') ? '' : ['chart', 'rank', 'compare'].includes(hash) ? hash : 'table';
+    const view = hash.startsWith('model/') ? '' : ['chart', 'rank', 'compare', 'changes'].includes(hash) ? hash : 'table';
     nav.querySelectorAll('a').forEach((a) => (a.dataset.view === view ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
+    // On narrow screens the nav scrolls sideways; keep the current view's tab in sight.
+    nav.querySelector<HTMLElement>('a[aria-current="page"]')?.scrollIntoView({ inline: 'center', block: 'nearest' });
   };
   markNav();
   window.addEventListener('hashchange', markNav);
