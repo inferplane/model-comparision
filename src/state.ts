@@ -1,5 +1,6 @@
 import type { Mode, Tier } from './types.ts';
 import { parseParams, sanitizeStored, serializeParams } from './urlstate.ts';
+import type { ValueOrder, ValueQuality } from './value.ts';
 
 export interface State {
   query: string;
@@ -18,10 +19,13 @@ export interface State {
   compare: string[];
   expandCols: boolean;
   chartX: 'blend' | 'input' | 'output';
+  chartQuality: ValueQuality;
+  chartBudget: number;
+  chartOrder: ValueOrder;
 }
 
 const KEY = 'bme-prefs';
-const defaults: State = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
+const defaults: State = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', chartQuality: 'balanced', chartBudget: 0, chartOrder: 'value', rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
 
 function load(): State {
   // A shared link reproduces its view exactly: when the URL carries any filter, personal saved preferences are ignored,

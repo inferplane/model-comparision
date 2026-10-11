@@ -1,9 +1,10 @@
 import { h } from '../dom.ts';
-import { matches, usd, variantRows, type Row } from '../data.ts';
+import { matches, MODES, supports, usd, variantRows, type Row } from '../data.ts';
 import { leader, METRICS, metricFor, type Metric } from '../metrics.ts';
 import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { Model } from '../types.ts';
-import { emptyState, pageHeading } from '../components/ui.ts';
+import { emptyState, icon, pageHeading } from '../components/ui.ts';
+import { rankModelRows } from '../ranking.ts';
 
 const TABS: [string, string][] = [
   ['intelligence', '지능'], ['coding', '코딩'], ['math', '수학'], ['speed', '속도'], ['ttft', '지연'], ['price', '가격'], ['context', 'Context'],
@@ -33,7 +34,8 @@ function identity(r: Row, multiScope: boolean): HTMLElement {
       r.m.provider,
       multiScope ? ` · ${r.label}${r.inferred ? '?' : ''}` : null,
       r.m.openWeights ? h('em', { class: 'badge' }, '오픈 웨이트') : null,
-      r.m.reasoning ? h('em', { class: 'badge alt' }, '추론') : null));
+      r.m.reasoning ? h('em', { class: 'badge alt' }, '추론') : null,
+      r.m.benchmarkSource?.kind === 'public-page' ? h('a', { class: 'value-source', href: r.m.benchmarkSource.url, title: `Artificial Analysis 공개 측정값 · ${r.m.benchmarkSource.name} · 확인일 ${r.m.benchmarkSource.verifiedAt}`, rel: 'noopener' }, '공개 측정값 ↗') : null));
 }
 
 const cmpButton = (m: Model) =>
@@ -41,8 +43,7 @@ const cmpButton = (m: Model) =>
     onclick: () => toggleCompare(m.id) }, state.compare.includes(m.id) ? '✓' : '＋');
 
 function singleBars(rows: Row[], metric: Metric): HTMLElement {
-  const data = rows.map((r) => ({ r, v: metric.value(r) })).filter((x): x is { r: Row; v: number } => x.v !== undefined)
-    .sort((a, b) => (metric.higherBetter ? b.v - a.v : a.v - b.v) || a.r.m.name.localeCompare(b.r.m.name));
+  const data = rankModelRows(rows, metric, state);
   const shown = state.rankTop ? data.slice(0, state.rankTop) : data;
   const max = Math.max(...shown.map((x) => x.v), 0) || 1;
   const multi = new Set(state.modes.map((m) => (m === 'global' ? 'g' : 'r'))).size > 1;
@@ -61,7 +62,7 @@ function singleBars(rows: Row[], metric: Metric): HTMLElement {
 
 function priceBars(rows: Row[]): HTMLElement {
   const blend = METRICS.blend;
-  const data = rows.map((r) => ({ r, b: blend.value(r) })).filter((x): x is { r: Row; b: number } => x.b !== undefined).sort((a, b) => a.b - b.b || a.r.m.name.localeCompare(b.r.m.name));
+  const data = rankModelRows(rows, blend, state).map(({ r, v }) => ({ r, b: v }));
   const shown = state.rankTop ? data.slice(0, state.rankTop) : data;
   const max = Math.max(...shown.flatMap((x) => PRICE_SERIES.map(([k]) => METRICS[k].value(x.r) ?? 0)), 0) || 1;
   const multi = new Set(state.modes.map((m) => (m === 'global' ? 'g' : 'r'))).size > 1;
@@ -97,6 +98,13 @@ export function renderRank(models: Model[]): HTMLElement {
   const rows = filtered(models);
   const isPrice = state.rankMetric === 'price';
   const metric = metricFor(state.rankMetric);
+  const known = models.filter((m) => (!state.query || matches(m, state.query)) && (!state.provider || m.provider === state.provider)
+    && (!state.weights || m.openWeights === (state.weights === 'open')) && (!state.reasoning || m.reasoning === (state.reasoning === 'yes')));
+  const eligibleIds = new Set(rows.map((r) => r.m.id));
+  const unavailable = known.filter((m) => !eligibleIds.has(m.id));
+  const scoredIds = new Set(rows.filter((r) => (isPrice ? METRICS.blend : metric).value(r) !== undefined).map((r) => r.m.id));
+  const unscored = [...new Map(rows.filter((r) => !scoredIds.has(r.m.id)).map((r) => [r.m.id, r.m])).values()];
+  const globalAvailable = !state.modes.includes('global') && unavailable.some((m) => supports(m, 'global', state.region).ok);
   const providers = [...new Set(models.map((m) => m.provider))].sort();
   const sel = (label: string, opts: [string, string][], value: string, on: (v: string) => void) =>
     h('label', null, label, ' ', h('select', { 'aria-label': label, onchange: (e: Event) => on((e.target as HTMLSelectElement).value) }, ...opts.map(([v, t]) => h('option', { value: v, selected: v === value }, t))));
@@ -121,6 +129,15 @@ export function renderRank(models: Model[]): HTMLElement {
     sel('가중치', [['', '전체'], ['open', '오픈 웨이트'], ['closed', '독점']], state.weights, (v) => update({ weights: v as 'open' })),
     sel('추론', [['', '전체'], ['yes', '추론 모델'], ['no', '비추론']], state.reasoning, (v) => update({ reasoning: v as 'yes' })),
     sel('표시', TOPS.map((n): [string, string] => [String(n), n ? `상위 ${n}` : '전체']), String(state.rankTop), (v) => update({ rankTop: Number(v) })));
+  const coverage = unscored.length || unavailable.length ? h('details', { class: 'rank-coverage', open: !!state.query },
+    h('summary', null, icon('info'), `순위에 안 보이는 모델이 있나요? ${unscored.length}개는 ${isPrice ? '단가' : '측정값'} 미확인 · ${unavailable.length}개는 리전·추론 조건에서 제외`),
+    unscored.length ? h('div', { class: 'coverage-group' }, h('strong', null, `${isPrice ? '단가' : metric.label} 미확인`),
+      h('p', null, '값이 없는 모델은 순위를 매기지 않습니다. 다른 지표나 모델 상세에서 확인해 보세요.'),
+      h('div', { class: 'coverage-models' }, ...unscored.map((m) => h('a', { href: `#/model/${m.id}` }, m.name)))) : null,
+    unavailable.length ? h('div', { class: 'coverage-group' }, h('strong', null, '현재 리전·추론 방식에서 제외'),
+      h('p', null, `${state.region}에서 선택한 추론 방식과 단가 조건을 만족하지 않습니다.`, globalAvailable ? ' Global CRIS로 호출 가능한 모델이 있습니다.' : ''),
+      globalAvailable ? h('button', { type: 'button', class: 'button secondary', onclick: () => update({ modes: MODES.filter((mode) => mode === 'global' || state.modes.includes(mode)) }) }, 'Global CRIS 포함해서 보기') : null,
+      h('div', { class: 'coverage-models' }, ...unavailable.map((m) => h('a', { href: `#/model/${m.id}` }, m.name)))) : null) : null;
 
   return h('main', null,
     pageHeading('MODEL LEADERBOARD', '기준을 바꾸면, 최고의 모델도 달라집니다', '지능부터 속도와 가격까지, 서비스에 중요한 지표로 모델의 순위를 확인하세요.'),
@@ -128,6 +145,9 @@ export function renderRank(models: Model[]): HTMLElement {
     highlights(rows), tabs,
     h('p', { class: 'note' }, isPrice ? 'USD / 1M tokens. 막대 색은 Input · Output · Cache read입니다.' : metric.hint),
     filters,
+    h('p', { class: 'rank-limit-note' }, `${state.rankTop ? `상위 ${state.rankTop}개 모델` : '전체 모델'}을 표시합니다. 모델당 한 행이며, 여러 추론 범위를 선택하면 확인된 혼합 단가가 가장 낮은 범위를 사용합니다. `,
+      state.rankTop ? h('button', { type: 'button', class: 'text-button', onclick: () => update({ rankTop: 0 }) }, '전체 순위 보기') : null),
     h('div', { id: 'rank-panel', role: 'tabpanel', 'aria-labelledby': TABS.some(([key]) => key === state.rankMetric) ? `rank-tab-${state.rankMetric}` : undefined, 'aria-label': TABS.some(([key]) => key === state.rankMetric) ? undefined : `${metric.label} 순위` }, isPrice ? priceBars(rows) : singleBars(rows, metric)),
+    coverage,
     state.compare.length ? h('p', { class: 'note' }, h('a', { href: '#/compare' }, `선택한 ${state.compare.length}개 모델 비교하기 →`)) : null);
 }

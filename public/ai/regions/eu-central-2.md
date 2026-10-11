@@ -9,7 +9,7 @@ Generated 2026-10-11 from the AWS Price List, AWS Bedrock model cards, and Artif
 - "Regional" price = In-region and Geo CRIS (AWS prices them the same here). "Global" price = Global CRIS, usually about 10% cheaper.
 - "yes?" means availability is inferred (no AWS model card matched), not confirmed.
 - Long-context: when a prompt exceeds the threshold (e.g. >272K tokens) the whole request is billed at the long-context price instead.
-- Intelligence / Coding are Artificial Analysis indices (0-100, higher is better); tok/s is median output speed. Missing for models Artificial Analysis does not cover.
+- Intelligence / Coding are Artificial Analysis indices (higher is better); tok/s is median output speed. Missing for models Artificial Analysis does not cover. Public-page measurement fallbacks include their source and verification date in models.json.
 - In-region and Geo prices differ by Region; Global CRIS prices are the same in every commercial Region (except Amazon Nova).
 - 4:1 blended price = (4 x input + output) / 5, ignoring caching.
 
@@ -19,6 +19,7 @@ Generated 2026-10-11 from the AWS Price List, AWS Bedrock model cards, and Artif
 - Claude Sonnet 5.5 (Anthropic): Intelligence 56.0, cheapest 4:1 blended $3.60 per 1M tokens
 - Claude Fable 5.1 (Anthropic): Intelligence 53.4, cheapest 4:1 blended $18.00 per 1M tokens
 - OpenAI GPT-6 Astra (OpenAI): Intelligence 52.7, cheapest 4:1 blended $18.00 per 1M tokens
+- GPT-6.1 Sol (OpenAI): Intelligence 51.8, cheapest 4:1 blended $3.60 per 1M tokens
 - Claude Opus 5 (Anthropic): Intelligence 50.8, cheapest 4:1 blended $9.00 per 1M tokens
 - Claude Fable 5 (Anthropic): Intelligence 49.6, cheapest 4:1 blended $18.00 per 1M tokens
 - GPT-6 Sol (OpenAI): Intelligence 47.6, cheapest 4:1 blended $3.60 per 1M tokens
@@ -26,7 +27,6 @@ Generated 2026-10-11 from the AWS Price List, AWS Bedrock model cards, and Artif
 - GLM 5.3 (Z AI): Intelligence 44.8, cheapest 4:1 blended $2.40 per 1M tokens
 - Grok 4.6 (xAI): Intelligence 44.3, cheapest 4:1 blended $2.80 per 1M tokens
 - Kimi K3 (Moonshot AI): Intelligence 43.6, cheapest 4:1 blended $5.40 per 1M tokens
-- Claude Haiku 5.5 (Anthropic): Intelligence 43.4, cheapest 4:1 blended $0.18 per 1M tokens
 
 ## Cost/performance frontier in eu-central-2
 
@@ -98,7 +98,7 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | GPT-5.6 Terra | OpenAI | no | no | yes | 1.05M | 128K | 42.1 | 76.7 | 117 | - | - | $2.00 / $12.00 | $0.20 / $2.50 | >272K global $4.00 / $18.00 | - |
 | GPT-6 Luna [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 38.1 | - | 138 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >272K global $0.20 / $0.75 | - |
 | GPT-6 Sol [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 47.6 | - | - | - | - | $2.00 / $10.00 | $0.20 / $2.50 | >272K global $4.00 / $15.00 | - |
-| GPT-6.1 Sol [price: model card] | OpenAI | no | no | yes | 1M | 131K | - | - | - | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
+| GPT-6.1 Sol [price: model card] | OpenAI | no | no | yes | 1M | 131K | 51.8 | - | 63 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
 | OpenAI GPT-6 Astra | OpenAI | no | no | yes | 1.05M | 128K | 52.7 | 76.9 | 51 | - | - | $10.00 / $50.00 | $1.00 / $12.50 | >272K global $20.00 / $75.00 | - |
 | TwelveLabs Pegasus 1.2 | TwelveLabs | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - / $7.50 | - | - / $7.50 | - | - | - |
 | TwelveLabs Pegasus 1.5 | TwelveLabs | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - / $7.50 | - | - | - |

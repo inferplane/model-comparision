@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { METRICS, metricFor } from './metrics.ts';
 import { parseParams, RANK_METRICS, sanitizeStored, serializeParams, type UrlState } from './urlstate.ts';
 
-const defaults: UrlState = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
+const defaults: UrlState = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', chartQuality: 'balanced', chartBudget: 0, chartOrder: 'value', rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
 
 describe('serializeParams', () => {
   it('leaves the default view with a clean URL', () => {
@@ -15,6 +15,20 @@ describe('serializeParams', () => {
 });
 
 describe('parseParams', () => {
+  it('preserves cost-performance requirements in shared views', () => {
+    const view: UrlState = { ...defaults, chartQuality: 'strong', chartBudget: 1.25, chartOrder: 'price' };
+    expect({ ...defaults, ...parseParams(serializeParams(view, defaults)) }).toEqual(view);
+  });
+  it('rejects invalid budgets, quality floors and ranking modes', () => {
+    for (const budget of ['-1', 'NaN', 'Infinity', '1e9', '1000001', '']) expect(parseParams(`budget=${budget}`)).toEqual({});
+    expect(parseParams('quality=constructor&order=toString')).toEqual({});
+    expect(parseParams('budget=0.125&quality=all&order=score')).toEqual({ chartBudget: 0.125, chartQuality: 'all', chartOrder: 'score' });
+  });
+  it('round-trips the full allowed budget range including high-precision values', () => {
+    for (const chartBudget of [1_000_000, 0.0000001, 1.123456789]) {
+      expect({ ...defaults, ...parseParams(serializeParams({ ...defaults, chartBudget }, defaults)) }.chartBudget).toBe(chartBudget);
+    }
+  });
   it('round-trips a non-default state', () => {
     const s: UrlState = { ...defaults, query: 'gpt', region: 'eu-west-2', modes: ['in-region', 'global'], tier: 'flex', provider: 'OpenAI', onlyCache: true, onlyInRegion: false, expandCols: true, sort: { key: 'ai', dir: -1 }, weights: 'open', reasoning: 'yes', rankMetric: 'speed', rankTop: 0, chartY: 'codingIndex', chartX: 'output', compare: ['claude-opus-5.5', 'gpt-6.1-sol'] };
     expect({ ...defaults, ...parseParams(serializeParams(s, defaults)) }).toEqual(s);

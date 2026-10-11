@@ -1,4 +1,5 @@
 import type { Mode, Tier } from './types.ts';
+import type { ValueOrder, ValueQuality } from './value.ts';
 
 /** The filter state that lives in the URL query string so a view can be shared (region, modes, filters, sort, compare set). */
 export interface UrlState {
@@ -12,6 +13,9 @@ export interface UrlState {
   sort: { key: string; dir: 1 | -1 };
   chartY: string;
   chartX: 'blend' | 'input' | 'output';
+  chartQuality: ValueQuality;
+  chartBudget: number;
+  chartOrder: ValueOrder;
   rankMetric: string;
   rankTop: number;
   weights: '' | 'open' | 'closed';
@@ -65,6 +69,12 @@ export function parseParams(search: string): Partial<UrlState> {
   if (cy && WORD.test(cy) && CHART_Y.includes(cy)) out.chartY = cy;
   const cx = p.get('cx');
   if (cx === 'blend' || cx === 'input' || cx === 'output') out.chartX = cx;
+  const quality = p.get('quality');
+  if (quality === 'all' || quality === 'balanced' || quality === 'strong' || quality === 'best') out.chartQuality = quality;
+  const budget = p.get('budget');
+  if (budget && /^\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i.test(budget) && Number.isFinite(Number(budget)) && Number(budget) <= 1_000_000) out.chartBudget = Number(budget);
+  const order = p.get('order');
+  if (order === 'value' || order === 'price' || order === 'score') out.chartOrder = order;
   const compare = (p.get('compare') ?? '').split(',').filter((id) => ID.test(id));
   if (compare.length) out.compare = [...new Set(compare)].slice(0, MAX_COMPARE_IDS);
   return out;
@@ -88,6 +98,9 @@ export function serializeParams(s: UrlState, defaults: UrlState): string {
   if (s.rankTop !== defaults.rankTop) p.set('top', String(s.rankTop));
   if (s.chartY !== defaults.chartY) p.set('cy', s.chartY);
   if (s.chartX !== defaults.chartX) p.set('cx', s.chartX);
+  if (s.chartQuality !== defaults.chartQuality) p.set('quality', s.chartQuality);
+  if (s.chartBudget !== defaults.chartBudget) p.set('budget', String(s.chartBudget));
+  if (s.chartOrder !== defaults.chartOrder) p.set('order', s.chartOrder);
   if (s.compare.length) p.set('compare', s.compare.join(','));
   return p.toString();
 }

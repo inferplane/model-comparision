@@ -100,5 +100,7 @@ export function allRegions(models: Model[]): string[] {
 export function matches(m: Model, q: string): boolean {
   const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
   const hay = `${m.name} ${m.provider} ${m.id}`.toLowerCase();
-  return terms.every((t) => hay.includes(t));
+  const compact = (s: string) => s.replace(/[^\p{L}\p{N}]/gu, '');
+  const key = compact(hay);
+  return terms.every((t) => hay.includes(t) || !!compact(t) && key.includes(compact(t)));
 }
