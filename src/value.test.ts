@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { matches } from './data.ts';
-import { collectValuePoints, filterValuePoints, rankValuePoints } from './value.ts';
+import { collectValuePoints, filterValuePoints, isRecentModel, launchTime, rankValuePoints, valueExclusions } from './value.ts';
 import type { Model } from './types.ts';
 
 const model = (id: string, score: number | undefined, price: number): Model => ({
@@ -62,5 +62,61 @@ describe('model search spelling', () => {
   it('does not match a different version or punctuation-only terms as arbitrary models', () => {
     expect(matches(sol, 'gpt-5-1-sol')).toBe(false);
     expect(matches(sol, '!!!')).toBe(false);
+  });
+});
+
+describe('verified recent launches', () => {
+  const now = Date.UTC(2026, 9, 11, 23, 59);
+  const launched = (date?: string): Model => ({ ...model('recent', 52, 3), card: date ? { url: 'https://example.com/card', launchDate: date } : undefined });
+  it('recognizes actual AWS English and ISO dates without relying on locale parsing', () => {
+    expect(launchTime(launched('September 28, 2026'))).toBe(Date.UTC(2026, 8, 28));
+    expect(launchTime(launched('2026-10-07'))).toBe(Date.UTC(2026, 9, 7));
+  });
+  it('keeps exactly 60 UTC calendar days and excludes future dates', () => {
+    expect(isRecentModel(launched('2026-08-13'), now)).toBe(true);
+    expect(isRecentModel(launched('2026-08-12'), now)).toBe(false);
+    expect(isRecentModel(launched('2026-10-11'), now)).toBe(true);
+    expect(isRecentModel(launched('2026-10-12'), now)).toBe(false);
+  });
+  it('does not turn a newly observed old model or an invalid date into a recent release', () => {
+    expect(isRecentModel(launched(), now)).toBe(false);
+    expect(isRecentModel(launched('June 1, 2025'), now)).toBe(false);
+    expect(launchTime(launched('February 31, 2026'))).toBeUndefined();
+    expect(launchTime(launched('unknown'))).toBeUndefined();
+  });
+});
+
+describe('why a model is excluded', () => {
+  it('separates region/mode exclusions from missing scores and pricing', () => {
+    const global = model('sonnet-5.5', 56, 3);
+    global.availability = { 'us-east-1': { runtime: 'G' } };
+    const missing = model('unmeasured', undefined, 2);
+    const unpriced = model('no-price', 50, 2);
+    unpriced.pricing = {};
+    expect(valueExclusions([global, missing, unpriced], opts, 60, 'all', 0).map((e) => [e.m.id, e.reason])).toEqual([
+      ['sonnet-5.5', 'inference'], ['unmeasured', 'benchmark'], ['no-price', 'price'],
+    ]);
+  });
+  it('explains provider and cache requirements without replacing actual data', () => {
+    const vendor = { ...model('other-provider', 52, 3), provider: 'Other' };
+    const noCache = model('no-cache', 52, 3);
+    expect(valueExclusions([vendor, noCache], { ...opts, provider: 'Example', onlyCache: true }, 60, 'all', 0).map((e) => e.reason)).toEqual(['provider', 'cache']);
+  });
+  it('identifies performance and unit-price requirements separately', () => {
+    const low = model('gpt-6-luna', 38.1, 0.18);
+    const expensive = model('grok-4.7', 46.4, 3.08);
+    expect(valueExclusions([low, expensive], opts, 57.6, 'strong', 3).map((e) => [e.m.id, e.reason])).toEqual([
+      ['gpt-6-luna', 'quality'], ['grok-4.7', 'budget'],
+    ]);
+  });
+  it('uses the exact threshold rather than a rounded display value at the boundary', () => {
+    const sol = model('gpt-6.1-sol', 51.8, 3.6);
+    expect(valueExclusions([sol], opts, 57.6, 'best', 0)[0]).toMatchObject({ reason: 'quality', score: 51.8 });
+  });
+  it('does not say a model is excluded when any selected price scope meets the budget', () => {
+    const grok = model('grok-4.7', 46.4, 3.08);
+    grok.modes = ['in-region', 'global'];
+    grok.pricing['us-east-1'].global = { standard: { input: 2.8, output: 2.8 } };
+    expect(valueExclusions([grok], { ...opts, modes: ['in-region', 'global'] }, 60, 'all', 3)).toEqual([]);
   });
 });

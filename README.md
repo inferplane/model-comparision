@@ -43,6 +43,8 @@ Filters live in the URL query string and the page (table, ranking, chart, compar
 
 The cost-performance view starts with a numerical ranking and candidates for highest score per dollar, lowest price and highest score. `quality=all|balanced|strong|best` sets the minimum score to 0/50/75/90% of the best measured score for the selected region, modes and tier. The default is `balanced`; the baseline stays fixed while search, provider or budget changes. `budget=<USD per 1M tokens>` sets an inclusive maximum unit price, and `order=value|price|score` controls ranking. The optional scatterplot remains available below the table. Score divided by unit price is a comparison aid within the selected benchmark, not a prediction of task success.
 
+`latest=1` restricts cost-performance candidates to models with an AWS card launch date within the last 60 UTC calendar days; missing launch dates and future releases are excluded. `firstSeen` is never treated as a release date. The “최신 모델 보기” preset keeps the region and selects all inference modes, standard-tier mixed pricing and Intelligence Index, while clearing provider/search/cache/performance/budget filters. Excluded models are grouped with explicit reasons and actions so a Global-only model, a missing benchmark or a saved budget does not look like a data omission.
+
 ## Daily pipeline
 
 `.github/workflows/update-and-deploy.yml` runs every day (and on every push, or manually), refreshes the data, commits it, and deploys.

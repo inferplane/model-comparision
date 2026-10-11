@@ -16,6 +16,7 @@ export interface UrlState {
   chartQuality: ValueQuality;
   chartBudget: number;
   chartOrder: ValueOrder;
+  chartLatest: boolean;
   rankMetric: string;
   rankTop: number;
   weights: '' | 'open' | 'closed';
@@ -75,6 +76,7 @@ export function parseParams(search: string): Partial<UrlState> {
   if (budget && /^\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i.test(budget) && Number.isFinite(Number(budget)) && Number(budget) <= 1_000_000) out.chartBudget = Number(budget);
   const order = p.get('order');
   if (order === 'value' || order === 'price' || order === 'score') out.chartOrder = order;
+  if (p.get('latest') === '1') out.chartLatest = true;
   const compare = (p.get('compare') ?? '').split(',').filter((id) => ID.test(id));
   if (compare.length) out.compare = [...new Set(compare)].slice(0, MAX_COMPARE_IDS);
   return out;
@@ -101,6 +103,7 @@ export function serializeParams(s: UrlState, defaults: UrlState): string {
   if (s.chartQuality !== defaults.chartQuality) p.set('quality', s.chartQuality);
   if (s.chartBudget !== defaults.chartBudget) p.set('budget', String(s.chartBudget));
   if (s.chartOrder !== defaults.chartOrder) p.set('order', s.chartOrder);
+  if (s.chartLatest) p.set('latest', '1');
   if (s.compare.length) p.set('compare', s.compare.join(','));
   return p.toString();
 }

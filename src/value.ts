@@ -17,7 +17,7 @@ export interface ValuePoint {
   frontier: boolean;
 }
 
-interface ValueOptions {
+export interface ValueOptions {
   region: string;
   modes: Mode[];
   tier: Tier;
@@ -27,6 +27,54 @@ interface ValueOptions {
   query?: string;
   provider?: string;
   onlyCache?: boolean;
+}
+
+const DAY = 86_400_000;
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+
+/** AWS card dates only; firstSeen is a catalogue observation date, not a release date. */
+export function launchTime(model: Model): number | undefined {
+  const value = model.card?.launchDate?.trim();
+  if (!value) return undefined;
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  const english = /^([a-z]+)\s+(\d{1,2}),?\s+(\d{4})$/i.exec(value);
+  const year = iso ? Number(iso[1]) : english ? Number(english[3]) : NaN;
+  const month = iso ? Number(iso[2]) - 1 : english ? MONTHS.indexOf(english[1].toLowerCase()) : -1;
+  const day = iso ? Number(iso[3]) : english ? Number(english[2]) : NaN;
+  if (!Number.isFinite(year) || month < 0 || month > 11 || !Number.isFinite(day)) return undefined;
+  const time = Date.UTC(year, month, day);
+  const date = new Date(time);
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month && date.getUTCDate() === day ? time : undefined;
+}
+
+export function isRecentModel(model: Model, now = Date.now()): boolean {
+  const time = launchTime(model);
+  if (time === undefined) return false;
+  const age = Math.floor(now / DAY) - Math.floor(time / DAY);
+  return age >= 0 && age < 60;
+}
+
+export type ExclusionReason = 'provider' | 'inference' | 'benchmark' | 'price' | 'cache' | 'quality' | 'budget';
+export interface ValueExclusion { m: Model; reason: ExclusionReason; score?: number; price?: number; }
+
+/** One actionable primary reason per model, using exactly the same points/constraints as the visible table. */
+export function valueExclusions(models: Model[], opts: ValueOptions, maxScore: number, quality: ValueQuality, budget: number): ValueExclusion[] {
+  const excluded: ValueExclusion[] = [];
+  for (const m of models) {
+    if (opts.query && !matches(m, opts.query)) continue;
+    if (opts.provider && m.provider !== opts.provider) { excluded.push({ m, reason: 'provider' }); continue; }
+    if (!variants(m, opts.modes, opts.region).length) { excluded.push({ m, reason: 'inference' }); continue; }
+    const score = m.benchmarks?.[opts.chartY];
+    if (score === undefined || !Number.isFinite(score) || score < 0 || opts.pct && score > 1) { excluded.push({ m, reason: 'benchmark' }); continue; }
+    const priced = collectValuePoints([m], { ...opts, query: '', provider: '', onlyCache: false });
+    if (!priced.length) { excluded.push({ m, reason: 'price' }); continue; }
+    const cached = opts.onlyCache ? collectValuePoints([m], { ...opts, query: '', provider: '' }) : priced;
+    if (!cached.length) { excluded.push({ m, reason: 'cache' }); continue; }
+    const scoreOK = filterValuePoints(cached, maxScore, quality, 0);
+    if (!scoreOK.length) { excluded.push({ m, reason: 'quality', score: cached[0].y }); continue; }
+    if (budget && scoreOK.every((p) => p.x > budget)) excluded.push({ m, reason: 'budget', price: Math.min(...scoreOK.map((p) => p.x)) });
+  }
+  return excluded;
 }
 
 /** Each point is a measured model and one supported price scope; absent scores are never treated as zero. */
