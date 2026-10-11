@@ -19,6 +19,7 @@ const PRICE_SERIES: [keyof typeof METRICS, string, string][] = [
 
 function filtered(models: Model[]): Row[] {
   return variantRows(models, state)
+    .filter((r) => !state.query || matches(r.m, state.query))
     .filter((r) => !state.provider || r.m.provider === state.provider)
     .filter((r) => (state.weights === '' ? true : r.m.openWeights === (state.weights === 'open')))
     .filter((r) => (state.reasoning === '' ? true : r.m.reasoning === (state.reasoning === 'yes')));

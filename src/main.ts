@@ -7,7 +7,8 @@ import { renderCompare } from './views/compare.ts';
 import { renderRank } from './views/rank.ts';
 import { renderDetail } from './views/detail.ts';
 import { renderTable } from './views/table.ts';
-import { subscribe } from './state.ts';
+import { allRegions } from './data.ts';
+import { DEFAULT_REGION, state, subscribe, update } from './state.ts';
 
 try {
   const saved = localStorage.getItem('bme-theme');
@@ -19,6 +20,9 @@ try {
 const app = document.getElementById('app')!;
 async function start() {
   const { models, generatedAt } = await loadData();
+  // A shared link may name a region or provider this dataset doesn't have (typo, or removed since); fall back instead of showing an empty page.
+  if (!allRegions(models).includes(state.region)) update({ region: DEFAULT_REGION });
+  if (state.provider && !models.some((m) => m.provider === state.provider)) update({ provider: '' });
   const header = renderHeader(models, generatedAt);
   const view = h('div', { id: 'view' });
   app.replaceChildren(header, view);

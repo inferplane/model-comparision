@@ -1,6 +1,6 @@
 import { h } from '../dom.ts';
 import { allRegions, matches, MODE_LABEL, MODES } from '../data.ts';
-import { state, subscribe, update } from '../state.ts';
+import { currentUrl, state, subscribe, update } from '../state.ts';
 import type { Model } from '../types.ts';
 
 export function renderHeader(models: Model[], generatedAt: string): HTMLElement {
@@ -63,6 +63,16 @@ export function renderHeader(models: Model[], generatedAt: string): HTMLElement 
       } }, MODE_LABEL[mode])));
   // The header is rendered once, so the chips have to follow state changes themselves.
   subscribe(() => modes.querySelectorAll('button').forEach((btn, i) => btn.setAttribute('aria-pressed', String(state.modes.includes(MODES[i])))));
+  // Copy the current URL, which already carries region/modes/filters/sort/compare, so the exact view can be shared.
+  const share = h('button', { class: 'icon', type: 'button', 'aria-label': '현재 필터가 담긴 링크 복사', title: '현재 필터가 담긴 링크 복사', onclick: async () => {
+    try {
+      await navigator.clipboard.writeText(currentUrl());
+      share.textContent = '✓';
+    } catch {
+      window.prompt('이 링크를 복사하세요', currentUrl());
+    }
+    setTimeout(() => (share.textContent = '🔗'), 1500);
+  } }, '🔗');
   const theme = h('button', { class: 'icon', type: 'button', 'aria-label': '테마 전환', title: '테마 전환', onclick: () => {
     const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
@@ -86,7 +96,7 @@ export function renderHeader(models: Model[], generatedAt: string): HTMLElement 
     h('a', { class: 'brand', href: '#/' }, 'Bedrock ', h('b', null, 'Model Explorer')),
     nav,
     h('div', { class: 'search' }, input, results),
-    h('div', { class: 'ctrls' }, region, modes, theme),
+    h('div', { class: 'ctrls' }, region, modes, share, theme),
     h('div', { class: 'stamp' }, `가격 기준 ${generatedAt.slice(0, 10)}`),
   );
 }
