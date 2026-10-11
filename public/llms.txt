@@ -1,0 +1,57 @@
+# Amazon Bedrock model comparison
+
+> Prices (USD per 1M tokens), context windows, cache pricing, in-region / Geo CRIS / Global CRIS availability per Region, EOL dates, and Artificial Analysis benchmark scores for every Amazon Bedrock model. Rebuilt daily from the AWS Price List, AWS Bedrock model cards, and Artificial Analysis. Last generated 2026-10-11. The interactive site (https://inferplane.github.io/model-comparision/) is a JavaScript app; use these static files instead.
+
+## Start here
+
+- [Comparison for us-east-1 (markdown)](https://inferplane.github.io/model-comparision/ai/models.md): all models invocable from us-east-1, with prices, limits, availability, benchmarks, plus top-by-intelligence and cost/performance frontier lists
+- [Comparison for us-east-1 (HTML)](https://inferplane.github.io/model-comparision/ai/): the same table as plain HTML
+
+## Other Regions
+
+- [af-south-1](https://inferplane.github.io/model-comparision/ai/regions/af-south-1.md)
+- [ap-east-1](https://inferplane.github.io/model-comparision/ai/regions/ap-east-1.md)
+- [ap-east-2](https://inferplane.github.io/model-comparision/ai/regions/ap-east-2.md)
+- [ap-northeast-1](https://inferplane.github.io/model-comparision/ai/regions/ap-northeast-1.md)
+- [ap-northeast-2](https://inferplane.github.io/model-comparision/ai/regions/ap-northeast-2.md)
+- [ap-northeast-3](https://inferplane.github.io/model-comparision/ai/regions/ap-northeast-3.md)
+- [ap-south-1](https://inferplane.github.io/model-comparision/ai/regions/ap-south-1.md)
+- [ap-south-2](https://inferplane.github.io/model-comparision/ai/regions/ap-south-2.md)
+- [ap-southeast-1](https://inferplane.github.io/model-comparision/ai/regions/ap-southeast-1.md)
+- [ap-southeast-2](https://inferplane.github.io/model-comparision/ai/regions/ap-southeast-2.md)
+- [ap-southeast-3](https://inferplane.github.io/model-comparision/ai/regions/ap-southeast-3.md)
+- [ap-southeast-4](https://inferplane.github.io/model-comparision/ai/regions/ap-southeast-4.md)
+- [ap-southeast-5](https://inferplane.github.io/model-comparision/ai/regions/ap-southeast-5.md)
+- [ap-southeast-6](https://inferplane.github.io/model-comparision/ai/regions/ap-southeast-6.md)
+- [ap-southeast-7](https://inferplane.github.io/model-comparision/ai/regions/ap-southeast-7.md)
+- [ca-central-1](https://inferplane.github.io/model-comparision/ai/regions/ca-central-1.md)
+- [ca-west-1](https://inferplane.github.io/model-comparision/ai/regions/ca-west-1.md)
+- [eu-central-1](https://inferplane.github.io/model-comparision/ai/regions/eu-central-1.md)
+- [eu-central-2](https://inferplane.github.io/model-comparision/ai/regions/eu-central-2.md)
+- [eu-north-1](https://inferplane.github.io/model-comparision/ai/regions/eu-north-1.md)
+- [eu-south-1](https://inferplane.github.io/model-comparision/ai/regions/eu-south-1.md)
+- [eu-south-2](https://inferplane.github.io/model-comparision/ai/regions/eu-south-2.md)
+- [eu-west-1](https://inferplane.github.io/model-comparision/ai/regions/eu-west-1.md)
+- [eu-west-2](https://inferplane.github.io/model-comparision/ai/regions/eu-west-2.md)
+- [eu-west-3](https://inferplane.github.io/model-comparision/ai/regions/eu-west-3.md)
+- [il-central-1](https://inferplane.github.io/model-comparision/ai/regions/il-central-1.md)
+- [me-central-1](https://inferplane.github.io/model-comparision/ai/regions/me-central-1.md)
+- [me-south-1](https://inferplane.github.io/model-comparision/ai/regions/me-south-1.md)
+- [mx-central-1](https://inferplane.github.io/model-comparision/ai/regions/mx-central-1.md)
+- [sa-east-1](https://inferplane.github.io/model-comparision/ai/regions/sa-east-1.md)
+- [us-east-1](https://inferplane.github.io/model-comparision/ai/regions/us-east-1.md)
+- [us-east-2](https://inferplane.github.io/model-comparision/ai/regions/us-east-2.md)
+- [us-west-1](https://inferplane.github.io/model-comparision/ai/regions/us-west-1.md)
+- [us-west-2](https://inferplane.github.io/model-comparision/ai/regions/us-west-2.md)
+
+## Raw data
+
+- [prices.csv](https://inferplane.github.io/model-comparision/ai/prices.csv): one row per model, Region, and price scope (regional/global): input, output, cache, long-context prices
+- [models.json](https://inferplane.github.io/model-comparision/data/models.json): everything above in structured form
+- [schema.md](https://inferplane.github.io/model-comparision/ai/schema.md): field reference for models.json
+
+## Notes
+
+- "-" means unavailable or unpublished, never zero.
+- In-region and Geo CRIS share one price per Region; Global CRIS has its own and is the same in all commercial Regions.
+- Sources: AWS Price List API, AWS Bedrock model cards and "Regional availability by models", models.dev (fallback), artificialanalysis.ai (benchmarks, attribution required).
