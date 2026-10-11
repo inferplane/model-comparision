@@ -4,10 +4,10 @@
 
 | Field | Value |
 |-------|-------|
-| Review Type | HTML application: cost-performance redesign, GPT-6.1 Sol benchmark fallback and model ranking |
+| Review Type | HTML application: cost-performance redesign, GPT-6.1 Sol benchmark identity matching/fallback and model ranking |
 | Review Date | 2026-10-11 |
-| Iteration | #1 final separate review, including corrections made during review |
-| Reviewed Source | Current working tree based on `25f9cb27b5b1d8acdd32e25a999140d030c6293d`, including final ranking helper, budget parser and regenerated AI exports |
+| Iteration | #2 final source review, including the benchmark-matching root-cause correction |
+| Reviewed Source | Current working tree based on `25f9cb27b5b1d8acdd32e25a999140d030c6293d`, including final ranking helper, budget parser, decimal-safe benchmark matcher and regenerated AI exports |
 | Current Score | **98.5 / 100** |
 | Verdict | **PASS** |
 
@@ -28,9 +28,9 @@ The worst of the three independent bands is PASS. The mandatory gate permits dep
 | Category | Critical | Warning | Info |
 |----------|----------|---------|------|
 | Accessibility | 0 | 1 | 0 |
-| Resolved review findings | 0 | 0 | 2 |
+| Resolved review findings | 0 | 0 | 3 |
 | Other categories | 0 | 0 | 0 |
-| **Total** | **0** | **1** | **2** |
+| **Total** | **0** | **1** | **3** |
 
 ## Rubric Score
 
@@ -85,6 +85,12 @@ The initial budget parser excluded the UI's permitted maximum `1,000,000` and de
 
 The initial generated files retained old index-range and schema wording after the builder source changed. The producing agent regenerated the exports. Final `public/ai/models.md`, `public/ai/index.html`, `public/ai/schema.md` and region files reflect index terminology and fallback metadata. This is resolved and takes no final deduction.
 
+### Decimal model versions incorrectly treated as namespaces
+
+The prior build-time normalizer used `.replace(/^[a-z0-9-]+\./, '')`. Applied to **GPT-6.1 Sol**, this stripped `gpt-6.` and produced `1-sol`, preventing the natural name from matching `gpt-6-1-sol`. The absence of a benchmark in the published dataset therefore did **not** establish that the upstream API lacked a model record.
+
+The final correction extracts the matcher into `scripts/benchmark-matching.ts:5` and strips a namespace only when a letter follows the dot: `.replace(/^[a-z0-9-]+\.(?=[a-z])/, '')`. Decimal versions survive; a raw `openai.gpt-6.1-sol` namespace still strips correctly. Exact model entries take priority over effort variants; release-number siblings and different model suffixes cannot substitute. `scripts/build-data.ts` calls the corrected matcher before the existing fallback. This is resolved and takes no final deduction.
+
 ## Factual and Calculation Verification
 
 The new fallback was compared directly with the supplied frozen primary page `/tmp/aa-gpt-6-1-sol.html` and decoded model object `/tmp/aa-gpt61-model.json`, from `https://artificialanalysis.ai/models/gpt-6-1-sol`. All four published values match exactly:
@@ -98,7 +104,7 @@ The new fallback was compared directly with the supplied frozen primary page `/t
 
 `public/data/models.json` identifies the measured variant as **GPT-6.1 Sol (Max)** and carries the source URL, verification date `2026-10-11` and `kind: "public-page"`. The detail view displays the variant and date; ranking and cost-performance rows expose source links. Missing Coding Index, Math Index and TTFT are not fabricated or mapped from unrelated benchmarks.
 
-`scripts/benchmark-fallbacks.ts:18` preserves normal API measurements whenever a benchmark match exists. `scripts/build-data.ts` applies the fallback after normal benchmark matching; later API availability therefore takes precedence. Source/date validation and targeted tests cover missing measurements, API preservation, nonfinite inputs and unsupported source URLs.
+`scripts/benchmark-matching.ts` now correctly matches decimal model names and raw namespaced IDs against the actual API record identity. `scripts/benchmark-fallbacks.ts:18` preserves normal API measurements whenever the corrected matcher assigns a benchmark. `scripts/build-data.ts` applies the fallback only after normal matching, so matched API records take precedence and the public-page fallback covers a remaining unassigned measurement rather than assuming feed absence. Source/date validation and targeted tests cover missing measurements, API preservation, nonfinite inputs and unsupported source URLs.
 
 `src/value.ts` calculates the displayed reference value as score divided by selected positive USD-per-million-token price. Fraction benchmarks become percentage points. Missing/nonfinite measurements and invalid prices do not produce rankings. The baseline for performance floors uses measured models with prices for the selected region, modes and tier and stays fixed when search, provider, cache or budget filters change. Budget comparison is inclusive.
 
@@ -136,7 +142,11 @@ Independent artifacts:
 - `/tmp/cost-rank-final-review-results.json`
 - `/tmp/cost-review-1440.png`, `/tmp/cost-review-390.png`, `/tmp/cost-review-dark.png`
 
-Supplied screenshots and scripts were also reviewed: `/tmp/cost-performance-{desktop,mobile,dark,chart}.png`, `/tmp/gpt61-rank-seoul.png`, `/tmp/cost-performance-check.cjs` and `/tmp/cost-performance-check-results.txt`. Their supplementary checks cover budget/quality empty states, distinct price/score/value sort choices, provider filtering, comparison selection, expanded charts and shared URL settings. Targeted unit-test sources were inspected; the producer owns the separate final build and unit-suite execution.
+Supplied screenshots and scripts were also reviewed: `/tmp/cost-performance-{desktop,mobile,dark,chart}.png`, `/tmp/gpt61-rank-seoul.png`, `/tmp/cost-performance-check.cjs` and `/tmp/cost-performance-check-results.txt`. Their supplementary checks cover budget/quality empty states, distinct price/score/value sort choices, provider filtering, comparison selection, expanded charts and shared URL settings.
+
+For the final matcher correction, this reviewer independently ran `node node_modules/vitest/vitest.mjs run scripts/benchmark-matching.test.ts scripts/benchmark-fallbacks.test.ts`: **11 tests passed in 2 files**, covering four natural/raw identities, forbidden model substitutions, exact-entry precedence, effort-only variants, exact fallback provenance and API precedence. The correction changes build-time matching only; frontend code and frozen published measurements were unchanged, so the successful wide browser matrix remains applicable.
+
+The producing agent reports final **`npm run build` PASS, 96 unit tests in 9 files PASS, and `git diff --check` PASS**. It also confirms unchanged frontend JS/CSS hashes after the matcher extraction. These full-suite/build results are producer verification, distinct from the reviewer's independent targeted 11-test execution and browser evidence above.
 
 ## Source-omission Findings
 
@@ -145,6 +155,7 @@ Supplied screenshots and scripts were also reviewed: `/tmp/cost-performance-{des
 | Make cost-performance comparison immediately understandable | INCLUDED | Numerical ranking precedes optional chart; score, unit price and explicit proxy shown together |
 | Narrow candidates by required performance and budget | INCLUDED | Relative performance floor, inclusive budget and three candidate policies |
 | Resolve missing GPT-6.1 Sol rank using actual evidence | INCLUDED | Exact verified public-page fallback and measured-variant provenance |
+| Correct the build-time benchmark model identity | INCLUDED | Decimal-safe normalization, exact-release matching and tested API precedence |
 | Explain models without measurements or unavailable under region/modes | INCLUDED | Coverage details, unmeasured metric explanation and Global CRIS action |
 | Preserve stronger normal API data | INCLUDED | Fallback guard and regression test |
 | Keep shareable filters consistent | INCLUDED | Quality/order/budget serialization; boundary correction verified |
@@ -158,6 +169,7 @@ No substantive omitted requirement is raised.
 - [ ] Nonblocking: increase small supporting typography where practical.
 - [x] Correct and verify shared budget boundary/precision behavior.
 - [x] Regenerate and verify public AI source/schema exports.
+- [x] Correct decimal benchmark identities and independently verify matcher plus fallback precedence.
 
 | State | Critical | Warnings | Score |
 |-------|---------:|---------:|------:|
