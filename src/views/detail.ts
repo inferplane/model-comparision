@@ -2,13 +2,14 @@ import { h } from '../dom.ts';
 import { blended, longPriceOf, MODE_LABEL, MODES, priceOf, supports, tokens, usd } from '../data.ts';
 import { MAX_COMPARE, state, toggleCompare } from '../state.ts';
 import type { BenchmarkScores, Model, Scope, Tier, TokenKind } from '../types.ts';
+import { codingNotice } from '../components/coding-notice.ts';
 
 const KINDS: [TokenKind, string][] = [['input', 'Input'], ['output', 'Output'], ['cacheRead', 'Cache read'], ['cacheWrite', 'Cache write'], ['cacheWrite1h', 'Cache write 1h']];
 const TIERS: Tier[] = ['standard', 'batch', 'priority', 'flex'];
 const SCOPES: [Scope, string][] = [['regional', 'In-region / Geo CRIS'], ['global', 'Global CRIS']];
 const BENCH: [keyof BenchmarkScores, string, number][] = [
   ['intelligenceIndex', 'Intelligence Index', 100], ['codingIndex', 'Coding Index', 100], ['mathIndex', 'Math Index', 100],
-  ['mmluPro', 'MMLU-Pro', 1], ['gpqa', 'GPQA Diamond', 1], ['hle', "Humanity's Last Exam", 1], ['liveCodeBench', 'LiveCodeBench', 1], ['scicode', 'SciCode', 1], ['aime', 'AIME', 1], ['math500', 'MATH-500', 1],
+  ['mmluPro', 'MMLU-Pro', 1], ['gpqa', 'GPQA Diamond', 1], ['hle', "Humanity's Last Exam", 1], ['liveCodeBench', 'LiveCodeBench', 1], ['scicode', 'SciCode (과학 코딩)', 1], ['aime', 'AIME', 1], ['math500', 'MATH-500', 1],
 ];
 
 export function renderDetail(models: Model[], id: string): HTMLElement {
@@ -80,7 +81,7 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
     m.benchmarkSource ? h('p', { class: 'note' }, 'Artificial Analysis 항목: ',
       h('a', { href: m.benchmarkSource.url ?? `https://artificialanalysis.ai/models/${m.benchmarkSource.slug}`, rel: 'noopener' }, m.benchmarkSource.name),
       m.benchmarkSource.kind === 'public-page' ? ` · 공개 페이지 측정값으로 보완 · 확인일 ${m.benchmarkSource.verifiedAt}` : '. 같은 모델의 설정 변형이 여럿이면 기본 항목 또는 지능 지수가 가장 높은 변형입니다.') : null,
-    bench,
+    codingNotice([m]), bench,
     h('p', { class: 'note' }, '벤치마크: ', h('a', { href: 'https://artificialanalysis.ai/', rel: 'noopener' }, 'Artificial Analysis'), ' · 가격: AWS Price List API · context: ', h('a', { href: 'https://models.dev/', rel: 'noopener' }, 'models.dev')));
 }
 

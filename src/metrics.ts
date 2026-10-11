@@ -1,6 +1,7 @@
 import { blended, longPriceOf, priceOf, tokens, usd, type Row } from './data.ts';
 import { state } from './state.ts';
 import type { BenchmarkScores } from './types.ts';
+import { codingIndexOf, scienceCodingPercent } from './coding.ts';
 
 export interface Metric {
   key: string;
@@ -27,13 +28,13 @@ const price = (kind: Parameters<typeof priceOf>[4]) => (r: Row) => priceOf(r.m, 
 
 export const METRICS: Record<string, Metric> = {
   intelligence: { key: 'intelligence', label: 'Intelligence Index', hint: 'Artificial Analysis 종합 지수 (높을수록 좋음)', higherBetter: true, value: score('intelligenceIndex'), fmt: one },
-  coding: { key: 'coding', label: 'Coding Index', hint: 'Artificial Analysis 코딩 지수', higherBetter: true, value: score('codingIndex'), fmt: one },
+  coding: { key: 'coding', label: 'Coding Index', hint: 'Artificial Analysis 코딩 합성 지수. 해당 지수가 제공되지 않은 모델은 미제공으로 표시하며, SciCode는 별도 지표입니다.', higherBetter: true, value: (r) => codingIndexOf(r.m), fmt: one },
   math: { key: 'math', label: 'Math Index', hint: 'Artificial Analysis 수학 지수', higherBetter: true, value: score('mathIndex'), fmt: one },
   gpqa: { key: 'gpqa', label: 'GPQA Diamond', hint: '대학원 수준 과학 문제 정답률', higherBetter: true, value: score('gpqa', true), fmt: percent },
   hle: { key: 'hle', label: "Humanity's Last Exam", hint: '전문가 수준 종합 문제 정답률', higherBetter: true, value: score('hle', true), fmt: percent },
   mmluPro: { key: 'mmluPro', label: 'MMLU-Pro', hint: '다분야 지식 정답률', higherBetter: true, value: score('mmluPro', true), fmt: percent },
   liveCodeBench: { key: 'liveCodeBench', label: 'LiveCodeBench', hint: '코딩 문제 통과율', higherBetter: true, value: score('liveCodeBench', true), fmt: percent },
-  scicode: { key: 'scicode', label: 'SciCode', hint: '과학 코딩 통과율', higherBetter: true, value: score('scicode', true), fmt: percent },
+  scicode: { key: 'scicode', label: 'SciCode (과학 코딩)', hint: '과학 문제 기반 코딩 테스트 통과율 (%). Coding Index 합성 지수와 별도로 비교합니다.', higherBetter: true, value: (r) => scienceCodingPercent(r.m), fmt: percent },
   aime: { key: 'aime', label: 'AIME', hint: '수학 올림피아드 정답률', higherBetter: true, value: score('aime', true), fmt: percent },
   speed: { key: 'speed', label: '출력 속도', hint: '초당 출력 토큰 (Artificial Analysis 측정 중앙값, 높을수록 빠름)', higherBetter: true, value: positive('outputTokensPerSecond'), fmt: (v) => `${Math.round(v).toLocaleString()} tok/s` },
   ttft: { key: 'ttft', label: '첫 토큰 지연', hint: '첫 토큰까지 걸린 시간(초). reasoning 모델은 추론 시간이 포함될 수 있음 (낮을수록 좋음)', higherBetter: false, value: positive('timeToFirstTokenSeconds'), fmt: (v) => `${v.toFixed(2)}s` },
