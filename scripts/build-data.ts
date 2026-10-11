@@ -282,6 +282,7 @@ if (benchmarks.length) {
 
 // Cross-check the Price List against models.dev's list prices (us-east-1 vs bare/us. ids). A mismatch means a parsing bug or a stale source.
 const mismatches: string[] = [];
+let compared = 0;
 for (const m of models.values()) {
   const ctx = contextByName.get(norm(m.name)) || contextByLoose.get(loose(m.name));
   if (!ctx) continue;
@@ -291,6 +292,7 @@ for (const m of models.values()) {
     if (!theirs || !ours) continue;
     for (const [kind, t] of [['input', theirs.input], ['output', theirs.output], ['cacheRead', theirs.cacheRead]] as const) {
       const o = ours[kind];
+      if (t !== undefined && o !== undefined) compared++;
       if (t !== undefined && o !== undefined && Math.abs(o - t) / t > 0.01) mismatches.push(`${m.name} ${scope} ${kind}: aws=${o} models.dev=${t}`);
     }
   }
@@ -305,6 +307,8 @@ for (const m of models.values()) {
   if (pretty && !taken.has(pretty)) {
     taken.add(pretty);
     m.name = pretty;
+    // Raw-id names carried no vendor hint when the model was created, so re-derive it from the display name.
+    if (m.provider === 'Other') m.provider = providerFromName(pretty) ?? m.provider;
   }
 }
 
@@ -321,7 +325,7 @@ const report = [
   `card vs models.dev context differences (${contextDiffs.length}): ${contextDiffs.join('; ')}`,
   `no context match (${unmatched.length}): ${unmatched.join(', ')}`,
   `Global price extended to other commercial regions for ${[...models.values()].filter((m) => m.copiedGlobalRegions).length} models: ${[...models.values()].filter((m) => m.copiedGlobalRegions).map((m) => `${m.name} (+${m.copiedGlobalRegions!.length})`).join(', ')}`,
-  `price cross-check vs models.dev (${mismatches.length} mismatches)${mismatches.length ? ':\n  ' + mismatches.join('\n  ') : ''}`,
+  `price cross-check vs models.dev (${compared} values compared, ${mismatches.length} mismatches)${mismatches.length ? ':\n  ' + mismatches.join('\n  ') : ''}`,
   benchmarks.length ? `no benchmark match (${noBenchmark.length}), model -> closest AA slugs:\n  ${noBenchmark.join('\n  ')}` : 'benchmarks: skipped (no AA_API_KEY)',
 ].join('\n');
 console.log(report);
