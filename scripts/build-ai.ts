@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { allRegions, blended, longPriceOf, MODE_LABEL, MODES, priceOf, supports, tokens, usd } from '../src/data.ts';
 import type { Mode, Model, Scope } from '../src/types.ts';
@@ -211,7 +212,7 @@ ${regionList.map((r) => `- [${r}](${SITE}/ai/regions/${r}.md)`).join('\n')}
 - [prices.csv](${SITE}/ai/prices.csv): one row per model, Region, and price scope (regional/global): input, output, cache, long-context prices
 - [models.json](${SITE}/data/models.json): everything above in structured form
 - [schema.md](${SITE}/ai/schema.md): field reference for models.json
-
+${existsSync('public/ai/changes.md') ? `- [changes.md](${SITE}/ai/changes.md): what changed recently (new/removed models, price and availability changes), newest first\n` : ''}
 ## Notes
 
 - "-" means unavailable or unpublished, never zero.

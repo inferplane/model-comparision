@@ -39,3 +39,12 @@ The site is a client-rendered app, so a plain fetch of `/` returns an empty shel
 
 Filters live in the URL query string and the page (table, ranking, chart, compare, model) in the hash, e.g.
 `/?region=ap-northeast-2&modes=geo,global&q=claude&provider=Anthropic#/rank`. The 🔗 button copies the current link. Defaults are omitted; a link with any parameter ignores the viewer's saved preferences so it reproduces the same view. Parameters: `region`, `modes` (`in-region,geo,global`), `q`, `provider`, `tier`, `cache=1`, `priced=0`, `cols=1`, `sort=<column>.<asc|desc>`, `weights` (`open|closed`), `reasoning` (`yes|no`), `metric` and `top` (ranking), `cy` and `cx` (chart axes), `compare=<id>,<id>` (up to 6). Invalid values are ignored. Parsing and serialising live in `src/urlstate.ts`.
+
+## Daily pipeline
+
+`.github/workflows/update-and-deploy.yml` runs every day (and on every push, or manually), refreshes the data, commits it, and deploys.
+
+- **New models are picked up automatically** from the AWS Price List, the model cards, and the regions page. `scripts/diff-data.ts` compares the new data with the previous run and records new/removed models and price/availability changes in `public/data/changes.json` and `public/ai/changes.md`; the commit message summarises them (e.g. `data: +2 models (GPT-6.2 Sol, …), 3 price changes`).
+- **A standing issue "신규 Bedrock 모델 매칭 확인 필요"** (label `data-review`) lists models added in the last 7 days that still lack a model card, context window, price, or benchmark match, and which `data/aliases.yaml` entry to add. It updates daily and closes itself when nothing is left.
+- **Sanity guard:** if 10+ models (≥10%) vanish or prices move on ≥50% of models in one run, the run stops before committing, leaving the previous deployment in place. Check the run summary, then re-run with "allow_big_change" ticked (Actions → Run workflow) if the change is real.
+- **A failed scheduled/manual run opens an issue** (label `data-refresh-failed`); the next successful run closes it. The site keeps serving the last good data meanwhile.

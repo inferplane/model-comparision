@@ -6,11 +6,17 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      allow_big_change:
+        description: 'Publish even if the sanity guard blocked the run (many models vanished or most prices moved). Check the run summary first.'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
   pages: write
   id-token: write
+  issues: write
 
 concurrency:
   group: pages
@@ -19,6 +25,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,9 +34,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - name: Snapshot previous data
+        # diff-data compares the refreshed data against this to find new models and price changes.
+        run: |
+          mkdir -p data/raw
+          cp public/data/models.json data/raw/models.prev.json
       - name: Refresh data
         env:
           AA_API_KEY: ${{ secrets.AA_API_KEY }}
+          ALLOW_BIG_CHANGE: ${{ inputs.allow_big_change && '1' || '' }}
         run: npm run data
       - name: Commit data changes
         # Commits made with GITHUB_TOKEN do not re-trigger this workflow, so there is no loop.
@@ -38,15 +51,54 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add public/data public/ai public/llms.txt
-            git commit -m "data: refresh Bedrock prices"
+            git commit -F data/raw/commit-msg.txt
+            # Someone may have pushed while this ran.
+            git pull --rebase --autostash -q
             git push
           fi
+      - name: Sync issues
+        # One standing issue lists new models that need a manual alias; it closes itself once they are covered.
+        # A failure issue opened by an earlier run is closed now that a run succeeded.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create data-review --color FBCA04 --description "New Bedrock models that need a manual mapping" 2>/dev/null || true
+          num=$(gh issue list --label data-review --state open --json number --jq '.[0].number // empty')
+          if [ -s data/raw/review.md ]; then
+            { cat data/raw/review.md; printf '\n_자동 생성 · [실행 로그](%s)_\n' "$RUN_URL"; } > data/raw/review-body.md
+            if [ -n "$num" ]; then gh issue edit "$num" --body-file data/raw/review-body.md
+            else gh issue create --title "신규 Bedrock 모델 매칭 확인 필요" --label data-review --body-file data/raw/review-body.md; fi
+          elif [ -n "$num" ]; then
+            gh issue close "$num" --comment "신규 모델이 모두 매칭되어 닫습니다. ($RUN_URL)"
+          fi
+          for n in $(gh issue list --label data-refresh-failed --state open --json number --jq '.[].number' 2>/dev/null || true); do
+            gh issue close "$n" --comment "다음 실행이 성공해서 닫습니다. ($RUN_URL)"
+          done
       - run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+      - name: Report failed refresh
+        # Without this a broken daily run only leaves the site stale. Pushes are left out: a failing test there is already on the developer's screen.
+        if: failure() && github.event_name != 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          mkdir -p data/raw
+          gh label create data-refresh-failed --color D73A4A --description "The daily data refresh failed" 2>/dev/null || true
+          num=$(gh issue list --label data-refresh-failed --state open --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body "다시 실패했습니다: $RUN_URL"
+          else
+            printf '%s\n\n%s\n' \
+              "일일 갱신이 실패해서 사이트가 이전 데이터로 남아 있습니다. 실행 로그와 요약을 확인하세요: $RUN_URL" \
+              "가격·모델 수가 한꺼번에 크게 달라져 안전장치가 막은 경우라면 요약에 이유가 적혀 있습니다. 원인을 확인한 뒤 Actions에서 Run workflow를 눌러 allow_big_change를 켜면 그대로 게시됩니다." > data/raw/failed-body.md
+            gh issue create --title "일일 데이터 갱신 실패" --label data-refresh-failed --body-file data/raw/failed-body.md
+          fi
 
   deploy:
     needs: build
