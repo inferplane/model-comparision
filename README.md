@@ -17,6 +17,8 @@ Static site (GitHub Pages) that lists every Amazon Bedrock model with per-1M-tok
 
 Only text-token prices are shown. Image, video, audio, provisioned-throughput and customization SKUs are skipped. The AWS price list has no long-context pricing tiers.
 
+Coding Index and SciCode are separate measurements. A latest model can have Intelligence Index and SciCode measurements while its Coding Index is not provided by the connected source. The UI and AI exports label that gap explicitly; no composite score is inferred from individual benchmarks. SciCode remains a scientific-programming pass-rate percentage with its own tab, comparison panel and detailed column.
+
 ## Commands
 
 ```

@@ -339,6 +339,14 @@ ol.rank { padding: 4px 22px; border: 1px solid var(--line); background: var(--pa
 .coverage-group p { color: var(--muted); line-height: 1.8; }
 .coverage-models { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .coverage-models a { padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); font-size: 11px; }
+.coding-notice { padding: 16px 18px; margin: 16px 0; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; background: var(--panel); }
+.coding-notice-title { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.coding-notice-title .ui-icon { color: var(--accent); width: 18px; height: 18px; }
+.coding-notice p { color: var(--muted); font-size: 13px; line-height: 1.8; margin: 9px 0 12px; }
+.coding-notice-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+.coding-notice-sources { max-width: 100%; font-size: 13px; color: var(--muted); }
+.coding-notice-sources summary { cursor: pointer; padding: 8px 0; }
+.coding-notice-sources .coverage-models a { font-size: 12px; }
 
 @media (max-width: 1000px) {
   .value-control-row, .value-control-row.requirements { grid-template-columns: repeat(2, minmax(0, 1fr)); }

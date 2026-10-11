@@ -33,7 +33,7 @@ const WORD = /^[A-Za-z0-9]{1,24}$/;
 // resolve to Object.prototype members. Accept only keys the app actually defines (a test keeps these in sync with the real tables).
 export const RANK_METRICS = ['intelligence', 'coding', 'math', 'speed', 'ttft', 'price', 'context', 'gpqa', 'hle', 'mmluPro', 'liveCodeBench', 'scicode', 'aime'];
 export const CHART_Y = ['intelligenceIndex', 'codingIndex', 'mathIndex', 'gpqa', 'mmluPro', 'hle', 'liveCodeBench', 'scicode', 'aime'];
-export const SORT_KEYS = ['name', 'provider', 'mode', 'ai', 'coding', 'in', 'output', 'cr', 'cw', 'bl', 'lc', 'speed', 'ttft', 'ctx', 'out', 'bin', 'bout'];
+export const SORT_KEYS = ['name', 'provider', 'mode', 'ai', 'coding', 'scicode', 'in', 'output', 'cr', 'cw', 'bl', 'lc', 'ttft', 'speed', 'ctx', 'out', 'bin', 'bout'];
 const ID = /^[a-z0-9][a-z0-9._-]{0,59}$/;
 export const MAX_COMPARE_IDS = 6;
 

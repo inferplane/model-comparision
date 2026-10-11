@@ -4,10 +4,12 @@ import { METRICS, type Metric } from '../metrics.ts';
 import { MAX_COMPARE, state, toggleCompare } from '../state.ts';
 import type { Model } from '../types.ts';
 import { emptyState, icon, pageHeading } from '../components/ui.ts';
+import { codingNotice } from '../components/coding-notice.ts';
 
 const GROUPS: [string, string[]][] = [
-  ['종합 성능', ['intelligence', 'coding', 'math']],
-  ['개별 벤치마크', ['gpqa', 'hle', 'mmluPro', 'liveCodeBench', 'scicode', 'aime']],
+  ['종합 성능', ['intelligence', 'math']],
+  ['코딩 측정값', ['coding', 'scicode', 'liveCodeBench']],
+  ['개별 벤치마크', ['gpqa', 'hle', 'mmluPro', 'aime']],
   ['속도', ['speed', 'ttft']],
   ['단가 (USD / 1M)', ['input', 'output', 'blend', 'cacheRead', 'longInput']],
   ['Context', ['context']],
@@ -75,17 +77,18 @@ export function renderCompare(models: Model[]): HTMLElement {
 
   const panel = (metric: Metric) => {
     const vals = cols.map((x) => ({ ...x, v: metric.value(x.r) }));
-    if (vals.every((x) => x.v === undefined)) return null;
+    if (!vals.length) return null;
+    if (vals.every((x) => x.v === undefined) && metric.key !== 'coding') return null;
     const max = Math.max(...vals.map((x) => x.v ?? 0), 0) || 1;
     const best = vals.filter((x) => x.v !== undefined).reduce<number | undefined>((b, x) => (b === undefined || (metric.higherBetter ? x.v! > b : x.v! < b) ? x.v : b), undefined);
-    return h('section', { class: 'panel' },
+    return h('section', { class: 'panel', 'data-metric': metric.key },
       h('h3', null, metric.label), h('p', { class: 'note' }, metric.hint),
       h('ul', { class: 'mini' }, ...vals.map((x) => {
         const w = x.v === undefined ? 0 : (x.v / max) * 64;
         return h('li', null,
           h('span', { class: 'mn' }, nameOf(x.r)),
           h('div', { class: 'track' },
-            x.v === undefined ? h('b', { class: 'val na', style: 'left:0' }, '데이터 없음') : h('i', { class: 'fill', style: `width:${w}%;background:${x.c}` }),
+            x.v === undefined ? h('b', { class: 'val na', style: 'left:0' }, metric.key === 'coding' ? '원본 미제공' : '데이터 없음') : h('i', { class: 'fill', style: `width:${w}%;background:${x.c}` }),
             x.v === undefined ? null : h('b', { class: `val${x.v === best ? ' best' : ''}`, style: `left:calc(${w}% + 8px)` }, metric.fmt(x.v))));
       })));
   };
@@ -102,10 +105,10 @@ export function renderCompare(models: Model[]): HTMLElement {
       h('thead', null, h('tr', null, h('th', null, '지표'), ...cols.map((x) => h('th', { class: 'num' }, h('i', { class: 'sw', style: `background:${x.c}` }), nameOf(x.r))))),
       h('tbody', null, ...metricsAll.map((metric) => {
         const vs = cols.map((x) => metric.value(x.r));
-        if (vs.every((v) => v === undefined)) return null;
+        if (vs.every((v) => v === undefined) && metric.key !== 'coding') return null;
         const defined = vs.filter((v): v is number => v !== undefined);
         const best = metric.higherBetter ? Math.max(...defined) : Math.min(...defined);
-        return h('tr', null, h('td', null, metric.label), ...vs.map((v) => h('td', { class: `num${v === undefined ? ' na' : v === best && defined.length > 1 ? ' best' : ''}` }, v === undefined ? '—' : metric.fmt(v))));
+        return h('tr', null, h('td', null, metric.label), ...vs.map((v) => h('td', { class: `num${v === undefined ? ' na' : v === best && defined.length > 1 ? ' best' : ''}` }, v === undefined ? metric.key === 'coding' ? '원본 미제공' : '—' : metric.fmt(v))));
       })))));
 
   return h('main', null,
@@ -114,5 +117,6 @@ export function renderCompare(models: Model[]): HTMLElement {
     chips, adder,
     !cols.length ? emptyState('현재 조건에서 비교할 데이터가 없습니다', '선택한 모델의 지원 리전과 추론 방식을 확인하고, 상단에서 조건을 바꿔보세요.')
       : unavailable.length ? h('p', { class: 'note' }, `${unavailable.map((m) => m.name).join(', ')}: 현재 리전과 추론 방식에서 비교할 데이터가 없어 차트에서 제외했습니다.`) : null,
+    codingNotice(picked),
     ...groups, cols.length ? table : null);
 }

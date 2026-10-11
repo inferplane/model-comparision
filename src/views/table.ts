@@ -4,6 +4,7 @@ import { METRICS } from '../metrics.ts';
 import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { Model, TokenKind } from '../types.ts';
 import { emptyState, icon, pageHeading, type IconName } from '../components/ui.ts';
+import { codingNotice } from '../components/coding-notice.ts';
 
 interface Col {
   key: string;
@@ -36,7 +37,8 @@ const COLS: Col[] = [
   { key: 'provider', group: '모델', label: '제공사', value: (r) => r.m.provider },
   { key: 'mode', group: '모델', label: '추론', value: (r) => r.label, show: (r) => r.label + (r.inferred ? '?' : ''), title: (r) => (r.inferred ? 'models.dev에 없는 모델이라 가격 존재 여부로 추정한 값입니다.' : undefined) },
   { key: 'ai', group: '성능 (Artificial Analysis)', label: 'Intelligence', num: true, bar: true, value: metric('intelligence'), show: fmt('intelligence'), title: () => 'Artificial Analysis Intelligence Index' },
-  { key: 'coding', more: true, group: '성능 (Artificial Analysis)', label: 'Coding', num: true, bar: true, value: metric('coding'), show: fmt('coding') },
+  { key: 'coding', more: true, group: '성능 (Artificial Analysis)', label: 'Coding Index', num: true, bar: true, value: metric('coding'), show: (r) => METRICS.coding.value(r) === undefined ? '미제공' : fmt('coding')(r), title: () => METRICS.coding.hint },
+  { key: 'scicode', more: true, group: '성능 (Artificial Analysis)', label: 'SciCode (%)', num: true, bar: true, value: metric('scicode'), show: fmt('scicode'), title: () => METRICS.scicode.hint },
   { key: 'in', group: '단가 (USD / 1M tokens)', label: 'Input', num: true, value: p('input') },
   { key: 'output', group: '단가 (USD / 1M tokens)', label: 'Output', num: true, value: p('output') },
   { key: 'cr', group: '단가 (USD / 1M tokens)', label: 'Cache read', num: true, value: p('cacheRead') },
@@ -173,6 +175,7 @@ export function renderTable(models: Model[]): HTMLElement {
         h('label', { class: 'columns-toggle' }, h('input', { type: 'checkbox', 'aria-label': '상세 열 보기', checked: state.expandCols, onchange: (e: Event) => update({ expandCols: (e.target as HTMLInputElement).checked }) }), '상세 열 보기')),
       filters, activeFilters.childElementCount ? activeFilters : null,
       compareToolbar,
+      state.expandCols ? codingNotice(visibleModels) : null,
       h('div', { class: 'table-hint' }, h('span', null, '＋로 비교할 모델을 선택하세요. 모델 이름을 누르면 상세 정보를 볼 수 있습니다.'), h('span', { class: 'unit-label' }, 'USD / 1M tokens')),
       h('div', { class: 'scroll', tabindex: 0, 'aria-label': '모델 가격 및 성능 비교 표' }, h('table', null, h('caption', { class: 'sr-only' }, `${state.region} 리전의 모델별 가격 및 성능`), head, body)),
       h('details', { class: 'data-guide' }, h('summary', null, icon('info'), '가격과 데이터 읽는 방법'),

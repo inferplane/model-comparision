@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { allRegions, blended, longPriceOf, MODE_LABEL, MODES, priceOf, supports, tokens, usd } from '../src/data.ts';
 import type { Mode, Model, Scope } from '../src/types.ts';
+import { codingIndexOf, scienceCodingPercent } from '../src/coding.ts';
 
 /**
  * Static, JavaScript-free views of the model data for AI agents (Claude, Codex, ...): a markdown comparison per region,
@@ -53,7 +54,7 @@ const threshold = (m: Model) => (m.longContext?.thresholdTokens ? `>${tokens(m.l
 const eol = (m: Model, region: string) => m.availabilityEol?.[region] ?? (m.card?.eolDate ? m.card.eolDate : '');
 const ptag = (m: Model) => (m.priceSource === 'model-card' ? ' [price: model card]' : m.priceSource === 'override' ? ' [price: manual]' : '');
 
-const COLUMNS = ['Model', 'Provider', 'In-region', 'Geo CRIS', 'Global CRIS', 'Context', 'Max out', 'Intelligence', 'Coding', 'tok/s', 'Regional in/out', 'Regional cache read/write', 'Global in/out', 'Global cache read/write', 'Long-context (regional in/out)', 'EOL'];
+const COLUMNS = ['Model', 'Provider', 'In-region', 'Geo CRIS', 'Global CRIS', 'Context', 'Max out', 'Intelligence', 'Coding Index', 'SciCode (%)', 'tok/s', 'Regional in/out', 'Regional cache read/write', 'Global in/out', 'Global cache read/write', 'Long-context (regional in/out)', 'EOL'];
 
 function cells(e: Entry): string[] {
   const { m, price: p } = e;
@@ -63,7 +64,7 @@ function cells(e: Entry): string[] {
     m.name + ptag(m), m.provider,
     e.modes['in-region'] ?? 'no', e.modes.geo ?? 'no', e.modes.global ?? 'no',
     tokens(m.contextWindow), tokens(m.maxOutput),
-    num(b?.intelligenceIndex), num(b?.codingIndex), b?.outputTokensPerSecond ? String(Math.round(b.outputTokensPerSecond)) : '-',
+    num(b?.intelligenceIndex), num(codingIndexOf(m)), num(scienceCodingPercent(m)), b?.outputTokensPerSecond ? String(Math.round(b.outputTokensPerSecond)) : '-',
     pair(p.regional.input, p.regional.output), pair(p.regional.cacheRead, p.regional.cacheWrite),
     pair(p.global.input, p.global.output), pair(p.global.cacheRead, p.global.cacheWrite),
     long, eol(m, e.region) || '-',
@@ -101,7 +102,8 @@ Generated ${date} from the AWS Price List, AWS Bedrock model cards, and Artifici
 - "Regional" price = In-region and Geo CRIS (AWS prices them the same here). "Global" price = Global CRIS, usually about 10% cheaper.
 - "yes?" means availability is inferred (no AWS model card matched), not confirmed.
 - Long-context: when a prompt exceeds the threshold (e.g. >272K tokens) the whole request is billed at the long-context price instead.
-- Intelligence / Coding are Artificial Analysis indices (higher is better); tok/s is median output speed. Missing for models Artificial Analysis does not cover. Public-page measurement fallbacks include their source and verification date in models.json.
+- Intelligence / Coding Index are Artificial Analysis indices (higher is better); tok/s is median output speed. An individual metric can be unpublished even when other measurements exist for a model. Public-page measurement fallbacks include their source and verification date in models.json.
+- SciCode (%) is a separate scientific-programming pass rate, not Coding Index. Missing Coding Index values remain unavailable in this connected dataset and are never inferred from SciCode.
 - In-region and Geo prices differ by Region; Global CRIS prices are the same in every commercial Region (except Amazon Nova).
 - 4:1 blended price = (4 x input + output) / 5, ignoring caching.
 

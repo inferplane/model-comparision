@@ -5,11 +5,12 @@ import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { Model } from '../types.ts';
 import { emptyState, icon, pageHeading } from '../components/ui.ts';
 import { rankModelRows } from '../ranking.ts';
+import { codingNotice } from '../components/coding-notice.ts';
 
 const TABS: [string, string][] = [
-  ['intelligence', '지능'], ['coding', '코딩'], ['math', '수학'], ['speed', '속도'], ['ttft', '지연'], ['price', '가격'], ['context', 'Context'],
+  ['intelligence', '지능'], ['coding', 'Coding Index'], ['scicode', 'SciCode'], ['math', '수학'], ['speed', '속도'], ['ttft', '지연'], ['price', '가격'], ['context', 'Context'],
 ];
-const OTHER_BENCH = ['gpqa', 'hle', 'mmluPro', 'liveCodeBench', 'scicode', 'aime'];
+const OTHER_BENCH = ['gpqa', 'hle', 'mmluPro', 'liveCodeBench', 'aime'];
 const TOPS = [10, 20, 40, 0];
 
 /** The three price series keep their slot colors on every row (blue, orange, aqua: the validated first three categorical slots). */
@@ -145,6 +146,11 @@ export function renderRank(models: Model[]): HTMLElement {
     highlights(rows), tabs,
     h('p', { class: 'note' }, isPrice ? 'USD / 1M tokens. 막대 색은 Input · Output · Cache read입니다.' : metric.hint),
     filters,
+    state.rankMetric === 'coding' ? codingNotice(rows.map((r) => r.m),
+      h('button', { class: 'button secondary', type: 'button', 'aria-label': 'SciCode 측정값으로 비교하기', onclick: () => {
+        update({ rankMetric: 'scicode' });
+        document.getElementById('rank-tab-scicode')?.focus({ preventScroll: true });
+      } }, 'SciCode 측정값으로 비교하기')) : null,
     h('p', { class: 'rank-limit-note' }, `${state.rankTop ? `상위 ${state.rankTop}개 모델` : '전체 모델'}을 표시합니다. 모델당 한 행이며, 여러 추론 범위를 선택하면 확인된 혼합 단가가 가장 낮은 범위를 사용합니다. `,
       state.rankTop ? h('button', { type: 'button', class: 'text-button', onclick: () => update({ rankTop: 0 }) }, '전체 순위 보기') : null),
     h('div', { id: 'rank-panel', role: 'tabpanel', 'aria-labelledby': TABS.some(([key]) => key === state.rankMetric) ? `rank-tab-${state.rankMetric}` : undefined, 'aria-label': TABS.some(([key]) => key === state.rankMetric) ? undefined : `${metric.label} 순위` }, isPrice ? priceBars(rows) : singleBars(rows, metric)),

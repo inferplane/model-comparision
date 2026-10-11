@@ -1,8 +1,9 @@
 import { h, s } from '../dom.ts';
-import { MODES, supports, tokens, usd } from '../data.ts';
+import { matches, MODES, supports, tokens, usd } from '../data.ts';
 import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { BenchmarkScores, Model, Tier } from '../types.ts';
 import { emptyState, icon, pageHeading } from '../components/ui.ts';
+import { codingNotice } from '../components/coding-notice.ts';
 import { collectValuePoints, filterValuePoints, isRecentModel, QUALITY_FLOOR, rankValuePoints, valueExclusions, type ExclusionReason, type ValueOrder, type ValuePoint, type ValueQuality } from '../value.ts';
 
 interface Metric { key: keyof BenchmarkScores; label: string; pct: boolean; }
@@ -14,7 +15,7 @@ const METRICS: Metric[] = [
   { key: 'mmluPro', label: 'MMLU-Pro', pct: true },
   { key: 'hle', label: "Humanity's Last Exam", pct: true },
   { key: 'liveCodeBench', label: 'LiveCodeBench', pct: true },
-  { key: 'scicode', label: 'SciCode', pct: true },
+  { key: 'scicode', label: '코딩 · SciCode (과학 코딩)', pct: true },
   { key: 'aime', label: 'AIME', pct: true },
 ];
 const COST_LABELS = { blend: '혼합 단가 · 입력 4 : 출력 1', input: '입력 단가', output: '출력 단가' };
@@ -272,7 +273,13 @@ export function renderChart(models: Model[]): HTMLElement {
 
   return h('main', { class: 'value-page' },
     pageHeading('PERFORMANCE & COST', '필요한 성능은 지키고, 비용은 낮추세요', '최소 성능과 예산을 정하면, 조건에 맞는 모델을 가성비 순으로 바로 볼 수 있습니다.'),
-    controls, coverage, highlights(points, metric),
+    controls,
+    metric.key === 'codingIndex' ? codingNotice(catalogue.filter((m) => (!state.query || matches(m, state.query)) && (!state.provider || m.provider === state.provider)),
+      h('button', { class: 'button secondary', type: 'button', 'aria-label': 'SciCode 측정값으로 비교하기', onclick: () => {
+        update({ chartY: 'scicode' });
+        document.querySelector<HTMLSelectElement>('[aria-label="Y축 벤치마크"]')?.focus({ preventScroll: true });
+      } }, 'SciCode 측정값으로 비교하기')) : null,
+    coverage, highlights(points, metric),
     h('section', { class: 'value-results', 'aria-label': '가성비 후보 순위' },
       h('div', { class: 'value-results-heading' }, h('div', null, h('h2', null, '가성비 후보 순위'),
         h('p', null, `가성비 지표 = 성능 점수 ÷ 단가 (${unit}). 같은 지표·단가 기준 안에서 비교하는 참고값입니다.`)),
