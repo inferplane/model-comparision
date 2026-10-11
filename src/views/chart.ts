@@ -1,9 +1,9 @@
 import { h, s } from '../dom.ts';
-import { tokens, usd } from '../data.ts';
+import { MODES, supports, tokens, usd } from '../data.ts';
 import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { BenchmarkScores, Model, Tier } from '../types.ts';
 import { emptyState, icon, pageHeading } from '../components/ui.ts';
-import { collectValuePoints, filterValuePoints, QUALITY_FLOOR, rankValuePoints, type ValueOrder, type ValuePoint, type ValueQuality } from '../value.ts';
+import { collectValuePoints, filterValuePoints, isRecentModel, QUALITY_FLOOR, rankValuePoints, valueExclusions, type ExclusionReason, type ValueOrder, type ValuePoint, type ValueQuality } from '../value.ts';
 
 interface Metric { key: keyof BenchmarkScores; label: string; pct: boolean; }
 const METRICS: Metric[] = [
@@ -24,6 +24,7 @@ const QUALITY_LABELS: [ValueQuality, string][] = [
 const ORDER_LABELS: [ValueOrder, string][] = [['value', '가성비 지표 높은 순'], ['price', '단가 낮은 순'], ['score', '성능 점수 높은 순']];
 const fmtValue = (v: number) => v.toLocaleString('en-US', { maximumFractionDigits: 1 });
 const fmtScore = (v: number, metric: Metric) => `${v.toFixed(1)}${metric.pct ? '%' : ''}`;
+const fmtThreshold = (v: number, metric: Metric) => `${v.toLocaleString('en-US', { maximumFractionDigits: 6 })}${metric.pct ? '%' : ''}`;
 let chartOpen = false;
 
 function compareButton(point: ValuePoint, context: string): HTMLElement {
@@ -187,19 +188,25 @@ export function renderChart(models: Model[]): HTMLElement {
     emptyState('벤치마크를 준비하고 있습니다', '아직 비교할 측정 데이터가 없습니다.', h('a', { class: 'button secondary', href: '#/' }, '모델 탐색하기')));
 
   const options = { ...state, chartY: metric.key, pct: metric.pct };
+  const today = Date.now();
+  const catalogue = state.chartLatest ? models.filter((m) => isRecentModel(m, today)) : models;
   // Performance floors use the same region/modes/tier baseline even when search, provider or budget changes.
   const market = collectValuePoints(models, { ...options, query: '', provider: '', onlyCache: false });
   const maxScore = Math.max(0, ...market.map((p) => p.y));
-  const all = collectValuePoints(models, options);
+  const all = collectValuePoints(catalogue, options);
   const points = filterValuePoints(all, maxScore, state.chartQuality, state.chartBudget);
   const ranked = rankValuePoints(points, state.chartOrder);
   const unit = metric.pct ? '%p/$' : '점수/$';
   const providers = [...new Set(models.map((m) => m.provider))].sort();
   const reset = () => update({ chartQuality: 'all', chartBudget: 0, provider: '', query: '', onlyCache: false, tier: 'standard' });
+  const latest = () => update({ chartLatest: true, chartY: 'intelligenceIndex', chartX: 'blend', modes: [...MODES], chartQuality: 'all', chartBudget: 0, provider: '', query: '', onlyCache: false, tier: 'standard', chartOrder: 'value' });
   const select = (label: string, aria: string, values: [string, string][], selected: string, onChange: (value: string) => void) =>
     h('label', null, h('span', null, label), h('select', { 'aria-label': aria, onchange: (event: Event) => onChange((event.target as HTMLSelectElement).value) },
       ...values.map(([value, text]) => h('option', { value, selected: value === selected }, text))));
   const controls = h('section', { class: 'value-controls', 'aria-label': '가성비 비교 조건' },
+    h('div', { class: 'value-preset-row' },
+      h('button', { type: 'button', class: 'button primary', 'aria-label': '최신 모델 보기', onclick: latest }, icon('layers'), '최신 모델 보기'),
+      h('span', null, '최근 60일 출시 · 종합 지능 · 혼합 단가 · 일반 티어 · 전체 추론 방식 · 제공사·검색·캐시·성능·단가 조건 해제')),
     h('div', { class: 'value-control-row' },
       select('성능 지표', 'Y축 벤치마크', available.map((m) => [m.key, m.label]), metric.key, (chartY) => update({ chartY })),
       select('비용 기준', 'X축 단가 기준', Object.entries(COST_LABELS), state.chartX, (chartX) => update({ chartX: chartX as typeof state.chartX })),
@@ -215,8 +222,35 @@ export function renderChart(models: Model[]): HTMLElement {
       h('label', { class: 'value-cache-filter' }, h('input', { type: 'checkbox', 'aria-label': '캐시 지원 모델만', checked: state.onlyCache, onchange: (event: Event) => update({ onlyCache: (event.target as HTMLInputElement).checked }) }), '캐시 지원 모델만'),
       h('button', { type: 'button', class: 'text-button', onclick: reset }, icon('reset'), '조건 해제')),
     h('p', { class: 'value-criteria-note' }, `${state.region} · ${state.tier} · ${COST_LABELS[state.chartX]} · `,
-      state.chartQuality === 'all' ? '성능 제한 없음' : `리전 최고 점수 ${fmtScore(maxScore, metric)}의 ${QUALITY_FLOOR[state.chartQuality] * 100}% 이상 (${fmtScore(maxScore * QUALITY_FLOOR[state.chartQuality], metric)} 이상)`,
-      state.chartBudget ? ` · 최대 ${usd(state.chartBudget)}` : '', ` · ${new Set(points.map((p) => p.m.id)).size}개 모델 / ${points.length}개 단가`));
+      state.chartQuality === 'all' ? '성능 제한 없음' : `리전 최고 점수 ${fmtScore(maxScore, metric)}의 ${QUALITY_FLOOR[state.chartQuality] * 100}% 이상 (${fmtThreshold(maxScore * QUALITY_FLOOR[state.chartQuality], metric)} 이상)`,
+      state.chartBudget ? ` · 최대 ${usd(state.chartBudget)}` : '', ` · ${new Set(points.map((p) => p.m.id)).size}개 모델 / ${points.length}개 단가`),
+    h('label', { class: 'value-latest-filter' }, h('input', { type: 'checkbox', 'aria-label': '최근 60일 출시 모델만', checked: state.chartLatest, onchange: (event: Event) => update({ chartLatest: (event.target as HTMLInputElement).checked }) }), '출시일이 확인된 최근 60일 모델만'));
+
+  const excluded = valueExclusions(catalogue, options, maxScore, state.chartQuality, state.chartBudget);
+  const enableGlobal = () => update({ modes: MODES.filter((mode) => mode === 'global' || state.modes.includes(mode)) });
+  const definitions: [ExclusionReason, string, string, (() => void) | undefined, string][] = [
+    ['provider', '제공사 조건', `${state.provider || '선택한 제공사'} 외 모델입니다.`, () => update({ provider: '' }), '모든 제공사 보기'],
+    ['inference', '리전·추론 방식', `${state.region}에서 선택한 추론 방식으로 표시할 수 없습니다.`,
+      excluded.some((e) => e.reason === 'inference' && supports(e.m, 'global', state.region).ok) && !state.modes.includes('global') ? enableGlobal : undefined, 'Global CRIS 포함해서 보기'],
+    ['benchmark', '선택 지표 측정값 없음', `${metric.label} 측정값이 없어 가성비를 계산하지 않습니다.`,
+      metric.key !== 'intelligenceIndex' ? () => update({ chartY: 'intelligenceIndex' }) : undefined, '종합 지능 기준으로 보기'],
+    ['price', '선택 단가 미확인', '선택한 리전·티어·비용 기준에서 계산 가능한 단가가 없습니다.',
+      state.tier !== 'standard' ? () => update({ tier: 'standard' }) : undefined, '일반 티어로 보기'],
+    ['cache', '캐시 조건', '선택한 범위의 캐시 단가가 확인되지 않았습니다.', () => update({ onlyCache: false }), '캐시 조건 해제'],
+    ['quality', '최소 성능 조건', `점수가 최소 기준 ${fmtThreshold(maxScore * QUALITY_FLOOR[state.chartQuality], metric)}에 못 미칩니다.`, () => update({ chartQuality: 'all' }), '성능 조건 해제'],
+    ['budget', '최대 단가 조건', `선택한 추론 범위의 단가가 상한 ${usd(state.chartBudget)}을 넘습니다.`, () => update({ chartBudget: 0 }), '단가 상한 해제'],
+  ];
+  const coverage = excluded.length ? h('details', { class: 'rank-coverage value-coverage', open: !!state.query || !points.length },
+    h('summary', null, icon('info'), `찾는 모델이 안 보이나요? ${excluded.length}개 모델의 제외 이유와 해결 방법`),
+    ...definitions.map(([reason, title, description, action, actionLabel]) => {
+      const group = excluded.filter((e) => e.reason === reason);
+      if (!group.length) return null;
+      return h('div', { class: 'coverage-group', 'data-reason': reason }, h('strong', null, `${title} · ${group.length}개`),
+        h('p', null, description),
+        action ? h('button', { class: 'button secondary', type: 'button', 'aria-label': actionLabel, onclick: action }, actionLabel) : null,
+        h('div', { class: 'coverage-models' }, ...group.map((e) => h('a', { href: `#/model/${e.m.id}` },
+          e.m.name, e.score === undefined ? '' : ` · ${fmtScore(e.score, metric)}`, e.price === undefined ? '' : ` · ${usd(e.price)}`))));
+    })) : null;
 
   const maxValue = Math.max(0, ...points.map((p) => p.value)) || 1;
   const table = h('div', { class: 'scroll value-table-scroll', tabindex: 0, 'aria-label': '가성비 순위 표' }, h('table', { class: 'value-table' },
@@ -238,7 +272,7 @@ export function renderChart(models: Model[]): HTMLElement {
 
   return h('main', { class: 'value-page' },
     pageHeading('PERFORMANCE & COST', '필요한 성능은 지키고, 비용은 낮추세요', '최소 성능과 예산을 정하면, 조건에 맞는 모델을 가성비 순으로 바로 볼 수 있습니다.'),
-    controls, highlights(points, metric),
+    controls, coverage, highlights(points, metric),
     h('section', { class: 'value-results', 'aria-label': '가성비 후보 순위' },
       h('div', { class: 'value-results-heading' }, h('div', null, h('h2', null, '가성비 후보 순위'),
         h('p', null, `가성비 지표 = 성능 점수 ÷ 단가 (${unit}). 같은 지표·단가 기준 안에서 비교하는 참고값입니다.`)),
