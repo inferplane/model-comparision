@@ -3,6 +3,7 @@ import { matches, usd, variantRows, type Row } from '../data.ts';
 import { leader, METRICS, metricFor, type Metric } from '../metrics.ts';
 import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { Model } from '../types.ts';
+import { emptyState, pageHeading } from '../components/ui.ts';
 
 const TABS: [string, string][] = [
   ['intelligence', '지능'], ['coding', '코딩'], ['math', '수학'], ['speed', '속도'], ['ttft', '지연'], ['price', '가격'], ['context', 'Context'],
@@ -36,7 +37,7 @@ function identity(r: Row, multiScope: boolean): HTMLElement {
 }
 
 const cmpButton = (m: Model) =>
-  h('button', { type: 'button', class: 'cmp', 'aria-pressed': state.compare.includes(m.id), title: state.compare.includes(m.id) ? '비교에서 제거' : state.compare.length >= MAX_COMPARE ? `비교는 최대 ${MAX_COMPARE}개` : '비교에 추가',
+  h('button', { type: 'button', class: 'cmp', 'aria-label': `${m.name} 비교 선택`, 'aria-pressed': state.compare.includes(m.id), disabled: !state.compare.includes(m.id) && state.compare.length >= MAX_COMPARE, title: state.compare.includes(m.id) ? '비교에서 제거' : state.compare.length >= MAX_COMPARE ? `비교는 최대 ${MAX_COMPARE}개` : '비교에 추가',
     onclick: () => toggleCompare(m.id) }, state.compare.includes(m.id) ? '✓' : '＋');
 
 function singleBars(rows: Row[], metric: Metric): HTMLElement {
@@ -47,7 +48,7 @@ function singleBars(rows: Row[], metric: Metric): HTMLElement {
   const multi = new Set(state.modes.map((m) => (m === 'global' ? 'g' : 'r'))).size > 1;
   return h('div', null,
     h('p', { class: 'count-line' }, `${shown.length} of ${data.length} 모델`),
-    h('ol', { class: 'rank' }, ...shown.map((x, i) => {
+    shown.length ? h('ol', { class: 'rank' }, ...shown.map((x, i) => {
       // Bars stop at 86% so the value label always fits at the tip.
       const w = (x.v / max) * 86;
       return h('li', { class: state.query && matches(x.r.m, state.query) ? 'rk hit' : 'rk' },
@@ -55,7 +56,7 @@ function singleBars(rows: Row[], metric: Metric): HTMLElement {
         identity(x.r, multi),
         h('div', { class: 'track' }, h('i', { class: 'fill', style: `width:${w}%` }), h('b', { class: 'val', style: `left:calc(${w}% + 8px)` }, metric.fmt(x.v))),
         cmpButton(x.r.m));
-    })));
+    })) : emptyState('표시할 순위가 없습니다', '검색어와 필터를 조정하거나 다른 평가 지표를 선택해 보세요.'));
 }
 
 function priceBars(rows: Row[]): HTMLElement {
@@ -67,7 +68,7 @@ function priceBars(rows: Row[]): HTMLElement {
   return h('div', null,
     h('div', { class: 'legend-row' }, ...PRICE_SERIES.map(([, l, c]) => h('span', { class: 'lg' }, h('i', { class: 'sw', style: `background:${c}` }), l))),
     h('p', { class: 'count-line' }, `${shown.length} of ${data.length} 모델 · 4:1 혼합 단가가 낮은 순`),
-    h('ol', { class: 'rank price' }, ...shown.map((x, i) =>
+    shown.length ? h('ol', { class: 'rank price' }, ...shown.map((x, i) =>
       h('li', { class: state.query && matches(x.r.m, state.query) ? 'rk hit' : 'rk' },
         h('span', { class: 'pos' }, String(i + 1)),
         identity(x.r, multi),
@@ -77,7 +78,7 @@ function priceBars(rows: Row[]): HTMLElement {
           const w = (v / max) * 82;
           return h('div', { class: 'track thin', title: `${l} ${usd(v)}` }, h('i', { class: 'fill', style: `width:${w}%;background:${c}` }), h('b', { class: 'val', style: `left:calc(${w}% + 8px)` }, usd(v)));
         })),
-        cmpButton(x.r.m)))));
+        cmpButton(x.r.m)))) : emptyState('표시할 가격이 없습니다', '다른 리전이나 추론 방식을 선택해 보세요.'));
 }
 
 function highlights(rows: Row[]): HTMLElement {
@@ -100,8 +101,17 @@ export function renderRank(models: Model[]): HTMLElement {
   const sel = (label: string, opts: [string, string][], value: string, on: (v: string) => void) =>
     h('label', null, label, ' ', h('select', { 'aria-label': label, onchange: (e: Event) => on((e.target as HTMLSelectElement).value) }, ...opts.map(([v, t]) => h('option', { value: v, selected: v === value }, t))));
 
-  const tabs = h('div', { class: 'tabs', role: 'tablist' },
-    ...TABS.map(([k, l]) => h('button', { type: 'button', role: 'tab', 'aria-selected': state.rankMetric === k, onclick: () => update({ rankMetric: k }) }, l)),
+  const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': '순위 평가 지표' },
+    ...TABS.map(([k, l]) => h('button', { id: `rank-tab-${k}`, type: 'button', role: 'tab', tabindex: state.rankMetric === k ? 0 : -1, 'aria-label': `${l} 순위 보기`, 'aria-controls': 'rank-panel', 'aria-selected': state.rankMetric === k, onclick: () => update({ rankMetric: k }),
+      onkeydown: (e: KeyboardEvent) => {
+        const i = TABS.findIndex(([key]) => key === k);
+        const next = e.key === 'ArrowRight' ? (i + 1) % TABS.length : e.key === 'ArrowLeft' ? (i - 1 + TABS.length) % TABS.length : e.key === 'Home' ? 0 : e.key === 'End' ? TABS.length - 1 : -1;
+        if (next < 0) return;
+        e.preventDefault();
+        update({ rankMetric: TABS[next][0] });
+        document.getElementById(`rank-tab-${TABS[next][0]}`)?.focus({ preventScroll: true });
+      },
+    }, l)),
     h('select', { class: 'tab-select', 'aria-label': '기타 벤치마크', onchange: (e: Event) => { const v = (e.target as HTMLSelectElement).value; if (v) update({ rankMetric: v }); } },
       h('option', { value: '' }, '기타 벤치마크…'),
       ...OTHER_BENCH.map((k) => h('option', { value: k, selected: state.rankMetric === k }, METRICS[k].label))));
@@ -113,11 +123,11 @@ export function renderRank(models: Model[]): HTMLElement {
     sel('표시', TOPS.map((n): [string, string] => [String(n), n ? `상위 ${n}` : '전체']), String(state.rankTop), (v) => update({ rankTop: Number(v) })));
 
   return h('main', null,
-    h('h1', { class: 'chart-title' }, '모델 순위'),
-    h('p', { class: 'note' }, `${state.region} · ${state.tier} · 선택한 추론 방식 기준. 벤치마크·속도: Artificial Analysis (${' '}`, h('a', { href: 'https://artificialanalysis.ai/', rel: 'noopener' }, 'artificialanalysis.ai'), '). 가중치·추론 구분은 models.dev에 있는 모델만 필터됩니다. 막대는 0에서 시작합니다.'),
+    pageHeading('MODEL LEADERBOARD', '기준을 바꾸면, 최고의 모델도 달라집니다', '지능부터 속도와 가격까지, 서비스에 중요한 지표로 모델의 순위를 확인하세요.'),
+    h('p', { class: 'note' }, `${state.region} · ${state.tier} · 선택한 추론 방식 기준. 벤치마크·속도: `, h('a', { href: 'https://artificialanalysis.ai/', rel: 'noopener' }, 'Artificial Analysis'), '. 가중치·추론 구분은 models.dev 기준입니다. 막대는 0에서 시작합니다.'),
     highlights(rows), tabs,
     h('p', { class: 'note' }, isPrice ? 'USD / 1M tokens. 막대 색은 Input · Output · Cache read입니다.' : metric.hint),
     filters,
-    isPrice ? priceBars(rows) : singleBars(rows, metric),
+    h('div', { id: 'rank-panel', role: 'tabpanel', 'aria-labelledby': TABS.some(([key]) => key === state.rankMetric) ? `rank-tab-${state.rankMetric}` : undefined, 'aria-label': TABS.some(([key]) => key === state.rankMetric) ? undefined : `${metric.label} 순위` }, isPrice ? priceBars(rows) : singleBars(rows, metric)),
     state.compare.length ? h('p', { class: 'note' }, h('a', { href: '#/compare' }, `선택한 ${state.compare.length}개 모델 비교하기 →`)) : null);
 }

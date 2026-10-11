@@ -9,23 +9,37 @@ import { renderDetail } from './views/detail.ts';
 import { renderTable } from './views/table.ts';
 import { allRegions } from './data.ts';
 import { DEFAULT_REGION, state, subscribe, update } from './state.ts';
+import { renderCompareDock } from './components/compare-dock.ts';
+import { emptyState, icon } from './components/ui.ts';
 
 try {
   const saved = localStorage.getItem('bme-theme');
-  if (saved) document.documentElement.dataset.theme = saved;
+  if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
 } catch {
   /* theme falls back to the OS preference */
 }
 
 const app = document.getElementById('app')!;
+app.replaceChildren(h('main', { class: 'loading-state', role: 'status' },
+  h('span', { class: 'brand-mark' }, icon('layers')),
+  h('h1', null, '모델 정보를 불러오고 있습니다'),
+  h('p', null, '잠시 후 가격과 성능을 한눈에 비교할 수 있습니다.'),
+  h('div', { class: 'loading-line' })));
+
 async function start() {
   const { models, generatedAt } = await loadData();
   // A shared link may name a region or provider this dataset doesn't have (typo, or removed since); fall back instead of showing an empty page.
   if (!allRegions(models).includes(state.region)) update({ region: DEFAULT_REGION });
   if (state.provider && !models.some((m) => m.provider === state.provider)) update({ provider: '' });
   const header = renderHeader(models, generatedAt);
-  const view = h('div', { id: 'view' });
-  app.replaceChildren(header, view);
+  const view = h('div', { id: 'view', tabindex: -1 });
+  const footer = h('footer', { class: 'site-footer' },
+    h('span', null, 'Bedrock Model Explorer'),
+    h('span', null, '가격 · AWS Price List 및 모델 카드', h('span', { class: 'footer-divider' }, ' / '), h('a', { href: 'https://artificialanalysis.ai/', rel: 'noopener' }, '벤치마크 · Artificial Analysis')));
+  app.replaceChildren(h('a', { class: 'skip-link', href: '#view', onclick: (e: Event) => { e.preventDefault(); view.focus(); view.scrollIntoView(); } }, '본문으로 건너뛰기'), header, view, footer, renderCompareDock(models));
+  // Keep the table's sticky comparison action below the actual responsive header.
+  const headerSize = new ResizeObserver(() => document.documentElement.style.setProperty('--header-height', `${header.getBoundingClientRect().height}px`));
+  headerSize.observe(header);
 
   const paint = () => {
     const m = location.hash.match(/^#\/model\/(.+)$/);
@@ -43,11 +57,20 @@ async function start() {
   // Filters and sorting repaint in place; keep scroll position for those.
   subscribe(() => {
     const y = window.scrollY;
+    const active = document.activeElement;
+    const focusLabel = active instanceof HTMLElement && view.contains(active) ? active.getAttribute('aria-label') : null;
     paint();
+    if (focusLabel) {
+      const target = [...view.querySelectorAll<HTMLElement>('[aria-label]')].find((el) => el.getAttribute('aria-label') === focusLabel);
+      target?.focus({ preventScroll: true });
+    }
     window.scrollTo(0, y);
   });
   window.addEventListener('hashchange', route);
   route();
 }
 
-start().catch((e: Error) => app.replaceChildren(h('main', null, h('p', null, `데이터를 불러오지 못했습니다: ${e.message}`))));
+start().catch((e: Error) => app.replaceChildren(h('main', null,
+  emptyState('모델 정보를 불러오지 못했습니다', '연결을 확인한 후 다시 시도해 주세요.',
+    h('button', { type: 'button', class: 'button primary', onclick: () => location.reload() }, icon('reset'), '다시 불러오기')),
+  h('details', { class: 'error-details' }, h('summary', null, '오류 정보'), h('p', null, e.message)))));

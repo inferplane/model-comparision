@@ -49,7 +49,7 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
   return h('main', { class: 'detail' },
     h('a', { href: '#/' }, '← 전체 목록'),
     h('h1', null, m.name, h('small', null, m.provider),
-      h('button', { type: 'button', class: 'cmp wide', 'aria-pressed': state.compare.includes(m.id), disabled: !state.compare.includes(m.id) && state.compare.length >= MAX_COMPARE, onclick: () => toggleCompare(m.id) },
+      h('button', { type: 'button', class: 'cmp wide', 'aria-label': `${m.name} 비교 선택`, 'aria-pressed': state.compare.includes(m.id), disabled: !state.compare.includes(m.id) && state.compare.length >= MAX_COMPARE, onclick: () => toggleCompare(m.id) },
         state.compare.includes(m.id) ? '✓ 비교에 담김' : '＋ 비교에 추가'),
       m.card ? h('a', { class: 'cardlink', href: m.card.url, rel: 'noopener' }, 'AWS 모델 카드 ↗') : null),
     h('div', { class: 'facts' },
