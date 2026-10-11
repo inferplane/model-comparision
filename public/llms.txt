@@ -49,6 +49,7 @@
 - [prices.csv](https://inferplane.github.io/model-comparision/ai/prices.csv): one row per model, Region, and price scope (regional/global): input, output, cache, long-context prices
 - [models.json](https://inferplane.github.io/model-comparision/data/models.json): everything above in structured form
 - [schema.md](https://inferplane.github.io/model-comparision/ai/schema.md): field reference for models.json
+- [changes.md](https://inferplane.github.io/model-comparision/ai/changes.md): what changed recently (new/removed models, price and availability changes), newest first
 
 ## Notes
 
