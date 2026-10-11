@@ -20,13 +20,13 @@ Generated 2026-10-11 from the AWS Price List, AWS Bedrock model cards, and Artif
 - Claude Fable 5.1 (Anthropic): Intelligence 53.4, cheapest 4:1 blended $18.00 per 1M tokens
 - Claude Opus 5 (Anthropic): Intelligence 50.8, cheapest 4:1 blended $9.00 per 1M tokens
 - Claude Fable 5 (Anthropic): Intelligence 49.6, cheapest 4:1 blended $18.00 per 1M tokens
+- GPT-5.6 Sol (OpenAI): Intelligence 47.0, cheapest 4:1 blended $7.20 per 1M tokens
 - Grok 4.6 (xAI): Intelligence 44.3, cheapest 4:1 blended $2.80 per 1M tokens
 - Kimi K3 (Moonshot AI): Intelligence 43.6, cheapest 4:1 blended $5.40 per 1M tokens
 - Claude Haiku 5.5 (Anthropic): Intelligence 43.4, cheapest 4:1 blended $0.18 per 1M tokens
 - GPT-5.6 Terra (OpenAI): Intelligence 42.1, cheapest 4:1 blended $4.00 per 1M tokens
 - Claude Opus 4.8 (Anthropic): Intelligence 41.8, cheapest 4:1 blended $9.00 per 1M tokens
 - Claude Opus 4.7 (Anthropic): Intelligence 40.7, cheapest 4:1 blended $9.00 per 1M tokens
-- Claude Sonnet 5 (Anthropic): Intelligence 38.2, cheapest 4:1 blended $3.60 per 1M tokens
 
 ## Cost/performance frontier in me-south-1
 
@@ -92,7 +92,7 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Mistral Large 2407 | Mistral | yes? | yes? | no | 미확인 | 미확인 | 6.8 | - | - | - | - | - | - | - | - |
 | Kimi K3 | Moonshot AI | no | no | yes | 1M | 128K | 43.6 | 76.2 | 39 | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
 | GPT-5.6 Luna | OpenAI | no | no | yes | 1.05M | 128K | 37.3 | 71.4 | - | - | - | $0.20 / $1.20 | $0.02 / $0.25 | >272K global $0.40 / $1.80 | - |
-| GPT-5.6 Sol [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | - | - | - | - | - | $4.00 / $20.00 | $0.40 / $5.00 | >272K global $8.00 / $30.00 | - |
+| GPT-5.6 Sol [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 47.0 | 77.4 | - | - | - | $4.00 / $20.00 | $0.40 / $5.00 | >272K global $8.00 / $30.00 | - |
 | GPT-5.6 Terra | OpenAI | no | no | yes | 1.05M | 128K | 42.1 | 76.7 | 117 | - | - | $2.00 / $12.00 | $0.20 / $2.50 | >272K global $4.00 / $18.00 | - |
 | TwelveLabs Pegasus 1.2 | TwelveLabs | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - / $7.50 | - | - | - |
 | TwelveLabs Pegasus 1.5 | TwelveLabs | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - / $7.50 | - | - | - |

@@ -23,10 +23,10 @@ Generated 2026-10-11 from the AWS Price List, AWS Bedrock model cards, and Artif
 - Claude Opus 5 (Anthropic): Intelligence 50.8, cheapest 4:1 blended $9.00 per 1M tokens
 - Claude Fable 5 (Anthropic): Intelligence 49.6, cheapest 4:1 blended $18.00 per 1M tokens
 - GPT-6 Sol (OpenAI): Intelligence 47.6, cheapest 4:1 blended $3.60 per 1M tokens
+- GPT-5.6 Sol (OpenAI): Intelligence 47.0, cheapest 4:1 blended $7.20 per 1M tokens
 - Grok 4.7 (xAI): Intelligence 46.4, cheapest 4:1 blended $2.80 per 1M tokens
 - GLM 5.3 (Z AI): Intelligence 44.8, cheapest 4:1 blended $2.40 per 1M tokens
 - Grok 4.6 (xAI): Intelligence 44.3, cheapest 4:1 blended $2.80 per 1M tokens
-- Kimi K3 (Moonshot AI): Intelligence 43.6, cheapest 4:1 blended $5.40 per 1M tokens
 
 ## Cost/performance frontier in eu-west-1
 
@@ -130,11 +130,11 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | GPT OSS Safeguard 120B | OpenAI | yes | no | no | 128K | 16K | - | - | - | $0.18 / $0.70 | - | - | - | - | - |
 | GPT OSS Safeguard 20B | OpenAI | yes | no | no | 128K | 16K | - | - | - | $0.08 / $0.23 | - | - | - | - | - |
 | GPT-5.6 Luna | OpenAI | no | no | yes | 1.05M | 128K | 37.3 | 71.4 | - | - | - | $0.20 / $1.20 | $0.02 / $0.25 | >272K global $0.40 / $1.80 | - |
-| GPT-5.6 Sol [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | - | - | - | - | - | $4.00 / $20.00 | $0.40 / $5.00 | >272K global $8.00 / $30.00 | - |
+| GPT-5.6 Sol [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 47.0 | 77.4 | - | - | - | $4.00 / $20.00 | $0.40 / $5.00 | >272K global $8.00 / $30.00 | - |
 | GPT-5.6 Terra | OpenAI | no | no | yes | 1.05M | 128K | 42.1 | 76.7 | 117 | - | - | $2.00 / $12.00 | $0.20 / $2.50 | >272K global $4.00 / $18.00 | - |
 | GPT-6 Luna [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 38.1 | - | 138 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >272K global $0.20 / $0.75 | - |
 | GPT-6 Sol [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 47.6 | - | - | - | - | $2.00 / $10.00 | $0.20 / $2.50 | >272K global $4.00 / $15.00 | - |
-| GPT-6.1 Sol [price: model card] | OpenAI | no | no | yes | 1M | 131K | 51.8 | - | 63 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
+| GPT-6.1 Sol [price: model card] | OpenAI | no | no | yes | 1M | 131K | 51.8 | - | 61 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
 | gpt-oss-120b | OpenAI | yes | no | no | 128K | 16K | 11.6 | 30.4 | 217 | $0.18 / $0.70 | - | - | - | - | - |
 | gpt-oss-20b | OpenAI | yes | no | no | 128K | 16K | 9.0 | 20.7 | 211 | $0.08 / $0.35 | - | - | - | - | - |
 | OpenAI GPT-6 Astra | OpenAI | no | no | yes | 1.05M | 128K | 52.7 | 76.9 | 51 | - | - | $10.00 / $50.00 | $1.00 / $12.50 | >272K global $20.00 / $75.00 | - |
