@@ -101,7 +101,7 @@ Generated ${date} from the AWS Price List, AWS Bedrock model cards, and Artifici
 - "Regional" price = In-region and Geo CRIS (AWS prices them the same here). "Global" price = Global CRIS, usually about 10% cheaper.
 - "yes?" means availability is inferred (no AWS model card matched), not confirmed.
 - Long-context: when a prompt exceeds the threshold (e.g. >272K tokens) the whole request is billed at the long-context price instead.
-- Intelligence / Coding are Artificial Analysis indices (0-100, higher is better); tok/s is median output speed. Missing for models Artificial Analysis does not cover.
+- Intelligence / Coding are Artificial Analysis indices (higher is better); tok/s is median output speed. Missing for models Artificial Analysis does not cover. Public-page measurement fallbacks include their source and verification date in models.json.
 - In-region and Geo prices differ by Region; Global CRIS prices are the same in every commercial Region (except Amazon Nova).
 - 4:1 blended price = (4 x input + output) / 5, ignoring caching.
 
@@ -188,7 +188,8 @@ Model fields (USD per 1M tokens unless noted):
 - longContext: { thresholdTokens, pricing } with the same shape; applies to the whole request once the prompt exceeds the threshold
 - availability[region] = { runtime?: flags, mantle?: flags } where flags contain "i" (in-region), "g" (Geo CRIS), "G" (Global CRIS); runtime = bedrock-runtime endpoint, mantle = bedrock-mantle (OpenAI-compatible) endpoint
 - availabilityEol[region]: earliest end-of-life date (YYYY-MM-DD) for that region
-- benchmarks: Artificial Analysis scores (intelligenceIndex, codingIndex, mathIndex are 0-100; gpqa, hle, mmluPro, ... are fractions 0-1; outputTokensPerSecond; timeToFirstTokenSeconds); benchmarkSource names the matching entry
+- benchmarks: Artificial Analysis scores (intelligenceIndex, codingIndex, mathIndex are indices; gpqa, hle, mmluPro, ... are fractions 0-1; outputTokensPerSecond; timeToFirstTokenSeconds)
+- benchmarkSource: name and slug of the measured variant; optional url, verifiedAt (YYYY-MM-DD), and kind: "public-page" identify a verified public-page fallback used while the API match is absent. API matches take priority on later rebuilds.
 - priceSource: absent = AWS Price List; "model-card" or "mixed" = filled from the AWS model card; "override" = entered manually
 - copiedGlobalRegions: regions whose Global CRIS price was copied from the model's other commercial regions
 `;

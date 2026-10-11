@@ -11,6 +11,7 @@ Static site (GitHub Pages) that lists every Amazon Bedrock model with per-1M-tok
 | Context window, max output, lifecycle/EOL, long-context threshold | [AWS Bedrock model cards](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html) (one markdown page per model, fetched as `.md`). Cards without a regions-page entry keep their own availability tables |
 | Fallback for context / profile ids | [models.dev](https://models.dev) `amazon-bedrock` (third party; used when no card matches, and for the long-context threshold of models without a card) |
 | Benchmarks | [Artificial Analysis](https://artificialanalysis.ai/) API (attribution required); needs the `AA_API_KEY` repo secret, skipped without it |
+| Benchmark API gaps | `data/benchmark-fallbacks.yaml`: verified Artificial Analysis public-page measurements with source URL and confirmation date. Applied only when the normal API match is absent; API measurements take priority |
 | Prices for models the Price List lacks | The model card's price tables (commercial regions, standard tier), e.g. GPT-6.1 Sol; shown as `priceSource: model-card` |
 | Gaps | `data/overrides.yaml` for anything else (each entry names its source) |
 
@@ -39,6 +40,8 @@ The site is a client-rendered app, so a plain fetch of `/` returns an empty shel
 
 Filters live in the URL query string and the page (table, ranking, chart, compare, model) in the hash, e.g.
 `/?region=ap-northeast-2&modes=geo,global&q=claude&provider=Anthropic#/rank`. The 🔗 button copies the current link. Defaults are omitted; a link with any parameter ignores the viewer's saved preferences so it reproduces the same view. Parameters: `region`, `modes` (`in-region,geo,global`), `q`, `provider`, `tier`, `cache=1`, `priced=0`, `cols=1`, `sort=<column>.<asc|desc>`, `weights` (`open|closed`), `reasoning` (`yes|no`), `metric` and `top` (ranking), `cy` and `cx` (chart axes), `compare=<id>,<id>` (up to 6). Invalid values are ignored. Parsing and serialising live in `src/urlstate.ts`.
+
+The cost-performance view starts with a numerical ranking and candidates for highest score per dollar, lowest price and highest score. `quality=all|balanced|strong|best` sets the minimum score to 0/50/75/90% of the best measured score for the selected region, modes and tier. The default is `balanced`; the baseline stays fixed while search, provider or budget changes. `budget=<USD per 1M tokens>` sets an inclusive maximum unit price, and `order=value|price|score` controls ranking. The optional scatterplot remains available below the table. Score divided by unit price is a comparison aid within the selected benchmark, not a prediction of task success.
 
 ## Daily pipeline
 

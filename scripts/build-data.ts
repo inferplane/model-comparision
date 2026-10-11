@@ -6,6 +6,8 @@ import type { BenchmarkRecord } from './fetch-benchmarks.ts';
 import type { ContextRecord } from './fetch-context.ts';
 import type { CardRecord } from './parse-card.ts';
 import { providerFromName } from './parse-pricing.ts';
+import { applyBenchmarkFallbacks, type BenchmarkFallback } from './benchmark-fallbacks.ts';
+import { findBenchmark } from './benchmark-matching.ts';
 
 interface Overrides {
   extraModels?: {
@@ -27,6 +29,7 @@ const overrides = readYaml<Overrides>('data/overrides.yaml', {});
 const aliasFile = readYaml<{ aliases?: Record<string, string>; benchmarkAliases?: Record<string, string> }>('data/aliases.yaml', {});
 const aliases = aliasFile.aliases ?? {};
 const benchmarkAliases = aliasFile.benchmarkAliases ?? {};
+const benchmarkFallbacks = readYaml<BenchmarkFallback[]>('data/benchmark-fallbacks.yaml', []);
 const previous = existsSync('public/data/models.json') ? readJson<{ models: Model[] }>('public/data/models.json').models : [];
 const firstSeenById = new Map(previous.map((m) => [m.id, m.firstSeen]));
 const today = new Date().toISOString().slice(0, 10);
@@ -229,30 +232,6 @@ for (const m of models.values()) {
   }
 }
 
-// Artificial Analysis slugs are kebab-case and list effort/reasoning variants of one model separately ("kimi-k3", "kimi-k3-low", "claude-opus-5-xhigh").
-// Only these suffixes count as variants: "glm-5-turbo" or "claude-opus-5-5" are different models and must not match "glm-5" / "claude-opus-5".
-const VARIANT = /^(low|medium|high|xhigh|max|reasoning|non-reasoning|thinking|adaptive|instruct)(-(low|medium|high|xhigh|max|reasoning|non-reasoning|thinking|adaptive|instruct))*$/;
-const aaSlug = (name: string) =>
-  name
-    .toLowerCase()
-    .replace(/^[a-z0-9-]+\./, '') // raw ids such as "openai.gpt-5.6-terra"
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-const benchmarkBySlug = new Map(benchmarks.map((b) => [b.slug, b]));
-
-function findBenchmark(name: string): BenchmarkRecord | undefined {
-  const aliased = benchmarkAliases[name];
-  if (aliased) return benchmarkBySlug.get(aliased);
-  const base = aaSlug(name);
-  const bases = [base, base.replace(/^(openai|google|meta|writer)-/, '')];
-  for (const b of bases) if (benchmarkBySlug.has(b)) return benchmarkBySlug.get(b);
-  // No default entry: take the strongest variant of the same model.
-  for (const b of bases) {
-    const variants = benchmarks.filter((x) => x.slug.startsWith(b + '-') && VARIANT.test(x.slug.slice(b.length + 1)));
-    if (variants.length) return variants.reduce((best, x) => ((x.scores.intelligenceIndex ?? -1) > (best.scores.intelligenceIndex ?? -1) ? x : best));
-  }
-  return undefined;
-}
 const noBenchmark: string[] = [];
 const tokensOf = (s: string) => new Set(s.toLowerCase().replace(/[()\-_:]/g, ' ').split(/\s+/).filter((t) => t && !NOISE.has(t)));
 // For an unmatched model, the closest Artificial Analysis names by token overlap, so aliases can be written without seeing the raw feed.
@@ -272,13 +251,15 @@ function nearestBenchmarks(name: string): string {
 }
 if (benchmarks.length) {
   for (const m of models.values()) {
-    const b = findBenchmark(m.name);
+    const b = findBenchmark(m.name, benchmarks, benchmarkAliases);
     if (b) {
       m.benchmarks = b.scores;
       m.benchmarkSource = { name: b.name, slug: b.slug };
     } else noBenchmark.push(`${m.name} -> ${nearestBenchmarks(m.name) || '?'}`);
   }
 }
+const fallbackNames = applyBenchmarkFallbacks(models.values(), benchmarkFallbacks);
+const missingBenchmarks = noBenchmark.filter((line) => !fallbackNames.some((name) => line.startsWith(`${name} ->`)));
 
 // Cross-check the Price List against models.dev's list prices (us-east-1 vs bare/us. ids). A mismatch means a parsing bug or a stale source.
 const mismatches: string[] = [];
@@ -326,7 +307,8 @@ const report = [
   `no context match (${unmatched.length}): ${unmatched.join(', ')}`,
   `Global price extended to other commercial regions for ${[...models.values()].filter((m) => m.copiedGlobalRegions).length} models: ${[...models.values()].filter((m) => m.copiedGlobalRegions).map((m) => `${m.name} (+${m.copiedGlobalRegions!.length})`).join(', ')}`,
   `price cross-check vs models.dev (${compared} values compared, ${mismatches.length} mismatches)${mismatches.length ? ':\n  ' + mismatches.join('\n  ') : ''}`,
-  benchmarks.length ? `no benchmark match (${noBenchmark.length}), model -> closest AA slugs:\n  ${noBenchmark.join('\n  ')}` : 'benchmarks: skipped (no AA_API_KEY)',
+  benchmarks.length ? `no benchmark match after fallbacks (${missingBenchmarks.length}), model -> closest AA slugs:\n  ${missingBenchmarks.join('\n  ')}` : 'benchmark API: skipped (no AA_API_KEY)',
+  `benchmark public-page fallbacks (${fallbackNames.length}): ${fallbackNames.join(', ') || 'none'}`,
 ].join('\n');
 console.log(report);
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, '```\n' + report + '\n```\n');

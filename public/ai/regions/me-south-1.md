@@ -9,7 +9,7 @@ Generated 2026-10-11 from the AWS Price List, AWS Bedrock model cards, and Artif
 - "Regional" price = In-region and Geo CRIS (AWS prices them the same here). "Global" price = Global CRIS, usually about 10% cheaper.
 - "yes?" means availability is inferred (no AWS model card matched), not confirmed.
 - Long-context: when a prompt exceeds the threshold (e.g. >272K tokens) the whole request is billed at the long-context price instead.
-- Intelligence / Coding are Artificial Analysis indices (0-100, higher is better); tok/s is median output speed. Missing for models Artificial Analysis does not cover.
+- Intelligence / Coding are Artificial Analysis indices (higher is better); tok/s is median output speed. Missing for models Artificial Analysis does not cover. Public-page measurement fallbacks include their source and verification date in models.json.
 - In-region and Geo prices differ by Region; Global CRIS prices are the same in every commercial Region (except Amazon Nova).
 - 4:1 blended price = (4 x input + output) / 5, ignoring caching.
 

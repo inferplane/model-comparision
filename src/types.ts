@@ -63,7 +63,7 @@ export interface Model {
   firstSeen: string;
   benchmarks?: BenchmarkScores;
   /** The Artificial Analysis entry the scores came from; AA lists reasoning/effort variants separately, so this says which one. */
-  benchmarkSource?: { name: string; slug: string };
+  benchmarkSource?: { name: string; slug: string; url?: string; verifiedAt?: string; kind?: 'public-page' };
 }
 
 /** Per region and endpoint: "i" in-region, "g" geo CRIS, "G" global CRIS. */
