@@ -1,5 +1,5 @@
 import type { Mode, Tier } from './types.ts';
-import { parseParams, serializeParams } from './urlstate.ts';
+import { parseParams, sanitizeStored, serializeParams } from './urlstate.ts';
 
 export interface State {
   query: string;
@@ -29,8 +29,7 @@ function load(): State {
   const fromUrl = parseParams(typeof location === 'undefined' ? '' : location.search);
   if (Object.keys(fromUrl).length) return { ...defaults, ...fromUrl };
   try {
-    const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
-    return { ...defaults, ...saved, query: '' };
+    return sanitizeStored(JSON.parse(localStorage.getItem(KEY) ?? '{}'), defaults);
   } catch {
     return { ...defaults };
   }

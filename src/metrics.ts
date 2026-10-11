@@ -55,3 +55,8 @@ export function leader(rows: Row[], metric: Metric): { row: Row; value: number }
   }
   return best;
 }
+
+/** Own-property lookup: METRICS is a plain object, so "constructor"/"toString" must not resolve to Object.prototype members. */
+export function metricFor(key: string): Metric {
+  return Object.hasOwn(METRICS, key) ? METRICS[key] : METRICS.intelligence;
+}

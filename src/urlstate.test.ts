@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { parseParams, serializeParams, type UrlState } from './urlstate.ts';
+import { METRICS, metricFor } from './metrics.ts';
+import { parseParams, RANK_METRICS, sanitizeStored, serializeParams, type UrlState } from './urlstate.ts';
 
 const defaults: UrlState = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
 
@@ -26,5 +27,29 @@ describe('parseParams', () => {
   });
   it('orders modes canonically so the same selection always gives the same link', () => {
     expect(parseParams('modes=global,in-region').modes).toEqual(['in-region', 'global']);
+  });
+});
+
+describe('prototype keys', () => {
+  // These all match the word-shaped regexes but resolve to Object.prototype members when used as a lookup key.
+  it.each(['constructor', 'toString', 'hasOwnProperty', 'valueOf', 'isPrototypeOf'])('ignores %s as metric, chart axis, and sort key', (key) => {
+    expect(parseParams(`metric=${key}&cy=${key}&sort=${key.toLowerCase().slice(0, 10)}.asc`)).toEqual({});
+  });
+  it('metricFor never returns a prototype member', () => {
+    for (const key of ['constructor', 'toString', '__proto__', 'hasOwnProperty']) expect(metricFor(key).key).toBe('intelligence');
+  });
+  it('keeps the metric allowlist in sync with the real metric table', () => {
+    for (const key of RANK_METRICS) expect(key === 'price' || Object.hasOwn(METRICS, key)).toBe(true);
+  });
+});
+
+describe('sanitizeStored', () => {
+  it('drops bad values saved from an earlier crafted link and keeps good ones', () => {
+    const saved = { region: 'eu-west-2', rankMetric: 'constructor', chartY: 'toString', modes: ['geo'], tier: 'evil', compare: ['a', '<x>'], query: 'leak' };
+    expect(sanitizeStored(saved, defaults)).toEqual({ ...defaults, region: 'eu-west-2', modes: ['geo'], compare: ['a'] });
+  });
+  it('survives junk', () => {
+    expect(sanitizeStored(null, defaults)).toEqual(defaults);
+    expect(sanitizeStored('x', defaults)).toEqual(defaults);
   });
 });

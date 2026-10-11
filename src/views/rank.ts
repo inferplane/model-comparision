@@ -1,6 +1,6 @@
 import { h } from '../dom.ts';
 import { matches, usd, variantRows, type Row } from '../data.ts';
-import { leader, METRICS, type Metric } from '../metrics.ts';
+import { leader, METRICS, metricFor, type Metric } from '../metrics.ts';
 import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { Model } from '../types.ts';
 
@@ -95,7 +95,7 @@ function highlights(rows: Row[]): HTMLElement {
 export function renderRank(models: Model[]): HTMLElement {
   const rows = filtered(models);
   const isPrice = state.rankMetric === 'price';
-  const metric = METRICS[state.rankMetric] ?? METRICS.intelligence;
+  const metric = metricFor(state.rankMetric);
   const providers = [...new Set(models.map((m) => m.provider))].sort();
   const sel = (label: string, opts: [string, string][], value: string, on: (v: string) => void) =>
     h('label', null, label, ' ', h('select', { 'aria-label': label, onchange: (e: Event) => on((e.target as HTMLSelectElement).value) }, ...opts.map(([v, t]) => h('option', { value: v, selected: v === value }, t))));
