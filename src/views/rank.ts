@@ -1,5 +1,5 @@
 import { h } from '../dom.ts';
-import { matches, MODES, supports, usd, variantRows, type Row } from '../data.ts';
+import { matches, MODES, providerSelected, supports, usd, variantRows, type Row } from '../data.ts';
 import { leader, METRICS, metricFor, type Metric } from '../metrics.ts';
 import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { Model } from '../types.ts';
@@ -7,6 +7,7 @@ import { emptyState, icon, pageHeading } from '../components/ui.ts';
 import { rankModelRows } from '../ranking.ts';
 import { codingNotice } from '../components/coding-notice.ts';
 import { newBadge } from '../recent.ts';
+import { multiSelect } from '../components/multi-select.ts';
 
 const TABS: [string, string][] = [
   ['intelligence', '지능'], ['coding', 'Coding Index'], ['scicode', 'SciCode'], ['math', '수학'], ['speed', '속도'], ['ttft', '지연'], ['price', '가격'], ['context', 'Context'],
@@ -24,7 +25,7 @@ const PRICE_SERIES: [keyof typeof METRICS, string, string][] = [
 function filtered(models: Model[]): Row[] {
   return variantRows(models, state)
     .filter((r) => !state.query || matches(r.m, state.query))
-    .filter((r) => !state.provider || r.m.provider === state.provider)
+    .filter((r) => providerSelected(state.providers, r.m.provider))
     .filter((r) => (state.weights === '' ? true : r.m.openWeights === (state.weights === 'open')))
     .filter((r) => (state.reasoning === '' ? true : r.m.reasoning === (state.reasoning === 'yes')));
 }
@@ -101,7 +102,7 @@ export function renderRank(models: Model[]): HTMLElement {
   const rows = filtered(models);
   const isPrice = state.rankMetric === 'price';
   const metric = metricFor(state.rankMetric);
-  const known = models.filter((m) => (!state.query || matches(m, state.query)) && (!state.provider || m.provider === state.provider)
+  const known = models.filter((m) => (!state.query || matches(m, state.query)) && providerSelected(state.providers, m.provider)
     && (!state.weights || m.openWeights === (state.weights === 'open')) && (!state.reasoning || m.reasoning === (state.reasoning === 'yes')));
   const eligibleIds = new Set(rows.map((r) => r.m.id));
   const unavailable = known.filter((m) => !eligibleIds.has(m.id));
@@ -128,7 +129,7 @@ export function renderRank(models: Model[]): HTMLElement {
       ...OTHER_BENCH.map((k) => h('option', { value: k, selected: state.rankMetric === k }, METRICS[k].label))));
 
   const filters = h('div', { class: 'filters' },
-    sel('제공사', [['', '전체'], ...providers.map((p): [string, string] => [p, p])], state.provider, (v) => update({ provider: v })),
+    multiSelect({ id: 'providers', label: '제공사', allLabel: '제공사 전체', options: providers, selected: state.providers, onChange: (next) => update({ providers: next }) }),
     sel('가중치', [['', '전체'], ['open', '오픈 웨이트'], ['closed', '독점']], state.weights, (v) => update({ weights: v as 'open' })),
     sel('추론', [['', '전체'], ['yes', '추론 모델'], ['no', '비추론']], state.reasoning, (v) => update({ reasoning: v as 'yes' })),
     sel('표시', TOPS.map((n): [string, string] => [String(n), n ? `상위 ${n}` : '전체']), String(state.rankTop), (v) => update({ rankTop: Number(v) })));

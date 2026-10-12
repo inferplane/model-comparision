@@ -1,4 +1,4 @@
-import { blended, matches, priceOf, variants } from './data.ts';
+import { blended, matches, priceOf, providerSelected, variants } from './data.ts';
 import type { BenchmarkScores, Mode, Model, Scope, Tier } from './types.ts';
 
 export type ValueOrder = 'value' | 'price' | 'score';
@@ -25,7 +25,7 @@ export interface ValueOptions {
   chartY: keyof BenchmarkScores;
   pct: boolean;
   query?: string;
-  provider?: string;
+  providers?: string[];
   onlyCache?: boolean;
 }
 
@@ -62,13 +62,13 @@ export function valueExclusions(models: Model[], opts: ValueOptions, maxScore: n
   const excluded: ValueExclusion[] = [];
   for (const m of models) {
     if (opts.query && !matches(m, opts.query)) continue;
-    if (opts.provider && m.provider !== opts.provider) { excluded.push({ m, reason: 'provider' }); continue; }
+    if (!providerSelected(opts.providers, m.provider)) { excluded.push({ m, reason: 'provider' }); continue; }
     if (!variants(m, opts.modes, opts.region).length) { excluded.push({ m, reason: 'inference' }); continue; }
     const score = m.benchmarks?.[opts.chartY];
     if (score === undefined || !Number.isFinite(score) || score < 0 || opts.pct && score > 1) { excluded.push({ m, reason: 'benchmark' }); continue; }
-    const priced = collectValuePoints([m], { ...opts, query: '', provider: '', onlyCache: false });
+    const priced = collectValuePoints([m], { ...opts, query: '', providers: [], onlyCache: false });
     if (!priced.length) { excluded.push({ m, reason: 'price' }); continue; }
-    const cached = opts.onlyCache ? collectValuePoints([m], { ...opts, query: '', provider: '' }) : priced;
+    const cached = opts.onlyCache ? collectValuePoints([m], { ...opts, query: '', providers: [] }) : priced;
     if (!cached.length) { excluded.push({ m, reason: 'cache' }); continue; }
     const scoreOK = filterValuePoints(cached, maxScore, quality, 0);
     if (!scoreOK.length) { excluded.push({ m, reason: 'quality', score: cached[0].y }); continue; }
@@ -82,7 +82,7 @@ export function collectValuePoints(models: Model[], opts: ValueOptions): ValuePo
   const points: ValuePoint[] = [];
   const both = opts.modes.includes('global') && opts.modes.some((mode) => mode !== 'global');
   for (const m of models) {
-    if (opts.query && !matches(m, opts.query) || opts.provider && m.provider !== opts.provider) continue;
+    if (opts.query && !matches(m, opts.query) || !providerSelected(opts.providers, m.provider)) continue;
     const raw = m.benchmarks?.[opts.chartY];
     if (raw === undefined || !Number.isFinite(raw) || raw < 0 || opts.pct && raw > 1) continue;
     for (const v of variants(m, opts.modes, opts.region)) {

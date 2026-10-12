@@ -97,6 +97,9 @@ export function allRegions(models: Model[]): string[] {
   return [...new Set(models.flatMap((m) => m.regions))].sort();
 }
 
+/** An empty selection means "all providers". */
+export const providerSelected = (providers: readonly string[] | undefined, provider: string): boolean => !providers?.length || providers.includes(provider);
+
 export function matches(m: Model, q: string): boolean {
   const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
   const hay = `${m.name} ${m.provider} ${m.id}`.toLowerCase();

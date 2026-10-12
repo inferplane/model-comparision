@@ -7,7 +7,7 @@ export interface UrlState {
   region: string;
   modes: Mode[];
   tier: Tier;
-  provider: string;
+  providers: string[];
   onlyCache: boolean;
   onlyInRegion: boolean;
   sort: { key: string; dir: 1 | -1 };
@@ -36,6 +36,7 @@ export const CHART_Y = ['intelligenceIndex', 'codingIndex', 'mathIndex', 'gpqa',
 export const SORT_KEYS = ['name', 'provider', 'mode', 'ai', 'coding', 'scicode', 'in', 'output', 'cr', 'cw', 'bl', 'lc', 'ttft', 'speed', 'ctx', 'out', 'bin', 'bout'];
 const ID = /^[a-z0-9][a-z0-9._-]{0,59}$/;
 export const MAX_COMPARE_IDS = 6;
+export const MAX_PROVIDERS = 20;
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -51,8 +52,9 @@ export function parseParams(search: string): Partial<UrlState> {
   if (modes.length) out.modes = MODE_VALUES.filter((m) => modes.includes(m));
   const tier = p.get('tier');
   if (tier && (TIERS as string[]).includes(tier)) out.tier = tier as Tier;
-  const provider = p.get('provider');
-  if (provider) out.provider = provider.slice(0, 40);
+  // Repeated params (?provider=A&provider=B). A single legacy ?provider=A is the same thing. Sorted, so one selection is one link.
+  const providers = [...new Set(p.getAll('provider').map((v) => v.trim().slice(0, 40)).filter(Boolean))].sort().slice(0, MAX_PROVIDERS);
+  if (providers.length) out.providers = providers;
   if (p.get('cache') === '1') out.onlyCache = true;
   if (p.get('priced') === '0') out.onlyInRegion = false;
   if (p.get('cols') === '1') out.expandCols = true;
@@ -89,7 +91,7 @@ export function serializeParams(s: UrlState, defaults: UrlState): string {
   if (s.region !== defaults.region) p.set('region', s.region);
   if (!same(s.modes, defaults.modes)) p.set('modes', s.modes.join(','));
   if (s.tier !== defaults.tier) p.set('tier', s.tier);
-  if (s.provider) p.set('provider', s.provider);
+  for (const provider of [...s.providers].sort()) p.append('provider', provider);
   if (s.onlyCache) p.set('cache', '1');
   if (!s.onlyInRegion) p.set('priced', '0');
   if (s.expandCols) p.set('cols', '1');
@@ -114,7 +116,10 @@ export function serializeParams(s: UrlState, defaults: UrlState): string {
  */
 export function sanitizeStored(saved: unknown, defaults: UrlState): UrlState {
   if (typeof saved !== 'object' || saved === null) return { ...defaults };
-  const merged = { ...defaults, ...(saved as Partial<UrlState>), query: '' };
+  const stored = saved as Partial<UrlState> & { provider?: unknown };
+  // Preferences saved before multi-select kept one provider as a string.
+  const legacy = typeof stored.provider === 'string' && stored.provider && !stored.providers ? [stored.provider] : undefined;
+  const merged = { ...defaults, ...stored, ...(legacy && { providers: legacy }), query: '' };
   try {
     return { ...defaults, ...parseParams(serializeParams(merged, defaults)) };
   } catch {

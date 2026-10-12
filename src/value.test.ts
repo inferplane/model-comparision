@@ -25,7 +25,10 @@ describe('cost-performance data', () => {
     sol.provider = 'OpenAI';
     sol.pricing['us-east-1'].regional!.standard!.cacheRead = 0.1;
     const other = model('other', 50, 2);
-    expect(collectValuePoints([sol, other], { ...opts, provider: 'OpenAI', query: 'gpt-6-1-sol', onlyCache: true }).map((p) => p.m.id)).toEqual(['gpt-6.1-sol']);
+    expect(collectValuePoints([sol, other], { ...opts, providers: ['OpenAI'], query: 'gpt-6-1-sol', onlyCache: true }).map((p) => p.m.id)).toEqual(['gpt-6.1-sol']);
+    // Two providers keep both vendors' models; an empty list keeps everything.
+    expect(collectValuePoints([sol, other], { ...opts, providers: ['OpenAI', 'Example'] }).map((p) => p.m.id).sort()).toEqual([other.id, sol.id].sort());
+    expect(collectValuePoints([sol, other], { ...opts, providers: [] })).toHaveLength(collectValuePoints([sol, other], { ...opts, providers: ['OpenAI', 'Example'] }).length);
     expect(collectValuePoints([other], { ...opts, onlyCache: true })).toEqual([]);
   });
   it('ranks value, price and performance as distinct user choices', () => {
@@ -100,7 +103,7 @@ describe('why a model is excluded', () => {
   it('explains provider and cache requirements without replacing actual data', () => {
     const vendor = { ...model('other-provider', 52, 3), provider: 'Other' };
     const noCache = model('no-cache', 52, 3);
-    expect(valueExclusions([vendor, noCache], { ...opts, provider: 'Example', onlyCache: true }, 60, 'all', 0).map((e) => e.reason)).toEqual(['provider', 'cache']);
+    expect(valueExclusions([vendor, noCache], { ...opts, providers: ['Example'], onlyCache: true }, 60, 'all', 0).map((e) => e.reason)).toEqual(['provider', 'cache']);
   });
   it('identifies performance and unit-price requirements separately', () => {
     const low = model('gpt-6-luna', 38.1, 0.18);

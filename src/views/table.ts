@@ -1,11 +1,12 @@
 import { h } from '../dom.ts';
-import { blended, longPriceOf, matches, priceOf, tokens, usd, variantRows, type Row } from '../data.ts';
+import { blended, longPriceOf, matches, priceOf, providerSelected, tokens, usd, variantRows, type Row } from '../data.ts';
 import { METRICS } from '../metrics.ts';
 import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { Model, TokenKind } from '../types.ts';
 import { emptyState, icon, pageHeading, type IconName } from '../components/ui.ts';
 import { codingNotice } from '../components/coding-notice.ts';
 import { newBadge } from '../recent.ts';
+import { multiSelect } from '../components/multi-select.ts';
 
 interface Col {
   key: string;
@@ -64,7 +65,7 @@ const COLS: Col[] = [
 ];
 
 function buildRows(models: Model[]): Row[] {
-  return variantRows(models.filter((m) => matches(m, state.query) && (!state.provider || m.provider === state.provider)), state)
+  return variantRows(models.filter((m) => matches(m, state.query) && providerSelected(state.providers, m.provider)), state)
     .filter((r) => !state.onlyCache || p('cacheRead')(r) !== undefined);
 }
 
@@ -78,8 +79,8 @@ export function renderTable(models: Model[]): HTMLElement {
   const prices = filtered.map((r) => blended(p('input')(r), p('output')(r))).filter((v): v is number => v !== undefined);
   const contexts = visibleModels.map((m) => m.contextWindow).filter((v): v is number => v !== undefined);
   const selectedCount = models.filter((m) => state.compare.includes(m.id)).length;
-  const reset = () => update({ query: '', provider: '', onlyCache: false, onlyInRegion: true, tier: 'standard' });
-  const hasFilters = !!state.query || !!state.provider || state.onlyCache || !state.onlyInRegion || state.tier !== 'standard';
+  const reset = () => update({ query: '', providers: [], onlyCache: false, onlyInRegion: true, tier: 'standard' });
+  const hasFilters = !!state.query || state.providers.length > 0 || state.onlyCache || !state.onlyInRegion || state.tier !== 'standard';
 
   const draw = () => {
     const col = COLS.find((c) => c.key === state.sort.key) ?? COLS[1];
@@ -136,8 +137,7 @@ export function renderTable(models: Model[]): HTMLElement {
 
   const filters = h('div', { class: 'filters table-filters' },
     h('span', { class: 'filter-label' }, icon('filter'), '필터'),
-    h('select', { 'aria-label': '제공사', onchange: (e: Event) => update({ provider: (e.target as HTMLSelectElement).value }) },
-      h('option', { value: '' }, '모든 제공사'), ...providers.map((x) => h('option', { value: x, selected: x === state.provider }, x))),
+    multiSelect({ id: 'providers', label: '제공사', allLabel: '모든 제공사', options: providers, selected: state.providers, onChange: (next) => update({ providers: next }) }),
     h('label', null, '티어 ', h('select', { 'aria-label': '티어', onchange: (e: Event) => update({ tier: (e.target as HTMLSelectElement).value as 'standard' }) },
       ...(['standard', 'priority', 'flex'] as const).map((t) => h('option', { value: t, selected: t === state.tier }, t)))),
     h('label', null, h('input', { type: 'checkbox', 'aria-label': '선택 리전 단가 있는 모델만', checked: state.onlyInRegion, onchange: (e: Event) => update({ onlyInRegion: (e.target as HTMLInputElement).checked }) }), '리전 단가 있는 모델만'),
@@ -146,7 +146,7 @@ export function renderTable(models: Model[]): HTMLElement {
 
   const activeFilters = h('div', { class: 'active-filters' },
     state.query ? h('button', { class: 'filter-pill', type: 'button', onclick: () => update({ query: '' }), 'aria-label': '검색어 필터 제거' }, `검색: ${state.query}`, icon('close')) : null,
-    state.provider ? h('button', { class: 'filter-pill', type: 'button', onclick: () => update({ provider: '' }), 'aria-label': '제공사 필터 제거' }, state.provider, icon('close')) : null,
+    ...state.providers.map((p) => h('button', { class: 'filter-pill', type: 'button', onclick: () => update({ providers: state.providers.filter((x) => x !== p) }), 'aria-label': `제공사 ${p} 필터 제거` }, p, icon('close'))),
     state.onlyCache ? h('button', { class: 'filter-pill', type: 'button', onclick: () => update({ onlyCache: false }), 'aria-label': '캐시 필터 제거' }, '캐시 지원', icon('close')) : null);
   const stats: [IconName, string, string, string][] = [
     ['layers', '탐색 가능한 모델', String(visibleModels.length), `전체 ${models.length}개 중 현재 조건`],

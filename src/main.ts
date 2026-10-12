@@ -34,7 +34,8 @@ async function start() {
   setRecentlyAdded(recentlyAdded(changes.entries, new Date().toISOString().slice(0, 10)));
   // A shared link may name a region or provider this dataset doesn't have (typo, or removed since); fall back instead of showing an empty page.
   if (!allRegions(models).includes(state.region)) update({ region: DEFAULT_REGION });
-  if (state.provider && !models.some((m) => m.provider === state.provider)) update({ provider: '' });
+  const knownProviders = new Set(models.map((m) => m.provider));
+  if (state.providers.some((p) => !knownProviders.has(p))) update({ providers: state.providers.filter((p) => knownProviders.has(p)) });
   const header = renderHeader(models, generatedAt);
   const view = h('div', { id: 'view', tabindex: -1 });
   const footer = h('footer', { class: 'site-footer' },

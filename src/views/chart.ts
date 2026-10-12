@@ -1,9 +1,10 @@
 import { h, s } from '../dom.ts';
-import { matches, MODES, supports, tokens, usd } from '../data.ts';
+import { matches, MODES, providerSelected, supports, tokens, usd } from '../data.ts';
 import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { BenchmarkScores, Model, Tier } from '../types.ts';
 import { emptyState, icon, pageHeading } from '../components/ui.ts';
 import { codingNotice } from '../components/coding-notice.ts';
+import { multiSelect } from '../components/multi-select.ts';
 import { collectValuePoints, filterValuePoints, isRecentModel, QUALITY_FLOOR, rankValuePoints, valueExclusions, type ExclusionReason, type ValueOrder, type ValuePoint, type ValueQuality } from '../value.ts';
 
 interface Metric { key: keyof BenchmarkScores; label: string; pct: boolean; }
@@ -192,15 +193,15 @@ export function renderChart(models: Model[]): HTMLElement {
   const today = Date.now();
   const catalogue = state.chartLatest ? models.filter((m) => isRecentModel(m, today)) : models;
   // Performance floors use the same region/modes/tier baseline even when search, provider or budget changes.
-  const market = collectValuePoints(models, { ...options, query: '', provider: '', onlyCache: false });
+  const market = collectValuePoints(models, { ...options, query: '', providers: [], onlyCache: false });
   const maxScore = Math.max(0, ...market.map((p) => p.y));
   const all = collectValuePoints(catalogue, options);
   const points = filterValuePoints(all, maxScore, state.chartQuality, state.chartBudget);
   const ranked = rankValuePoints(points, state.chartOrder);
   const unit = metric.pct ? '%p/$' : '점수/$';
   const providers = [...new Set(models.map((m) => m.provider))].sort();
-  const reset = () => update({ chartQuality: 'all', chartBudget: 0, provider: '', query: '', onlyCache: false, tier: 'standard' });
-  const latest = () => update({ chartLatest: true, chartY: 'intelligenceIndex', chartX: 'blend', modes: [...MODES], chartQuality: 'all', chartBudget: 0, provider: '', query: '', onlyCache: false, tier: 'standard', chartOrder: 'value' });
+  const reset = () => update({ chartQuality: 'all', chartBudget: 0, providers: [], query: '', onlyCache: false, tier: 'standard' });
+  const latest = () => update({ chartLatest: true, chartY: 'intelligenceIndex', chartX: 'blend', modes: [...MODES], chartQuality: 'all', chartBudget: 0, providers: [], query: '', onlyCache: false, tier: 'standard', chartOrder: 'value' });
   const select = (label: string, aria: string, values: [string, string][], selected: string, onChange: (value: string) => void) =>
     h('label', null, h('span', null, label), h('select', { 'aria-label': aria, onchange: (event: Event) => onChange((event.target as HTMLSelectElement).value) },
       ...values.map(([value, text]) => h('option', { value, selected: value === selected }, text))));
@@ -211,7 +212,7 @@ export function renderChart(models: Model[]): HTMLElement {
     h('div', { class: 'value-control-row' },
       select('성능 지표', 'Y축 벤치마크', available.map((m) => [m.key, m.label]), metric.key, (chartY) => update({ chartY })),
       select('비용 기준', 'X축 단가 기준', Object.entries(COST_LABELS), state.chartX, (chartX) => update({ chartX: chartX as typeof state.chartX })),
-      select('제공사', '제공사', [['', '모든 제공사'], ...providers.map((p): [string, string] => [p, p])], state.provider, (provider) => update({ provider })),
+      h('div', { class: 'value-field' }, h('span', null, '제공사'), multiSelect({ id: 'providers', label: '제공사', allLabel: '모든 제공사', options: providers, selected: state.providers, onChange: (next) => update({ providers: next }) })),
       select('티어', '티어', ['standard', 'priority', 'flex'].map((t) => [t, t]), state.tier, (tier) => update({ tier: tier as Tier }))),
     h('div', { class: 'value-control-row requirements' },
       select('최소 성능', '최소 성능', QUALITY_LABELS, state.chartQuality, (chartQuality) => update({ chartQuality: chartQuality as ValueQuality })),
@@ -230,7 +231,7 @@ export function renderChart(models: Model[]): HTMLElement {
   const excluded = valueExclusions(catalogue, options, maxScore, state.chartQuality, state.chartBudget);
   const enableGlobal = () => update({ modes: MODES.filter((mode) => mode === 'global' || state.modes.includes(mode)) });
   const definitions: [ExclusionReason, string, string, (() => void) | undefined, string][] = [
-    ['provider', '제공사 조건', `${state.provider || '선택한 제공사'} 외 모델입니다.`, () => update({ provider: '' }), '모든 제공사 보기'],
+    ['provider', '제공사 조건', `${state.providers.join(', ') || '선택한 제공사'} 외 모델입니다.`, () => update({ providers: [] }), '모든 제공사 보기'],
     ['inference', '리전·추론 방식', `${state.region}에서 선택한 추론 방식으로 표시할 수 없습니다.`,
       excluded.some((e) => e.reason === 'inference' && supports(e.m, 'global', state.region).ok) && !state.modes.includes('global') ? enableGlobal : undefined, 'Global CRIS 포함해서 보기'],
     ['benchmark', '선택 지표 측정값 없음', `${metric.label} 측정값이 없어 가성비를 계산하지 않습니다.`,
@@ -274,7 +275,7 @@ export function renderChart(models: Model[]): HTMLElement {
   return h('main', { class: 'value-page' },
     pageHeading('PERFORMANCE & COST', '필요한 성능은 지키고, 비용은 낮추세요', '최소 성능과 예산을 정하면, 조건에 맞는 모델을 가성비 순으로 바로 볼 수 있습니다.'),
     controls,
-    metric.key === 'codingIndex' ? codingNotice(catalogue.filter((m) => (!state.query || matches(m, state.query)) && (!state.provider || m.provider === state.provider)),
+    metric.key === 'codingIndex' ? codingNotice(catalogue.filter((m) => (!state.query || matches(m, state.query)) && providerSelected(state.providers, m.provider)),
       h('button', { class: 'button secondary', type: 'button', 'aria-label': 'SciCode 측정값으로 비교하기', onclick: () => {
         update({ chartY: 'scicode' });
         document.querySelector<HTMLSelectElement>('[aria-label="Y축 벤치마크"]')?.focus({ preventScroll: true });

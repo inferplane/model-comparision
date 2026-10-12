@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { METRICS, metricFor } from './metrics.ts';
 import { parseParams, RANK_METRICS, sanitizeStored, serializeParams, type UrlState } from './urlstate.ts';
 
-const defaults: UrlState = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', provider: '', onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', chartQuality: 'balanced', chartBudget: 0, chartOrder: 'value', chartLatest: false, rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
+const defaults: UrlState = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', providers: [], onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', chartQuality: 'balanced', chartBudget: 0, chartOrder: 'value', chartLatest: false, rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
 
 describe('serializeParams', () => {
   it('leaves the default view with a clean URL', () => {
@@ -30,7 +30,7 @@ describe('parseParams', () => {
     }
   });
   it('round-trips a non-default state', () => {
-    const s: UrlState = { ...defaults, query: 'gpt', region: 'eu-west-2', modes: ['in-region', 'global'], tier: 'flex', provider: 'OpenAI', onlyCache: true, onlyInRegion: false, expandCols: true, sort: { key: 'ai', dir: -1 }, weights: 'open', reasoning: 'yes', rankMetric: 'speed', rankTop: 0, chartY: 'codingIndex', chartX: 'output', compare: ['claude-opus-5.5', 'gpt-6.1-sol'] };
+    const s: UrlState = { ...defaults, query: 'gpt', region: 'eu-west-2', modes: ['in-region', 'global'], tier: 'flex', providers: ['Anthropic', 'OpenAI'], onlyCache: true, onlyInRegion: false, expandCols: true, sort: { key: 'ai', dir: -1 }, weights: 'open', reasoning: 'yes', rankMetric: 'speed', rankTop: 0, chartY: 'codingIndex', chartX: 'output', compare: ['claude-opus-5.5', 'gpt-6.1-sol'] };
     expect({ ...defaults, ...parseParams(serializeParams(s, defaults)) }).toEqual(s);
   });
   it('drops malformed values instead of trusting them', () => {
@@ -65,5 +65,27 @@ describe('sanitizeStored', () => {
   it('survives junk', () => {
     expect(sanitizeStored(null, defaults)).toEqual(defaults);
     expect(sanitizeStored('x', defaults)).toEqual(defaults);
+  });
+});
+
+describe('multiple providers', () => {
+  it('writes one repeated param per provider, sorted, so a selection is one link', () => {
+    expect(serializeParams({ ...defaults, providers: ['OpenAI', 'Anthropic'] }, defaults)).toBe('provider=Anthropic&provider=OpenAI');
+  });
+  it('reads repeated params, dedupes, and sorts', () => {
+    expect(parseParams('provider=OpenAI&provider=Anthropic&provider=OpenAI').providers).toEqual(['Anthropic', 'OpenAI']);
+  });
+  it('still opens an old single-provider link', () => {
+    expect(parseParams('provider=Anthropic').providers).toEqual(['Anthropic']);
+  });
+  it('keeps names with spaces and drops blanks, trims, caps length and count', () => {
+    expect(parseParams('provider=Z%20AI&provider=&provider=%20Moonshot%20AI%20').providers).toEqual(['Moonshot AI', 'Z AI']);
+    expect(parseParams(`provider=${'x'.repeat(100)}`).providers?.[0]).toHaveLength(40);
+    const many = Array.from({ length: 40 }, (_, i) => `provider=p${String(i).padStart(2, '0')}`).join('&');
+    expect(parseParams(many).providers).toHaveLength(20);
+  });
+  it('migrates a provider saved by the single-select version', () => {
+    expect(sanitizeStored({ provider: 'OpenAI', region: 'eu-west-2' }, defaults)).toEqual({ ...defaults, region: 'eu-west-2', providers: ['OpenAI'] });
+    expect(sanitizeStored({ provider: 'OpenAI', providers: ['Meta'] }, defaults).providers).toEqual(['Meta']);
   });
 });
