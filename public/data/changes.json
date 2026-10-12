@@ -1,1 +1,1 @@
-{"updatedAt":"2026-10-12T04:42:52.661Z","entries":[{"date":"2026-10-12","added":[],"removed":[],"priceChanges":[],"availabilityChanges":[{"id":"nova-lite","name":"Nova Lite","provider":"Amazon","regionCounts":{"geo":[18,19]}},{"id":"claude-3-haiku","name":"Claude 3 Haiku","provider":"Anthropic","regionCounts":{"geo":[12,13]}},{"id":"claude-haiku-4.5","name":"Claude Haiku 4.5","provider":"Anthropic","regionCounts":{"in-region":[7,8],"geo":[20,22]}}]}]}
+{"updatedAt":"2026-10-12T04:51:08.148Z","entries":[]}
