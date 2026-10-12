@@ -191,7 +191,7 @@ model,provider,region,scope,input,output,cache_read,cache_write,long_context_thr
 "Claude 2.0",Anthropic,us-west-2,regional,8,,,,,,,In-region+Geo CRIS
 "Claude 2.1",Anthropic,us-east-1,regional,8,,,,,,,In-region+Geo CRIS
 "Claude 2.1",Anthropic,us-west-2,regional,8,,,,,,,In-region+Geo CRIS
-"Claude 3 Haiku",Anthropic,ap-northeast-1,regional,0.25,1.25,,,,,,In-region
+"Claude 3 Haiku",Anthropic,ap-northeast-1,regional,0.25,1.25,,,,,,In-region+Geo CRIS
 "Claude 3 Haiku",Anthropic,ap-northeast-2,regional,0.25,1.25,,,,,,In-region+Geo CRIS
 "Claude 3 Haiku",Anthropic,ap-south-1,regional,0.25,1.25,,,,,,In-region+Geo CRIS
 "Claude 3 Haiku",Anthropic,ap-southeast-1,regional,0.25,1.25,,,,,,In-region+Geo CRIS

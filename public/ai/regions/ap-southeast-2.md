@@ -1,6 +1,6 @@
 # Amazon Bedrock model comparison: ap-southeast-2
 
-Generated 2026-10-11 from the AWS Price List, AWS Bedrock model cards, and Artificial Analysis. Interactive version: https://inferplane.github.io/model-comparision/ . This file lists the 107 models that can be invoked from **ap-southeast-2** by at least one method. Other regions: https://inferplane.github.io/model-comparision/ai/ . Per-region prices for every model: https://inferplane.github.io/model-comparision/ai/prices.csv . Full data: https://inferplane.github.io/model-comparision/data/models.json .
+Generated 2026-10-12 from the AWS Price List, AWS Bedrock model cards, and Artificial Analysis. Interactive version: https://inferplane.github.io/model-comparision/ . This file lists the 107 models that can be invoked from **ap-southeast-2** by at least one method. Other regions: https://inferplane.github.io/model-comparision/ai/ . Per-region prices for every model: https://inferplane.github.io/model-comparision/ai/prices.csv . Full data: https://inferplane.github.io/model-comparision/data/models.json .
 
 ## How to read this
 
@@ -51,7 +51,7 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Jamba-Instruct | AI21 Labs | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Jurassic-2 Mid | AI21 Labs | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Jurassic-2 Ultra | AI21 Labs | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
-| Nova 2.0 Lite | Amazon | no | no | yes | 1M | 64K | 8.7 | - | - | 227 | - | - | $0.32 / $2.63 | $0.08 / $0.00 | - | - |
+| Nova 2.0 Lite | Amazon | no | no | yes | 1M | 64K | 8.7 | - | - | 225 | - | - | $0.32 / $2.63 | $0.08 / $0.00 | - | - |
 | Nova 2.0 Omni | Amazon | yes? | yes? | yes? | 미확인 | 미확인 | 8.2 | - | - | - | - | - | $0.30 / $2.60 | - | - | - |
 | Nova 2.0 Pro | Amazon | yes? | yes? | yes? | 미확인 | 미확인 | 10.0 | 20.9 | - | 126 | - | - | $1.31 / $10.51 | - | - | - |
 | Nova 2.5 Sonic | Amazon | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
@@ -75,8 +75,8 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Claude 3.7 Sonnet | Anthropic | yes? | yes? | no | 미확인 | 미확인 | 15.3 | - | - | - | $3.00 / $15.00 | $0.30 / $3.75 | - | - | - | - |
 | Claude Fable 5 | Anthropic | no | no | yes | 1M | 128K | 49.6 | 76.5 | 61.0 | - | $11.00 / $55.00 | $1.10 / $13.75 | $10.00 / $50.00 | $1.00 / $12.50 | - | - |
 | Claude Fable 5.1 | Anthropic | no | no | yes | 1M | 128K | 53.4 | 81.6 | 63.1 | 72 | - | - | $10.00 / $50.00 | $0.25 / $12.50 | - | - |
-| Claude Haiku 4.5 | Anthropic | no | yes | yes | 200K | 64K | 15.4 | - | - | 97 | $1.10 / $5.50 | $0.11 / $1.375 | $1.00 / $5.00 | $0.10 / $1.25 | - | - |
-| Claude Haiku 5.5 | Anthropic | no | yes | yes | 1M | 128K | 43.4 | - | 55.0 | 237 | $0.11 / $0.55 | $0.011 / $0.1375 | $0.10 / $0.50 | $0.01 / $0.125 | >100K $0.55 / $2.75 | - |
+| Claude Haiku 4.5 | Anthropic | no | yes | yes | 200K | 64K | 15.4 | - | - | - | $1.10 / $5.50 | $0.11 / $1.375 | $1.00 / $5.00 | $0.10 / $1.25 | - | - |
+| Claude Haiku 5.5 | Anthropic | no | yes | yes | 1M | 128K | 43.4 | - | 55.0 | 238 | $0.11 / $0.55 | $0.011 / $0.1375 | $0.10 / $0.50 | $0.01 / $0.125 | >100K $0.55 / $2.75 | - |
 | Claude Instant | Anthropic | yes? | yes? | no | 미확인 | 미확인 | 5.0 | 7.8 | - | - | - | - | - | - | - | - |
 | Claude Instant (100K) | Anthropic | yes? | yes? | no | 미확인 | 미확인 | 5.0 | 7.8 | - | - | - | - | - | - | - | - |
 | Claude Mythos 5.1 | Anthropic | no | no | yes | 1M | 128K | - | - | - | - | - | - | $10.00 / $50.00 | $0.25 / $12.50 | - | - |
@@ -92,7 +92,7 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Claude Sonnet 4.5 | Anthropic | no | yes | yes | 200K | 64K | 19.3 | - | - | - | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | 2027-04-08 |
 | Claude Sonnet 4.6 | Anthropic | no | yes | yes | 1M | 64K | 24.7 | - | - | - | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
 | Claude Sonnet 5 | Anthropic | no | yes | yes | 1M | 128K | 38.2 | 71.5 | 54.3 | - | $2.20 / $11.00 | $0.22 / $2.75 | $2.00 / $10.00 | $0.20 / $2.50 | - | - |
-| Claude Sonnet 5.5 | Anthropic | no | yes | yes | 1M | 128K | 56.0 | - | 61.0 | 137 | $2.20 / $11.00 | $0.11 / $2.75 | $2.00 / $10.00 | $0.10 / $2.50 | - | - |
+| Claude Sonnet 5.5 | Anthropic | no | yes | yes | 1M | 128K | 56.0 | - | 61.0 | 135 | $2.20 / $11.00 | $0.11 / $2.75 | $2.00 / $10.00 | $0.10 / $2.50 | - | - |
 | Cohere Embed 3 Model - English | Cohere | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | $0.10 / - | - | - | - | - | - |
 | Cohere Embed 4 Model | Cohere | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | $0.12 / - | - | - | - | - | - |
 | Cohere Embed Model 3 - Multilingual | Cohere | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | $0.10 / - | - | - | - | - | - |
@@ -112,9 +112,9 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | MiniMax M2.5 | MiniMax | yes | no | no | 196K | 8K | 22.8 | - | - | - | $0.31 / $1.24 | - | - | - | - | - |
 | Devstral | Mistral | yes | no | no | 256K | 32K | 9.0 | - | - | - | $0.41 / $2.06 | - | - | - | - | March 30, 2027 |
 | Magistral Small 1.2 | Mistral | yes | no | no | 128K | 40K | 8.6 | 14.7 | - | 78 | $0.515 / $1.545 | - | - | - | - | - |
-| Ministral 14B 3.0 | Mistral | yes | no | no | 128K | 8K | 6.0 | 14.4 | 23.8 | 62 | $0.206 / $0.206 | - | - | - | - | - |
+| Ministral 14B 3.0 | Mistral | yes | no | no | 128K | 8K | 6.0 | 14.4 | 23.8 | 70 | $0.206 / $0.206 | - | - | - | - | - |
 | Ministral 3B 3.0 | Mistral | yes | no | no | 128K | 8K | 4.8 | 4.8 | 15.3 | 242 | $0.103 / $0.103 | - | - | - | - | - |
-| Ministral 8B 3.0 | Mistral | yes | no | no | 128K | 8K | 5.5 | 9.7 | 20.7 | 104 | $0.1545 / $0.1545 | - | - | - | - | - |
+| Ministral 8B 3.0 | Mistral | yes | no | no | 128K | 8K | 5.5 | 9.7 | 20.7 | 106 | $0.1545 / $0.1545 | - | - | - | - | - |
 | Mistral 7B | Mistral | yes | no | no | 32K | 4K | 5.0 | - | - | - | $0.20 / $0.26 | - | - | - | - | March 30, 2027 |
 | Mistral Large | Mistral | yes | no | no | 32K | 4K | 5.8 | - | - | - | $5.20 / $15.60 | - | - | - | - | No sooner than 4/3/2025 |
 | Mistral Large 2407 | Mistral | yes? | yes? | no | 미확인 | 미확인 | 6.8 | - | - | - | - | - | - | - | - | - |
@@ -124,34 +124,34 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Voxtral Small 1.0 | Mistral | yes | no | no | 32K | 8K | - | - | - | - | $0.103 / $0.309 | - | - | - | - | March 30, 2027 |
 | Kimi K2 Thinking | Moonshot AI | yes | no | no | 256K | 16K | 22.0 | - | - | - | $0.618 / $2.575 | - | - | - | - | March 30, 2027 |
 | Kimi K2.5 | Moonshot AI | yes | no | no | 256K | 16K | 23.5 | 46.8 | - | - | $0.62 / $3.09 | - | - | - | - | - |
-| Kimi K3 | Moonshot AI | no | no | yes | 1M | 128K | 43.6 | 76.2 | 59.5 | 39 | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
-| Nemotron Nano 3 30B | NVIDIA | yes | no | no | 256K | 8K | 8.9 | 14.4 | 30.6 | 219 | $0.0618 / $0.2472 | - | - | - | - | - |
-| NVIDIA Nemotron 3 Super 120B A12B | NVIDIA | yes | no | no | 256K | 32K | 12.8 | 37.7 | 36.2 | 156 | $0.15 / $0.67 | - | - | - | - | - |
+| Kimi K3 | Moonshot AI | no | no | yes | 1M | 128K | 43.6 | 76.2 | 59.5 | 40 | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
+| Nemotron Nano 3 30B | NVIDIA | yes | no | no | 256K | 8K | 8.9 | 14.4 | 30.6 | 226 | $0.0618 / $0.2472 | - | - | - | - | - |
+| NVIDIA Nemotron 3 Super 120B A12B | NVIDIA | yes | no | no | 256K | 32K | 12.8 | 37.7 | 36.2 | 153 | $0.15 / $0.67 | - | - | - | - | - |
 | NVIDIA Nemotron Nano 2 | NVIDIA | yes | no | no | 128K | 8K | - | - | - | - | $0.0618 / $0.2369 | - | - | - | - | March 30, 2027 |
 | NVIDIA Nemotron Nano 2 VL | NVIDIA | yes | no | no | 128K | 8K | 7.5 | - | - | - | $0.206 / $0.618 | - | - | - | - | March 30, 2027 |
 | GPT OSS Safeguard 120B | OpenAI | yes | no | no | 128K | 16K | - | - | - | - | $0.1545 / $0.618 | - | - | - | - | - |
 | GPT OSS Safeguard 20B | OpenAI | yes | no | no | 128K | 16K | - | - | - | - | $0.0721 / $0.206 | - | - | - | - | - |
 | GPT-5.6 Luna | OpenAI | no | no | yes | 1.05M | 128K | 37.3 | 71.4 | 53.6 | - | - | - | $0.20 / $1.20 | $0.02 / $0.25 | >272K global $0.40 / $1.80 | - |
 | GPT-5.6 Sol [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 47.0 | 77.4 | 57.1 | - | - | - | $4.00 / $20.00 | $0.40 / $5.00 | >272K global $8.00 / $30.00 | - |
-| GPT-5.6 Terra | OpenAI | no | no | yes | 1.05M | 128K | 42.1 | 76.7 | 55.0 | 119 | - | - | $2.00 / $12.00 | $0.20 / $2.50 | >272K global $4.00 / $18.00 | - |
-| GPT-6 Luna [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 38.1 | - | 54.6 | 138 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >272K global $0.20 / $0.75 | - |
+| GPT-5.6 Terra | OpenAI | no | no | yes | 1.05M | 128K | 42.1 | 76.7 | 55.0 | 122 | - | - | $2.00 / $12.00 | $0.20 / $2.50 | >272K global $4.00 / $18.00 | - |
+| GPT-6 Luna [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 38.1 | - | 54.6 | 140 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >272K global $0.20 / $0.75 | - |
 | GPT-6 Sol [price: model card] | OpenAI | no | no | yes | 1.05M | 128K | 47.6 | - | 57.6 | - | - | - | $2.00 / $10.00 | $0.20 / $2.50 | >272K global $4.00 / $15.00 | - |
-| GPT-6.1 Sol [price: model card] | OpenAI | no | no | yes | 1M | 131K | 51.8 | - | 54.2 | 61 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
-| gpt-oss-120b | OpenAI | yes | no | no | 128K | 16K | 11.6 | 30.4 | 34.0 | 219 | $0.1545 / $0.618 | - | - | - | - | - |
-| gpt-oss-20b | OpenAI | yes | no | no | 128K | 16K | 9.0 | 20.7 | 38.9 | 225 | $0.0721 / $0.309 | - | - | - | - | - |
-| OpenAI GPT-6 Astra | OpenAI | no | no | yes | 1.05M | 128K | 52.7 | 76.9 | 56.5 | 55 | - | - | $10.00 / $50.00 | $1.00 / $12.50 | >272K global $20.00 / $75.00 | - |
+| GPT-6.1 Sol [price: model card] | OpenAI | no | no | yes | 1M | 131K | 51.8 | - | 54.2 | 64 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
+| gpt-oss-120b | OpenAI | yes | no | no | 128K | 16K | 11.6 | 30.4 | 34.0 | 226 | $0.1545 / $0.618 | - | - | - | - | - |
+| gpt-oss-20b | OpenAI | yes | no | no | 128K | 16K | 9.0 | 20.7 | 38.9 | 256 | $0.0721 / $0.309 | - | - | - | - | - |
+| OpenAI GPT-6 Astra | OpenAI | no | no | yes | 1.05M | 128K | 52.7 | 76.9 | 56.5 | 63 | - | - | $10.00 / $50.00 | $1.00 / $12.50 | >272K global $20.00 / $75.00 | - |
 | Qwen3 235B A22B 2507 | Qwen | yes | no | no | 256K | 8K | 12.0 | - | - | - | $0.2266 / $0.9064 | - | - | - | - | - |
 | Qwen3 32B | Qwen | yes | no | no | 32K | 8K | 8.6 | 15.3 | 36.0 | - | $0.1545 / $0.618 | - | - | - | - | - |
 | Qwen3 Coder 30B A3B | Qwen | yes | no | no | 256K | 16K | 9.6 | - | - | - | $0.1545 / $0.618 | - | - | - | - | March 30, 2027 |
 | Qwen3 Coder 480B A35B | Qwen | yes | no | no | 128K | 16K | 11.9 | - | - | - | $0.4635 / $1.854 | - | - | - | - | March 30, 2027 |
-| Qwen3 Coder Next | Qwen | yes | no | no | 256K | 16K | 9.2 | 36.2 | 36.2 | 79 | $0.52 / $1.24 | - | - | - | - | - |
-| Qwen3 Next 80B A3B | Qwen | yes | no | no | 256K | 8K | 11.2 | 17.4 | - | 157 | $0.1442 / $1.236 | - | - | - | - | - |
+| Qwen3 Coder Next | Qwen | yes | no | no | 256K | 16K | 9.2 | 36.2 | 36.2 | 80 | $0.52 / $1.24 | - | - | - | - | - |
+| Qwen3 Next 80B A3B | Qwen | yes | no | no | 256K | 8K | 11.2 | 17.4 | - | 149 | $0.1442 / $1.236 | - | - | - | - | - |
 | Qwen3 VL 235B A22B | Qwen | yes | no | no | 256K | 8K | 13.4 | - | - | - | $0.5459 / $2.74 | - | - | - | - | - |
 | TwelveLabs Pegasus 1.2 | TwelveLabs | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | TwelveLabs Pegasus 1.5 | TwelveLabs | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - | - / $7.50 | - | - | - |
 | Grok 4.6 | xAI | no | no | yes | 500K | 500K | 44.3 | 76.8 | 56.5 | - | $2.20 / $6.60 | $0.55 / - | $2.00 / $6.00 | $0.50 / - | - | - |
-| Grok 4.7 | xAI | no | no | yes | 500K | 500K | 46.4 | - | 57.4 | 82 | $2.20 / $6.60 | $0.55 / - | $2.00 / $6.00 | $0.50 / - | - | - |
-| GLM 4.7 | Z AI | yes | no | no | 203K | 4K | 22.2 | 45.3 | - | - | $0.62 / $2.27 | - | - | - | - | March 30, 2027 |
-| GLM 4.7 Flash | Z AI | yes | no | no | 203K | 4K | 14.9 | - | - | - | $0.07 / $0.41 | - | - | - | - | March 30, 2027 |
+| Grok 4.7 | xAI | no | no | yes | 500K | 500K | 46.4 | - | 57.4 | 86 | $2.20 / $6.60 | $0.55 / - | $2.00 / $6.00 | $0.50 / - | - | - |
+| GLM 4.7 | Z AI | yes | no | no | 203K | 128K | 22.2 | 45.3 | - | - | $0.62 / $2.27 | - | - | - | - | March 30, 2027 |
+| GLM 4.7 Flash | Z AI | yes | no | no | 203K | 128K | 14.9 | - | - | - | $0.07 / $0.41 | - | - | - | - | March 30, 2027 |
 | GLM 5 | Z AI | yes | no | no | 200K | 128K | 27.9 | - | - | - | $1.03 / $3.30 | - | - | - | - | - |
-| GLM 5.3 [price: manual] | Z AI | no | no | yes | 1M | 128K | 44.8 | 74.8 | 59.0 | 60 | - | - | $1.68 / $5.28 | $0.312 / $2.10 | - | - |
+| GLM 5.3 [price: manual] | Z AI | no | no | yes | 1M | 128K | 44.8 | 74.8 | 59.0 | 65 | - | - | $1.68 / $5.28 | $0.312 / $2.10 | - | - |
