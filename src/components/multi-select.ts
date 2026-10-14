@@ -28,9 +28,12 @@ function closeAll() {
 function listen() {
   if (listening) return;
   listening = true;
+  // Capture phase: copy buttons and other controls call stopPropagation, which would otherwise hide the click from this listener.
   document.addEventListener('click', (e) => {
     if (document.querySelector('details.multi[open]') && !(e.target as Element).closest('details.multi')) closeAll();
-  });
+  }, true);
+  // Back/Forward and hash links change the view without a click, and every view reuses ids like 'providers'.
+  window.addEventListener('hashchange', () => { openId = null; });
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     const summary = document.querySelector<HTMLElement>('details.multi[open] > summary');

@@ -28,6 +28,7 @@ function filtered(models: Model[]): Row[] {
   return variantRows(models, state)
     .filter((r) => !state.query || matches(r.m, state.query))
     .filter((r) => providerSelected(state.providers, r.m.provider))
+    .filter((r) => !state.onlyZdr || zdrOf(r.m))
     .filter((r) => (state.weights === '' ? true : r.m.openWeights === (state.weights === 'open')))
     .filter((r) => (state.reasoning === '' ? true : r.m.reasoning === (state.reasoning === 'yes')));
 }
@@ -105,7 +106,7 @@ export function renderRank(models: Model[]): HTMLElement {
   const rows = filtered(models);
   const isPrice = state.rankMetric === 'price';
   const metric = metricFor(state.rankMetric);
-  const known = models.filter((m) => (!state.query || matches(m, state.query)) && providerSelected(state.providers, m.provider)
+  const known = models.filter((m) => (!state.query || matches(m, state.query)) && providerSelected(state.providers, m.provider) && (!state.onlyZdr || zdrOf(m))
     && (!state.weights || m.openWeights === (state.weights === 'open')) && (!state.reasoning || m.reasoning === (state.reasoning === 'yes')));
   const eligibleIds = new Set(rows.map((r) => r.m.id));
   const unavailable = known.filter((m) => !eligibleIds.has(m.id));
@@ -135,6 +136,7 @@ export function renderRank(models: Model[]): HTMLElement {
     multiSelect({ id: 'providers', label: t('제공사', 'Provider'), allLabel: t('제공사 전체', 'All providers'), options: providers, selected: state.providers, onChange: (next) => update({ providers: next }) }),
     sel(t('가중치', 'Weights'), [['', t('전체', 'All')], ['open', t('오픈 웨이트', 'Open weights')], ['closed', t('독점', 'Proprietary')]], state.weights, (v) => update({ weights: v as 'open' })),
     sel(t('추론', 'Reasoning'), [['', t('전체', 'All')], ['yes', t('추론 모델', 'Reasoning')], ['no', t('비추론', 'Non-reasoning')]], state.reasoning, (v) => update({ reasoning: v as 'yes' })),
+    h('label', { title: t('Zero Data Retention 기본 지원 모델만', 'Only models with ZDR by default') }, h('input', { type: 'checkbox', 'aria-label': t('ZDR 지원 모델만', 'Only models with ZDR'), checked: state.onlyZdr, onchange: (e: Event) => update({ onlyZdr: (e.target as HTMLInputElement).checked }) }), t('ZDR 지원 모델만', 'ZDR only')),
     sel(t('표시', 'Show'), TOPS.map((n): [string, string] => [String(n), n ? t(`상위 ${n}`, `Top ${n}`) : t('전체', 'All')]), String(state.rankTop), (v) => update({ rankTop: Number(v) })));
   const coverage = unscored.length || unavailable.length ? h('details', { class: 'rank-coverage', open: !!state.query },
     h('summary', null, icon('info'), t(`순위에 안 보이는 모델이 있나요? ${unscored.length}개는 ${isPrice ? '단가' : '측정값'} 미확인 · ${unavailable.length}개는 리전·추론 조건에서 제외`,

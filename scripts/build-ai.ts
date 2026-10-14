@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { allRegions, blended, longPriceOf, MODE_LABEL, MODES, priceOf, supports, tokens, usd } from '../src/data.ts';
 import type { Mode, Model, Scope } from '../src/types.ts';
 import { codingIndexOf, scienceCodingPercent } from '../src/coding.ts';
-import { zdrOf } from '../src/zdr.ts';
+import { FABLE_PROGRAM_ZDR_UNTIL, fableProgramZdrActive, zdrOf } from '../src/zdr.ts';
 
 /**
  * Static, JavaScript-free views of the model data for AI agents (Claude, Codex, ...): a markdown comparison per region,
@@ -108,7 +108,7 @@ Generated ${date} from the AWS Price List, AWS Bedrock model cards, and Artifici
 - In-region and Geo prices differ by Region; Global CRIS prices are the same in every commercial Region (except Amazon Nova).
 - 4:1 blended price = (4 x input + output) / 5, ignoring caching.
 - Model ID is the bare Bedrock id for In-region calls; Geo CRIS prepends the geography (e.g. us.), Global CRIS prepends global.
-- ZDR = zero data retention by default. Not ZDR: OpenAI models other than gpt-oss-120b/20b and GPT OSS Safeguard 120B/20B (ZDR is an option requested through the AWS account team, approved per model version, so a new version needs a new request; without approval the default policy applies) and Claude Fable 5 / 5.1 (all traffic kept up to 30 days; ZDR only for Enterprise Frontier Safeguards customers through 2026-12-31). Source: AWS Bedrock abuse detection page. Every other model keeps its previous policy (ZDR).
+- ZDR = zero data retention by default. Not ZDR: OpenAI models other than gpt-oss-120b/20b and GPT OSS Safeguard 120B/20B (ZDR is an option requested through the AWS account team, approved per model version, so a new version needs a new request; without approval the default policy applies) and Claude Fable 5 / 5.1 (all traffic kept up to 30 days; ${fableProgramZdrActive() ? `ZDR only for Enterprise Frontier Safeguards customers through ${FABLE_PROGRAM_ZDR_UNTIL}` : `the Enterprise Frontier Safeguards ZDR ended on ${FABLE_PROGRAM_ZDR_UNTIL}`}). Source: AWS Bedrock abuse detection page. Every other model keeps its previous policy (ZDR).
 
 ## Highest Intelligence Index available in ${region}
 

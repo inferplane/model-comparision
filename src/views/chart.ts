@@ -196,15 +196,15 @@ export function renderChart(models: Model[]): HTMLElement {
   const today = Date.now();
   const catalogue = state.chartLatest ? models.filter((m) => isRecentModel(m, today)) : models;
   // Performance floors use the same region/modes/tier baseline even when search, provider or budget changes.
-  const market = collectValuePoints(models, { ...options, query: '', providers: [], onlyCache: false });
+  const market = collectValuePoints(models, { ...options, query: '', providers: [], onlyCache: false, onlyZdr: false });
   const maxScore = Math.max(0, ...market.map((p) => p.y));
   const all = collectValuePoints(catalogue, options);
   const points = filterValuePoints(all, maxScore, state.chartQuality, state.chartBudget);
   const ranked = rankValuePoints(points, state.chartOrder);
   const unit = scoreUnit(metric);
   const providers = [...new Set(models.map((m) => m.provider))].sort();
-  const reset = () => update({ chartQuality: 'all', chartBudget: 0, providers: [], query: '', onlyCache: false, tier: 'standard' });
-  const latest = () => update({ chartLatest: true, chartY: 'intelligenceIndex', chartX: 'blend', modes: [...MODES], chartQuality: 'all', chartBudget: 0, providers: [], query: '', onlyCache: false, tier: 'standard', chartOrder: 'value' });
+  const reset = () => update({ chartQuality: 'all', chartBudget: 0, providers: [], query: '', onlyCache: false, onlyZdr: false, tier: 'standard' });
+  const latest = () => update({ chartLatest: true, chartY: 'intelligenceIndex', chartX: 'blend', modes: [...MODES], chartQuality: 'all', chartBudget: 0, providers: [], query: '', onlyCache: false, onlyZdr: false, tier: 'standard', chartOrder: 'value' });
   const select = (label: string, aria: string, values: [string, string][], selected: string, onChange: (value: string) => void) =>
     h('label', null, h('span', null, label), h('select', { 'aria-label': aria, onchange: (event: Event) => onChange((event.target as HTMLSelectElement).value) },
       ...values.map(([value, text]) => h('option', { value, selected: value === selected }, text))));
@@ -224,6 +224,7 @@ export function renderChart(models: Model[]): HTMLElement {
           const input = event.target as HTMLInputElement;
           if (input.validity.valid) update({ chartBudget: Number(input.value) || 0 });
         } })),
+      h('label', { class: 'value-cache-filter' }, h('input', { type: 'checkbox', 'aria-label': t('ZDR 지원 모델만', 'Only models with ZDR'), checked: state.onlyZdr, onchange: (event: Event) => update({ onlyZdr: (event.target as HTMLInputElement).checked }) }), t('ZDR 지원 모델만', 'ZDR only')),
       h('label', { class: 'value-cache-filter' }, h('input', { type: 'checkbox', 'aria-label': t('캐시 지원 모델만', 'Only models with caching'), checked: state.onlyCache, onchange: (event: Event) => update({ onlyCache: (event.target as HTMLInputElement).checked }) }), t('캐시 지원 모델만', 'Caching only')),
       h('button', { type: 'button', class: 'text-button', onclick: reset }, icon('reset'), t('조건 해제', 'Clear criteria'))),
     h('p', { class: 'value-criteria-note' }, `${state.region} · ${state.tier} · ${COST_LABELS[state.chartX]} · `,
@@ -235,6 +236,7 @@ export function renderChart(models: Model[]): HTMLElement {
   const enableGlobal = () => update({ modes: MODES.filter((mode) => mode === 'global' || state.modes.includes(mode)) });
   const definitions: [ExclusionReason, string, string, (() => void) | undefined, string][] = [
     ['provider', t('제공사 조건', 'Provider filter'), t(`${state.providers.join(', ') || '선택한 제공사'} 외 모델입니다.`, `Not from ${state.providers.join(', ') || 'the selected providers'}.`), () => update({ providers: [] }), t('모든 제공사 보기', 'Show all providers')],
+    ['zdr', t('ZDR 조건', 'ZDR filter'), t('기본적으로 Zero Data Retention을 지원하지 않는 모델입니다.', 'Not zero-data-retention by default.'), () => update({ onlyZdr: false }), t('ZDR 조건 해제', 'Clear the ZDR filter')],
     ['inference', t('리전·추론 방식', 'Region and inference mode'), t(`${state.region}에서 선택한 추론 방식으로 표시할 수 없습니다.`, `Not available in ${state.region} with the selected inference modes.`),
       excluded.some((e) => e.reason === 'inference' && supports(e.m, 'global', state.region).ok) && !state.modes.includes('global') ? enableGlobal : undefined, t('Global CRIS 포함해서 보기', 'Include Global CRIS')],
     ['benchmark', t('선택 지표 측정값 없음', 'No score for this metric'), t(`${metric.label} 측정값이 없어 가성비를 계산하지 않습니다.`, `No ${metric.label} measurement, so no value is calculated.`),
