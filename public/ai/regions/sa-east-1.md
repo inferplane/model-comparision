@@ -132,7 +132,7 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | GPT-6 Luna [price: model card] | OpenAI | openai.gpt-6-luna | no | no | no | yes | 1.05M | 128K | 38.1 | - | 54.6 | 128 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >272K global $0.20 / $0.75 | - |
 | GPT-6 Sol [price: model card] | OpenAI | openai.gpt-6-sol | no | no | no | yes | 1.05M | 128K | 47.6 | - | 57.6 | - | - | - | $2.00 / $10.00 | $0.20 / $2.50 | >272K global $4.00 / $15.00 | - |
 | GPT-6.1 Sol [price: model card] | OpenAI | openai.gpt-6.1-sol | no | no | no | yes | 1M | 131K | 51.8 | - | 54.2 | 54 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
-| gpt-oss-120b | OpenAI | openai.gpt-oss-120b-1:0 | yes | yes | no | no | 128K | 16K | 11.6 | 30.4 | 34.0 | 222 | $0.18 / $0.73 | - | - | - | - | - |
+| gpt-oss-120b | OpenAI | openai.gpt-oss-120b | yes | yes | no | no | 128K | 16K | 11.6 | 30.4 | 34.0 | 222 | $0.18 / $0.73 | - | - | - | - | - |
 | gpt-oss-20b | OpenAI | openai.gpt-oss-20b-1:0 | yes | yes | no | no | 128K | 16K | 9.0 | 20.7 | 38.9 | 244 | $0.08 / $0.36 | - | - | - | - | - |
 | OpenAI GPT-6 Astra | OpenAI | openai.gpt-6-astra | no | no | no | yes | 1.05M | 128K | 52.7 | 76.9 | 56.5 | 51 | - | - | $10.00 / $50.00 | $1.00 / $12.50 | >272K global $20.00 / $75.00 | - |
 | Qwen3 32B | Qwen | qwen.qwen3-32b-v1:0 | yes | yes | no | no | 32K | 8K | 8.6 | 15.3 | 36.0 | - | $0.18 / $0.73 | - | - | - | - | - |
