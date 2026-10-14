@@ -2,6 +2,12 @@
 
 Static site (GitHub Pages) that lists every Amazon Bedrock model with per-1M-token prices, context window, cache pricing, and benchmark scores. Search from the header (`/` focuses it); click a model for its detail page.
 
+The UI is in Korean and English: the KO/EN button in the header switches and remembers the choice (`localStorage` `bme-lang`); a first visit follows the browser language. Strings are written in place as `t('한국어', 'English')` (`src/i18n.ts`).
+
+**ZDR** (zero data retention): all GPT models and all Fable models currently lack it; every other model has it. The rule is a name match in `src/zdr.ts`, so a new GPT or Fable model is covered automatically; edit that list when AWS changes it. It shows as a table column with a "ZDR only" filter, on the detail page, in compare, as a badge in the rankings, and in the AI exports.
+
+**Model ID**: `modelId` is the Bedrock id from the model card's Programmatic Access table (models.dev as fallback), and `geoSources` maps each Geo CRIS prefix to its source regions. Each table row has a copy button for the id that works for that row from the selected region (`global.` for Global CRIS rows; the bare id for in-region, or the `us.`/`eu.`… profile when in-region is bedrock-mantle only). The detail page lists every id for the region, each with its own copy button.
+
 ## Data sources
 
 | Data | Source |
@@ -41,7 +47,7 @@ The site is a client-rendered app, so a plain fetch of `/` returns an empty shel
 ## Shareable views
 
 Filters live in the URL query string and the page (table, ranking, chart, compare, model) in the hash, e.g.
-`/?region=ap-northeast-2&modes=geo,global&q=claude&provider=Anthropic#/rank`. The 🔗 button copies the current link. Defaults are omitted; a link with any parameter ignores the viewer's saved preferences so it reproduces the same view. Parameters: `region`, `modes` (`in-region,geo,global`), `q`, `provider=<name>` (repeat it to select several), `tier`, `cache=1`, `priced=0`, `cols=1`, `sort=<column>.<asc|desc>`, `weights` (`open|closed`), `reasoning` (`yes|no`), `metric` and `top` (ranking), `cy` and `cx` (chart axes), `compare=<id>,<id>` (up to 6). Invalid values are ignored. Parsing and serialising live in `src/urlstate.ts`.
+`/?region=ap-northeast-2&modes=geo,global&q=claude&provider=Anthropic#/rank`. The 🔗 button copies the current link. Defaults are omitted; a link with any parameter ignores the viewer's saved preferences so it reproduces the same view. Parameters: `region`, `modes` (`in-region,geo,global`), `q`, `provider=<name>` (repeat it to select several), `tier`, `cache=1`, `zdr=1` (ZDR only), `priced=0`, `cols=1`, `sort=<column>.<asc|desc>`, `weights` (`open|closed`), `reasoning` (`yes|no`), `metric` and `top` (ranking), `cy` and `cx` (chart axes), `compare=<id>,<id>` (up to 6). Invalid values are ignored. Parsing and serialising live in `src/urlstate.ts`.
 
 The cost-performance view starts with a numerical ranking and candidates for highest score per dollar, lowest price and highest score. `quality=all|balanced|strong|best` sets the minimum score to 0/50/75/90% of the best measured score for the selected region, modes and tier. The default is `balanced`; the baseline stays fixed while search, provider or budget changes. `budget=<USD per 1M tokens>` sets an inclusive maximum unit price, and `order=value|price|score` controls ranking. The optional scatterplot remains available below the table. Score divided by unit price is a comparison aid within the selected benchmark, not a prediction of task success.
 

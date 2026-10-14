@@ -2,6 +2,7 @@ import { blended, longPriceOf, priceOf, tokens, usd, type Row } from './data.ts'
 import { state } from './state.ts';
 import type { BenchmarkScores } from './types.ts';
 import { codingIndexOf, scienceCodingPercent } from './coding.ts';
+import { locale, t } from './i18n.ts';
 
 export interface Metric {
   key: string;
@@ -27,23 +28,23 @@ const percent = (v: number) => `${v.toFixed(1)}%`;
 const price = (kind: Parameters<typeof priceOf>[4]) => (r: Row) => priceOf(r.m, state.region, r.scope, state.tier, kind);
 
 export const METRICS: Record<string, Metric> = {
-  intelligence: { key: 'intelligence', label: 'Intelligence Index', hint: 'Artificial Analysis 종합 지수 (높을수록 좋음)', higherBetter: true, value: score('intelligenceIndex'), fmt: one },
-  coding: { key: 'coding', label: 'Coding Index', hint: 'Artificial Analysis 코딩 합성 지수. 해당 지수가 제공되지 않은 모델은 미제공으로 표시하며, SciCode는 별도 지표입니다.', higherBetter: true, value: (r) => codingIndexOf(r.m), fmt: one },
-  math: { key: 'math', label: 'Math Index', hint: 'Artificial Analysis 수학 지수', higherBetter: true, value: score('mathIndex'), fmt: one },
-  gpqa: { key: 'gpqa', label: 'GPQA Diamond', hint: '대학원 수준 과학 문제 정답률', higherBetter: true, value: score('gpqa', true), fmt: percent },
-  hle: { key: 'hle', label: "Humanity's Last Exam", hint: '전문가 수준 종합 문제 정답률', higherBetter: true, value: score('hle', true), fmt: percent },
-  mmluPro: { key: 'mmluPro', label: 'MMLU-Pro', hint: '다분야 지식 정답률', higherBetter: true, value: score('mmluPro', true), fmt: percent },
-  liveCodeBench: { key: 'liveCodeBench', label: 'LiveCodeBench', hint: '코딩 문제 통과율', higherBetter: true, value: score('liveCodeBench', true), fmt: percent },
-  scicode: { key: 'scicode', label: 'SciCode (과학 코딩)', hint: '과학 문제 기반 코딩 테스트 통과율 (%). Coding Index 합성 지수와 별도로 비교합니다.', higherBetter: true, value: (r) => scienceCodingPercent(r.m), fmt: percent },
-  aime: { key: 'aime', label: 'AIME', hint: '수학 올림피아드 정답률', higherBetter: true, value: score('aime', true), fmt: percent },
-  speed: { key: 'speed', label: '출력 속도', hint: '초당 출력 토큰 (Artificial Analysis 측정 중앙값, 높을수록 빠름)', higherBetter: true, value: positive('outputTokensPerSecond'), fmt: (v) => `${Math.round(v).toLocaleString()} tok/s` },
-  ttft: { key: 'ttft', label: '첫 토큰 지연', hint: '첫 토큰까지 걸린 시간(초). reasoning 모델은 추론 시간이 포함될 수 있음 (낮을수록 좋음)', higherBetter: false, value: positive('timeToFirstTokenSeconds'), fmt: (v) => `${v.toFixed(2)}s` },
-  context: { key: 'context', label: 'Context window', hint: '입력 context 길이 (models.dev 기준)', higherBetter: true, value: (r) => r.m.contextWindow, fmt: tokens },
-  blend: { key: 'blend', label: '4:1 혼합 단가', hint: 'USD / 1M tokens, 입력 4 : 출력 1, 캐시 미반영 (낮을수록 저렴)', higherBetter: false, value: (r) => blended(price('input')(r), price('output')(r)), fmt: usd },
-  input: { key: 'input', label: 'Input 단가', hint: 'USD / 1M tokens', higherBetter: false, value: price('input'), fmt: usd },
-  output: { key: 'output', label: 'Output 단가', hint: 'USD / 1M tokens', higherBetter: false, value: price('output'), fmt: usd },
-  cacheRead: { key: 'cacheRead', label: 'Cache read 단가', hint: 'USD / 1M tokens', higherBetter: false, value: price('cacheRead'), fmt: usd },
-  longInput: { key: 'longInput', label: '장문 Input 단가', hint: '임계값을 넘는 프롬프트의 입력 단가', higherBetter: false, value: (r) => longPriceOf(r.m, state.region, r.scope, state.tier, 'input'), fmt: usd },
+  intelligence: { key: 'intelligence', label: 'Intelligence Index', hint: t('Artificial Analysis 종합 지수 (높을수록 좋음)', 'Artificial Analysis composite index (higher is better)'), higherBetter: true, value: score('intelligenceIndex'), fmt: one },
+  coding: { key: 'coding', label: 'Coding Index', hint: t('Artificial Analysis 코딩 합성 지수. 해당 지수가 제공되지 않은 모델은 미제공으로 표시하며, SciCode는 별도 지표입니다.', 'Artificial Analysis composite coding index. Models without it are shown as not provided; SciCode is a separate metric.'), higherBetter: true, value: (r) => codingIndexOf(r.m), fmt: one },
+  math: { key: 'math', label: 'Math Index', hint: t('Artificial Analysis 수학 지수', 'Artificial Analysis math index'), higherBetter: true, value: score('mathIndex'), fmt: one },
+  gpqa: { key: 'gpqa', label: 'GPQA Diamond', hint: t('대학원 수준 과학 문제 정답률', 'Accuracy on graduate-level science questions'), higherBetter: true, value: score('gpqa', true), fmt: percent },
+  hle: { key: 'hle', label: "Humanity's Last Exam", hint: t('전문가 수준 종합 문제 정답률', 'Accuracy on expert-level questions across fields'), higherBetter: true, value: score('hle', true), fmt: percent },
+  mmluPro: { key: 'mmluPro', label: 'MMLU-Pro', hint: t('다분야 지식 정답률', 'Accuracy on multi-domain knowledge'), higherBetter: true, value: score('mmluPro', true), fmt: percent },
+  liveCodeBench: { key: 'liveCodeBench', label: 'LiveCodeBench', hint: t('코딩 문제 통과율', 'Pass rate on coding problems'), higherBetter: true, value: score('liveCodeBench', true), fmt: percent },
+  scicode: { key: 'scicode', label: t('SciCode (과학 코딩)', 'SciCode (scientific coding)'), hint: t('과학 문제 기반 코딩 테스트 통과율 (%). Coding Index 합성 지수와 별도로 비교합니다.', 'Pass rate (%) on coding tasks drawn from science problems. Compared separately from the Coding Index composite.'), higherBetter: true, value: (r) => scienceCodingPercent(r.m), fmt: percent },
+  aime: { key: 'aime', label: 'AIME', hint: t('수학 올림피아드 정답률', 'Accuracy on math olympiad problems'), higherBetter: true, value: score('aime', true), fmt: percent },
+  speed: { key: 'speed', label: t('출력 속도', 'Output speed'), hint: t('초당 출력 토큰 (Artificial Analysis 측정 중앙값, 높을수록 빠름)', 'Output tokens per second (Artificial Analysis median, higher is faster)'), higherBetter: true, value: positive('outputTokensPerSecond'), fmt: (v) => `${Math.round(v).toLocaleString(locale)} tok/s` },
+  ttft: { key: 'ttft', label: t('첫 토큰 지연', 'Time to first token'), hint: t('첫 토큰까지 걸린 시간(초). reasoning 모델은 추론 시간이 포함될 수 있음 (낮을수록 좋음)', 'Seconds until the first token. May include thinking time for reasoning models (lower is better)'), higherBetter: false, value: positive('timeToFirstTokenSeconds'), fmt: (v) => `${v.toFixed(2)}s` },
+  context: { key: 'context', label: 'Context window', hint: t('입력 context 길이 (models.dev 기준)', 'Input context length (per models.dev)'), higherBetter: true, value: (r) => r.m.contextWindow, fmt: tokens },
+  blend: { key: 'blend', label: t('4:1 혼합 단가', '4:1 blended price'), hint: t('USD / 1M tokens, 입력 4 : 출력 1, 캐시 미반영 (낮을수록 저렴)', 'USD / 1M tokens, 4 input : 1 output, no caching (lower is cheaper)'), higherBetter: false, value: (r) => blended(price('input')(r), price('output')(r)), fmt: usd },
+  input: { key: 'input', label: t('Input 단가', 'Input price'), hint: 'USD / 1M tokens', higherBetter: false, value: price('input'), fmt: usd },
+  output: { key: 'output', label: t('Output 단가', 'Output price'), hint: 'USD / 1M tokens', higherBetter: false, value: price('output'), fmt: usd },
+  cacheRead: { key: 'cacheRead', label: t('Cache read 단가', 'Cache read price'), hint: 'USD / 1M tokens', higherBetter: false, value: price('cacheRead'), fmt: usd },
+  longInput: { key: 'longInput', label: t('장문 Input 단가', 'Long-context input price'), hint: t('임계값을 넘는 프롬프트의 입력 단가', 'Input price for prompts above the threshold'), higherBetter: false, value: (r) => longPriceOf(r.m, state.region, r.scope, state.tier, 'input'), fmt: usd },
 };
 
 /** Best row per metric, for highlight cards. */

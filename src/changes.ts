@@ -1,4 +1,5 @@
 import { MODE_LABEL, usd } from './data.ts';
+import { t } from './i18n.ts';
 import type { Mode, Scope, TokenKind } from './types.ts';
 
 /** Shapes of public/data/changes.json, written by scripts/diff-data.ts (see scripts/data-changes.ts). */
@@ -67,9 +68,9 @@ const KIND_LABEL: Partial<Record<TokenKind, string>> = { input: 'Input', output:
 
 export function describePrice(p: PriceChange): string {
   const { region, scope, kind, from, to } = p.example;
-  return `${region} · ${SCOPE_LABEL[scope]} · ${KIND_LABEL[kind] ?? kind}: ${usd(from)} → ${usd(to)}${p.count > 1 ? ` (외 ${p.count - 1}건)` : ''}`;
+  return `${region} · ${SCOPE_LABEL[scope]} · ${KIND_LABEL[kind] ?? kind}: ${usd(from)} → ${usd(to)}${p.count > 1 ? t(` (외 ${p.count - 1}건)`, ` (+${p.count - 1} more)`) : ''}`;
 }
 
 export function describeAvailability(a: AvailabilityChange): string {
-  return (Object.entries(a.regionCounts) as [Mode, [number, number]][]).map(([mode, [from, to]]) => `${MODE_LABEL[mode] ?? mode} ${from} → ${to}개 리전`).join(', ');
+  return (Object.entries(a.regionCounts) as [Mode, [number, number]][]).map(([mode, [from, to]]) => `${MODE_LABEL[mode] ?? mode} ${from} → ${to}${t('개 리전', ' regions')}`).join(', ');
 }

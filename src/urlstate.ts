@@ -9,6 +9,7 @@ export interface UrlState {
   tier: Tier;
   providers: string[];
   onlyCache: boolean;
+  onlyZdr: boolean;
   onlyInRegion: boolean;
   sort: { key: string; dir: 1 | -1 };
   chartY: string;
@@ -33,7 +34,7 @@ const WORD = /^[A-Za-z0-9]{1,24}$/;
 // resolve to Object.prototype members. Accept only keys the app actually defines (a test keeps these in sync with the real tables).
 export const RANK_METRICS = ['intelligence', 'coding', 'math', 'speed', 'ttft', 'price', 'context', 'gpqa', 'hle', 'mmluPro', 'liveCodeBench', 'scicode', 'aime'];
 export const CHART_Y = ['intelligenceIndex', 'codingIndex', 'mathIndex', 'gpqa', 'mmluPro', 'hle', 'liveCodeBench', 'scicode', 'aime'];
-export const SORT_KEYS = ['name', 'provider', 'mode', 'ai', 'coding', 'scicode', 'in', 'output', 'cr', 'cw', 'bl', 'lc', 'ttft', 'speed', 'ctx', 'out', 'bin', 'bout'];
+export const SORT_KEYS = ['name', 'provider', 'zdr', 'mode', 'ai', 'coding', 'scicode', 'in', 'output', 'cr', 'cw', 'bl', 'lc', 'ttft', 'speed', 'ctx', 'out', 'bin', 'bout'];
 const ID = /^[a-z0-9][a-z0-9._-]{0,59}$/;
 export const MAX_COMPARE_IDS = 6;
 export const MAX_PROVIDERS = 20;
@@ -56,6 +57,7 @@ export function parseParams(search: string): Partial<UrlState> {
   const providers = [...new Set(p.getAll('provider').map((v) => v.trim().slice(0, 40)).filter(Boolean))].sort().slice(0, MAX_PROVIDERS);
   if (providers.length) out.providers = providers;
   if (p.get('cache') === '1') out.onlyCache = true;
+  if (p.get('zdr') === '1') out.onlyZdr = true;
   if (p.get('priced') === '0') out.onlyInRegion = false;
   if (p.get('cols') === '1') out.expandCols = true;
   const sort = /^([a-z]{1,10})\.(asc|desc)$/.exec(p.get('sort') ?? '');
@@ -93,6 +95,7 @@ export function serializeParams(s: UrlState, defaults: UrlState): string {
   if (s.tier !== defaults.tier) p.set('tier', s.tier);
   for (const provider of [...s.providers].sort()) p.append('provider', provider);
   if (s.onlyCache) p.set('cache', '1');
+  if (s.onlyZdr) p.set('zdr', '1');
   if (!s.onlyInRegion) p.set('priced', '0');
   if (s.expandCols) p.set('cols', '1');
   if (!same(s.sort, defaults.sort)) p.set('sort', `${s.sort.key}.${s.sort.dir === 1 ? 'asc' : 'desc'}`);

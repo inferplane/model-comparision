@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { METRICS, metricFor } from './metrics.ts';
 import { parseParams, RANK_METRICS, sanitizeStored, serializeParams, type UrlState } from './urlstate.ts';
 
-const defaults: UrlState = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', providers: [], onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', chartQuality: 'balanced', chartBudget: 0, chartOrder: 'value', chartLatest: false, rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
+const defaults: UrlState = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', providers: [], onlyCache: false, onlyZdr: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', chartQuality: 'balanced', chartBudget: 0, chartOrder: 'value', chartLatest: false, rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
 
 describe('serializeParams', () => {
   it('leaves the default view with a clean URL', () => {
@@ -15,6 +15,11 @@ describe('serializeParams', () => {
 });
 
 describe('parseParams', () => {
+  it('round-trips the ZDR-only filter', () => {
+    expect(serializeParams({ ...defaults, onlyZdr: true }, defaults)).toBe('zdr=1');
+    expect(parseParams('zdr=1')).toEqual({ onlyZdr: true });
+    expect(parseParams('zdr=yes')).toEqual({});
+  });
   it('preserves cost-performance requirements in shared views', () => {
     const view: UrlState = { ...defaults, chartQuality: 'strong', chartBudget: 1.25, chartOrder: 'price', chartLatest: true };
     expect({ ...defaults, ...parseParams(serializeParams(view, defaults)) }).toEqual(view);

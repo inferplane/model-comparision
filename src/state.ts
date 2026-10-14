@@ -9,6 +9,7 @@ export interface State {
   tier: Tier;
   providers: string[];
   onlyCache: boolean;
+  onlyZdr: boolean;
   onlyInRegion: boolean;
   sort: { key: string; dir: 1 | -1 };
   chartY: string;
@@ -26,7 +27,7 @@ export interface State {
 }
 
 const KEY = 'bme-prefs';
-const defaults: State = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', providers: [], onlyCache: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', chartQuality: 'balanced', chartBudget: 0, chartOrder: 'value', chartLatest: false, rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
+const defaults: State = { query: '', region: 'us-east-1', modes: ['in-region', 'geo'], tier: 'standard', providers: [], onlyCache: false, onlyZdr: false, onlyInRegion: true, sort: { key: 'provider', dir: 1 }, chartY: 'intelligenceIndex', chartX: 'blend', chartQuality: 'balanced', chartBudget: 0, chartOrder: 'value', chartLatest: false, rankMetric: 'intelligence', rankTop: 20, weights: '', reasoning: '', compare: [], expandCols: false };
 
 function load(): State {
   // A shared link reproduces its view exactly: when the URL carries any filter, personal saved preferences are ignored,
