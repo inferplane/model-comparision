@@ -54,7 +54,7 @@ export function parseParams(search: string): Partial<UrlState> {
   const tier = p.get('tier');
   if (tier && (TIERS as string[]).includes(tier)) out.tier = tier as Tier;
   // Repeated params (?provider=A&provider=B). A single legacy ?provider=A is the same thing. Sorted, so one selection is one link.
-  const providers = [...new Set(p.getAll('provider').map((v) => v.trim().slice(0, 40)).filter(Boolean))].sort().slice(0, MAX_PROVIDERS);
+  const providers = [...new Set(p.getAll('provider').map((v) => v.trim().slice(0, 40)).filter(Boolean))].slice(0, MAX_PROVIDERS).sort();
   if (providers.length) out.providers = providers;
   if (p.get('cache') === '1') out.onlyCache = true;
   if (p.get('zdr') === '1') out.onlyZdr = true;

@@ -40,6 +40,7 @@ export function pageHeading(eyebrow: string, title: string, description: string)
 
 /** Live region shared by every copy button, so screen readers hear the confirmation even though views repaint. */
 let copyStatus: HTMLElement | undefined;
+let statusTimer: ReturnType<typeof setTimeout> | undefined;
 
 /** Icon button that copies `text`, flashing a check mark. Falls back to a prompt where the clipboard API is blocked. */
 export function copyButton(text: string, label: string, className = 'copy-btn'): HTMLElement {
@@ -58,8 +59,11 @@ export function copyButton(text: string, label: string, className = 'copy-btn'):
       btn.replaceChildren(icon('check'));
       btn.classList.add('done');
       status.textContent = t(`${text} 복사됨`, `Copied ${text}`);
+      // One timer for the shared live region, so an earlier button's timeout can't blank a later confirmation.
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => { status.textContent = ''; }, 1500);
       clearTimeout(timer);
-      timer = setTimeout(() => { btn.replaceChildren(icon('copy')); btn.classList.remove('done'); status.textContent = ''; }, 1500);
+      timer = setTimeout(() => { btn.replaceChildren(icon('copy')); btn.classList.remove('done'); }, 1500);
     } catch {
       window.prompt(t('이 ID를 복사하세요', 'Copy this ID'), text);
     }

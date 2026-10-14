@@ -200,7 +200,8 @@ for (const m of models.values()) {
     if (card.geoPrefixes.length) m.geoPrefixes = card.geoPrefixes;
     if (Object.keys(card.geoSources).length) m.geoSources = card.geoSources;
     // The card's Programmatic Access table is what AWS tells callers to use; models.dev's id is the fallback.
-    m.modelId = card.modelIds[0] ?? m.modelId;
+    // When the card lists several ids, keep the one models.dev matched this model on rather than whichever row comes first.
+    m.modelId = (ctx && card.modelIds.find((id) => id === ctx.bedrockId)) ?? card.modelIds[0] ?? m.modelId;
     const longRow = card.prices.find((x) => x.long && x.thresholdTokens);
     if (m.longContext && longRow) m.longContext.thresholdTokens = longRow.thresholdTokens;
     m.card = { url: `https://docs.aws.amazon.com/bedrock/latest/userguide/${card.slug}.html`, lifecycle: card.lifecycle, launchDate: card.launchDate, eolDate: /\d{4}/.test(card.eolDate ?? '') ? card.eolDate : undefined };
