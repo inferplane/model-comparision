@@ -108,7 +108,7 @@ Generated ${date} from the AWS Price List, AWS Bedrock model cards, and Artifici
 - In-region and Geo prices differ by Region; Global CRIS prices are the same in every commercial Region (except Amazon Nova).
 - 4:1 blended price = (4 x input + output) / 5, ignoring caching.
 - Model ID is the bare Bedrock id for In-region calls; Geo CRIS prepends the geography (e.g. us.), Global CRIS prepends global.
-- ZDR = zero data retention. All GPT models and all Fable models currently do not support it; every other model does.
+- ZDR = zero data retention by default. Not ZDR: OpenAI models other than gpt-oss-120b/20b and GPT OSS Safeguard 120B/20B (ZDR is an option requested through the AWS account team, approved per model version, so a new version needs a new request; without approval the default policy applies) and Claude Fable 5 / 5.1 (all traffic kept up to 30 days; ZDR only for Enterprise Frontier Safeguards customers through 2026-12-31). Source: AWS Bedrock abuse detection page. Every other model keeps its previous policy (ZDR).
 
 ## Highest Intelligence Index available in ${region}
 
@@ -189,7 +189,7 @@ ${SITE}/data/models.json is { generatedAt, models: Model[] }.
 Model fields (USD per 1M tokens unless noted):
 - id (site slug, not the Bedrock id), name, provider
 - modelId: Bedrock model id without a CRIS prefix (from the AWS model card, else models.dev); geoSources[prefix]: source regions of each Geo CRIS profile
-- ZDR is not stored: GPT and Fable models do not support zero data retention, every other model does (rule in src/zdr.ts)
+- ZDR is not stored: derived from provider and name (OpenAI except gpt-oss, and Claude Fable, are not ZDR by default; rule and AWS source in src/zdr.ts)
 - contextWindow, maxOutput (tokens); lifecycle details in card.{lifecycle, launchDate, eolDate}
 - pricing[region][scope][tier][kind]: scope is "regional" (In-region and Geo CRIS share it) or "global" (Global CRIS); tier "standard" | "batch" | "priority" | "flex"; kind "input" | "output" | "cacheRead" | "cacheWrite" | "cacheWrite1h"
 - longContext: { thresholdTokens, pricing } with the same shape; applies to the whole request once the prompt exceeds the threshold

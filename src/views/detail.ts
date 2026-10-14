@@ -6,7 +6,7 @@ import { codingNotice } from '../components/coding-notice.ts';
 import { newBadge } from '../recent.ts';
 import { copyButton } from '../components/ui.ts';
 import { t } from '../i18n.ts';
-import { zdrOf } from '../zdr.ts';
+import { FABLE_PROGRAM_ZDR_UNTIL, fableProgramZdrActive, noZdrReason, zdrOf } from '../zdr.ts';
 
 const KINDS: [TokenKind, string][] = [['input', 'Input'], ['output', 'Output'], ['cacheRead', 'Cache read'], ['cacheWrite', 'Cache write'], ['cacheWrite1h', 'Cache write 1h']];
 const TIERS: Tier[] = ['standard', 'batch', 'priority', 'flex'];
@@ -52,6 +52,7 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
     : h('p', { class: 'note' }, t('이 모델의 벤치마크 데이터가 없습니다. (Artificial Analysis에 매칭되지 않았거나 수집이 꺼져 있음)', 'No benchmark data for this model (no Artificial Analysis match, or collection is off).'));
 
   const zdr = zdrOf(m);
+  const noZdr = noZdrReason(m);
   return h('main', { class: 'detail' },
     h('a', { href: '#/' }, t('← 전체 목록', '← All models')),
     h('h1', null, m.name, h('small', null, m.provider), newBadge(m.id),
@@ -65,8 +66,12 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
       h('div', null, h('span', null, t(`${state.region}에서 추론 방식`, `Inference modes in ${state.region}`)), h('b', { class: 'modes', title: m.availability ? t('AWS 모델 카드 기준', 'Per the AWS model card') : t('models.dev 기준 추정 (모델 카드 없음)', 'Inferred from models.dev (no model card)') },
         MODES.map((x) => ({ x, ...supports(m, x, state.region) })).filter((x) => x.ok).map((x) => MODE_LABEL[x.x] + (x.via ? ` (${x.via})` : '')).join(' · ') || t('지원 안 함', 'Not supported'))),
       m.card ? h('div', null, h('span', null, t('수명주기', 'Lifecycle')), h('b', { class: 'modes' }, `${m.card.lifecycle ?? t('미확인', 'Unknown')}${m.card.eolDate ? ` · EOL ${m.card.eolDate}` : ''}`)) : null,
-      h('div', null, h('span', null, 'ZDR'), h('b', { class: `zdr${zdr ? ' on' : ' off'}`, title: t('Zero Data Retention: 요청·응답 데이터를 보관하지 않는 처리', 'Zero data retention: prompts and responses are not stored') },
-        zdr ? t('✓ 지원', '✓ Supported') : t('✕ 미지원', '✕ Not supported'))),
+      h('div', null, h('span', null, 'ZDR'), h('b', { class: `zdr${zdr ? ' on' : ' off'}`, title: noZdr === 'openai' ? t('ZDR은 AWS 계정팀에 요청해 승인받는 옵션입니다. 승인은 모델 버전별이라 새 버전(예: GPT-5.6)은 다시 요청해야 하며, 승인 전에는 기본 정책(분류기에 걸린 트래픽 최대 30일 보관)이 적용됩니다.', 'ZDR is an option you request through your AWS account team. Approval is per model version, so a new version (e.g. GPT-5.6) needs a new request; until approved, the default policy applies (classifier-flagged traffic kept up to 30 days).')
+          : noZdr === 'fable' ? (fableProgramZdrActive()
+            ? t(`모든 트래픽을 최대 30일 보관합니다. Enterprise Frontier Safeguards 대상 고객만 ${FABLE_PROGRAM_ZDR_UNTIL}까지 ZDR을 받습니다. (AWS abuse detection 문서)`, `All traffic is kept up to 30 days. ZDR applies only to Enterprise Frontier Safeguards customers through ${FABLE_PROGRAM_ZDR_UNTIL}. (AWS abuse detection page)`)
+            : t(`모든 트래픽을 최대 30일 보관합니다. Enterprise Frontier Safeguards의 ZDR은 ${FABLE_PROGRAM_ZDR_UNTIL}에 종료되었습니다. (AWS abuse detection 문서)`, `All traffic is kept up to 30 days. The Enterprise Frontier Safeguards ZDR ended on ${FABLE_PROGRAM_ZDR_UNTIL}. (AWS abuse detection page)`))
+          : t('Zero Data Retention: 요청·응답 데이터를 보관하지 않는 처리', 'Zero data retention: prompts and responses are not stored') },
+        zdr ? t('✓ 지원', '✓ Supported') : noZdr === 'openai' ? t('✕ 기본 미지원 (요청 시 가능)', '✕ Not by default (on request)') : t('✕ 미지원', '✕ Not supported'))),
       h('div', null, h('span', null, t('제공 리전', 'Regions')), h('b', null, String(m.regions.length))),
       h('div', null, h('span', null, t('최초 확인', 'First seen')), h('b', null, m.firstSeen))),
     h('h2', null, t('단가 (USD / 1M tokens)', 'Prices (USD / 1M tokens)')), h('div', { class: 'scroll' }, matrix),
