@@ -1804,6 +1804,16 @@ model,provider,region,scope,input,output,cache_read,cache_write,long_context_thr
 "Qwen3 Coder Next",Qwen,ap-southeast-2,regional,0.52,1.24,,,,,,In-region
 "Qwen3 Coder Next",Qwen,eu-west-2,regional,0.78,1.86,,,,,,In-region
 "Qwen3 Coder Next",Qwen,us-east-1,regional,0.5,1.2,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,ap-northeast-1,regional,0.168,1.44,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,ap-south-1,regional,0.168,1.44,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,ap-southeast-2,regional,0.1442,1.236,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,eu-south-1,regional,0.168,1.44,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,eu-west-1,regional,0.168,1.44,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,eu-west-2,regional,0.217,1.86,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,sa-east-1,regional,0.168,1.44,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,us-east-1,regional,0.14,1.2,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,us-east-2,regional,0.14,1.2,,,,,,In-region
+"Qwen3 Next 80B A3B",Qwen,us-west-2,regional,0.14,1.2,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,ap-northeast-1,regional,0.64,3.22,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,ap-south-1,regional,0.62,3.13,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,ap-southeast-2,regional,0.5459,2.7398,,,,,,In-region
@@ -1814,16 +1824,6 @@ model,provider,region,scope,input,output,cache_read,cache_write,long_context_thr
 "Qwen3 VL 235B A22B",Qwen,us-east-1,regional,0.53,2.66,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,us-east-2,regional,0.53,2.66,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,us-west-2,regional,0.53,2.66,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,ap-northeast-1,regional,0.168,1.44,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,ap-south-1,regional,0.168,1.44,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,ap-southeast-2,regional,0.1442,1.236,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,eu-south-1,regional,0.168,1.44,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,eu-west-1,regional,0.168,1.44,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,eu-west-2,regional,0.217,1.86,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,sa-east-1,regional,0.168,1.44,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,us-east-1,regional,0.14,1.2,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,us-east-2,regional,0.14,1.2,,,,,,In-region
-"qwen3-next-80b-a3b",Qwen,us-west-2,regional,0.14,1.2,,,,,,In-region
 "TwelveLabs Pegasus 1.2",TwelveLabs,af-south-1,global,,7.5,,,,,,Global CRIS
 "TwelveLabs Pegasus 1.2",TwelveLabs,ap-east-2,global,,7.5,,,,,,Global CRIS
 "TwelveLabs Pegasus 1.2",TwelveLabs,ap-northeast-1,global,,7.5,,,,,,Global CRIS
