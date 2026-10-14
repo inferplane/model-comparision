@@ -11,6 +11,13 @@ const model = (id: string, score: number | undefined, price: number): Model => (
 const opts = { region: 'us-east-1', modes: ['in-region' as const], tier: 'standard' as const, chartX: 'blend' as const, chartY: 'intelligenceIndex' as const, pct: false };
 
 describe('cost-performance data', () => {
+  it('drops models without default ZDR when the ZDR filter is on, and says why', () => {
+    const gpt = model('gpt-6-sol', 50, 1); gpt.provider = 'OpenAI'; gpt.name = 'GPT-6 Sol';
+    const oss = model('gpt-oss-120b', 30, 1); oss.provider = 'OpenAI'; oss.name = 'gpt-oss-120b';
+    expect(collectValuePoints([gpt, oss], { ...opts, onlyZdr: true }).map((p) => p.m.id)).toEqual(['gpt-oss-120b']);
+    expect(collectValuePoints([gpt, oss], opts).map((p) => p.m.id).sort()).toEqual(['gpt-6-sol', 'gpt-oss-120b']);
+    expect(valueExclusions([gpt, oss], { ...opts, onlyZdr: true }, 50, 'all', 0).map((e) => [e.m.id, e.reason])).toEqual([['gpt-6-sol', 'zdr']]);
+  });
   it('excludes absent or invalid scores and nonpositive prices instead of producing fabricated rankings', () => {
     const points = collectValuePoints([model('measured', 10, 2), model('missing', undefined, 1), model('nan', NaN, 1), model('negative', -1, 1), model('free', 20, 0), model('bad-price', 20, Infinity)], opts);
     expect(points.map((p) => p.m.id)).toEqual(['measured']);

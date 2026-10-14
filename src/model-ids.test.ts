@@ -28,6 +28,17 @@ describe('inferenceIds', () => {
     const m = model({ modelId: 'a.b', availability: { 'ap-northeast-1': { runtime: 'g' } }, geoPrefixes: ['jp', 'apac'] });
     expect(inferenceIds(m, 'ap-northeast-1')).toEqual([]);
   });
+  it('does not offer the only geo prefix for a region outside its geography', () => {
+    const m = model({ modelId: 'a.b', availability: { 'ap-northeast-1': { runtime: 'g' }, 'us-east-1': { runtime: 'g' } }, geoPrefixes: ['us'] });
+    expect(inferenceIds(m, 'ap-northeast-1')).toEqual([]);
+    expect(inferenceIds(m, 'us-east-1').map((x) => x.id)).toEqual(['us.a.b']);
+  });
+  it('places a single apac, jp or gov prefix by the region family', () => {
+    const apac = model({ modelId: 'a.b', availability: { 'ap-southeast-1': { runtime: 'g' } }, geoPrefixes: ['apac'] });
+    expect(inferenceIds(apac, 'ap-southeast-1').map((x) => x.id)).toEqual(['apac.a.b']);
+    const gov = model({ modelId: 'a.b', availability: { 'us-gov-west-1': { runtime: 'g' } }, geoPrefixes: ['gov'] });
+    expect(inferenceIds(gov, 'us-gov-west-1').map((x) => x.id)).toEqual(['gov.a.b']);
+  });
   it('has nothing to offer without a model id', () => {
     expect(inferenceIds(model({ availability: { 'us-east-1': { runtime: 'i' } } }), 'us-east-1')).toEqual([]);
   });

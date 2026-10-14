@@ -94,12 +94,18 @@ export function tokens(n?: number): string {
   return `${Math.round(n / 1000)}K`;
 }
 
-/** Geo CRIS prefix for `region`: the profile whose source regions include it, else the one prefix the region's name starts with. */
+/** Which regions each Geo CRIS prefix can stand for when the model card lists no source regions. */
+const GEO_REGION_FAMILY: Record<string, RegExp> = {
+  us: /^us-(?!gov)/, eu: /^eu-/, ca: /^ca-/, gov: /^us-gov-/, apac: /^ap-/,
+  jp: /^ap-northeast-[13]$/, au: /^ap-southeast-[24]$/, in: /^ap-south-[12]$/,
+};
+
+/** Geo CRIS prefix for `region`: the profile whose source regions include it, else the one prefix whose geography contains the region. */
 function geoPrefix(m: Model, region: string): string | undefined {
   const bySource = Object.entries(m.geoSources ?? {}).find(([, regions]) => regions.includes(region))?.[0];
   if (bySource) return bySource;
-  const named = (m.geoPrefixes ?? []).filter((p) => region.startsWith(`${p}-`));
-  return named.length === 1 ? named[0] : m.geoPrefixes?.length === 1 ? m.geoPrefixes[0] : undefined;
+  const named = (m.geoPrefixes ?? []).filter((p) => GEO_REGION_FAMILY[p]?.test(region));
+  return named.length === 1 ? named[0] : undefined;
 }
 
 /** The modelId to pass when invoking from `region`, per supported mode: the bare id in-region, a us./eu./… profile for Geo, global. for Global. */
