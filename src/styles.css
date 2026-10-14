@@ -8,6 +8,8 @@
   --accent: #087f68;
   --accent-soft: #eaf7f1;
   --accent-hover: #066451;
+  --warn: #b04a1f;
+  --warn-soft: #fcefe7;
   --bar: #17967d;
   --shadow: 0 2px 8px rgb(24 46 57 / 0.025);
   --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
@@ -25,6 +27,7 @@
     --bg: #101a20; --panel: #18242d; --surface: #1d2b35; --ink: #e5edf2;
     --muted: #a2b1bd; --line: #2c3b45; --accent: #6bd9b5; --accent-soft: #1c3a33;
     --accent-hover: #99e7ca; --bar: #55bfa0; --shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+    --warn: #f3a16f; --warn-soft: #3a2a20;
     --series-1: #69a9f0; --series-2: #f3a16f; --series-3: #5bcaae;
     --series-4: #d7b956; --series-5: #ca9de0; --series-6: #ef90b1;
     color-scheme: dark;
@@ -35,6 +38,7 @@
   --bg: #101a20; --panel: #18242d; --surface: #1d2b35; --ink: #e5edf2;
   --muted: #a2b1bd; --line: #2c3b45; --accent: #6bd9b5; --accent-soft: #1c3a33;
   --accent-hover: #99e7ca; --bar: #55bfa0; --shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+  --warn: #f3a16f; --warn-soft: #3a2a20;
   --series-1: #69a9f0; --series-2: #f3a16f; --series-3: #5bcaae;
   --series-4: #d7b956; --series-5: #ca9de0; --series-6: #ef90b1;
   color-scheme: dark;
@@ -642,3 +646,35 @@ h1 .badge.new { margin-left: 10px; font-size: 11px; padding: 2px 7px; vertical-a
 @media (max-width: 640px) { .multi-panel { position: fixed; left: 12px; right: 12px; top: auto; bottom: 12px; max-width: none; max-height: 70vh; } }
 .value-control-row .multi { display: block; }
 .value-control-row .multi > summary { width: 100%; }
+
+/* Language switch: a text label in the same 36px slot as the icon buttons. */
+.icon.lang-toggle { font: 650 12px/1 var(--mono); letter-spacing: 0.4px; }
+
+/* Copy-to-clipboard for model ids: quiet until hovered or focused, so the table stays scannable. */
+.copy-btn { flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--muted); cursor: pointer; }
+.copy-btn .ui-icon { width: 14px; height: 14px; }
+.copy-btn:hover, .copy-btn:focus-visible { color: var(--accent); border-color: var(--line); background: var(--accent-soft); }
+.copy-btn.done { color: var(--accent); }
+@media (hover: hover) {
+  tr .model-cell .copy-btn { opacity: 0; }
+  tr:hover .model-cell .copy-btn, .model-cell .copy-btn:focus-visible, .model-cell .copy-btn.done { opacity: 1; }
+}
+
+.model-ids { margin: 16px 0 4px; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.model-ids-title { display: block; color: var(--muted); font-size: 11px; margin-bottom: 8px; }
+.model-ids ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.model-ids li { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.model-id-mode { flex: none; width: 150px; color: var(--muted); font-size: 12px; }
+.model-ids code { min-width: 0; overflow-wrap: anywhere; padding: 3px 7px; border-radius: 5px; background: var(--surface); font: 12.5px/1.5 var(--mono); }
+@media (max-width: 640px) {
+  .model-ids li { flex-wrap: wrap; gap: 4px 8px; }
+  .model-id-mode { width: 100%; }
+}
+
+/* ZDR: a check for supported, a warning tone for the models that lack it. */
+td.zdr { text-align: center; font-weight: 700; }
+td.zdr.on, .facts b.zdr.on { color: var(--accent); }
+td.zdr.off, .facts b.zdr.off { color: var(--warn); }
+td.num.zdr { text-align: right; }
+.facts b.zdr { font-size: 15px; letter-spacing: 0; }
+.badge.no-zdr { background: var(--warn-soft); color: var(--warn); }

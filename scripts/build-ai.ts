@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { allRegions, blended, longPriceOf, MODE_LABEL, MODES, priceOf, supports, tokens, usd } from '../src/data.ts';
 import type { Mode, Model, Scope } from '../src/types.ts';
 import { codingIndexOf, scienceCodingPercent } from '../src/coding.ts';
+import { zdrOf } from '../src/zdr.ts';
 
 /**
  * Static, JavaScript-free views of the model data for AI agents (Claude, Codex, ...): a markdown comparison per region,
@@ -54,14 +55,14 @@ const threshold = (m: Model) => (m.longContext?.thresholdTokens ? `>${tokens(m.l
 const eol = (m: Model, region: string) => m.availabilityEol?.[region] ?? (m.card?.eolDate ? m.card.eolDate : '');
 const ptag = (m: Model) => (m.priceSource === 'model-card' ? ' [price: model card]' : m.priceSource === 'override' ? ' [price: manual]' : '');
 
-const COLUMNS = ['Model', 'Provider', 'In-region', 'Geo CRIS', 'Global CRIS', 'Context', 'Max out', 'Intelligence', 'Coding Index', 'SciCode (%)', 'tok/s', 'Regional in/out', 'Regional cache read/write', 'Global in/out', 'Global cache read/write', 'Long-context (regional in/out)', 'EOL'];
+const COLUMNS = ['Model', 'Provider', 'Model ID', 'ZDR', 'In-region', 'Geo CRIS', 'Global CRIS', 'Context', 'Max out', 'Intelligence', 'Coding Index', 'SciCode (%)', 'tok/s', 'Regional in/out', 'Regional cache read/write', 'Global in/out', 'Global cache read/write', 'Long-context (regional in/out)', 'EOL'];
 
 function cells(e: Entry): string[] {
   const { m, price: p } = e;
   const long = p.regional.longIn !== undefined || p.regional.longOut !== undefined ? `${threshold(m)} ${pair(p.regional.longIn, p.regional.longOut)}` : p.global.longIn !== undefined ? `${threshold(m)} global ${pair(p.global.longIn, p.global.longOut)}` : '-';
   const b = m.benchmarks;
   return [
-    m.name + ptag(m), m.provider,
+    m.name + ptag(m), m.provider, m.modelId ?? '-', zdrOf(m) ? 'yes' : 'no',
     e.modes['in-region'] ?? 'no', e.modes.geo ?? 'no', e.modes.global ?? 'no',
     tokens(m.contextWindow), tokens(m.maxOutput),
     num(b?.intelligenceIndex), num(codingIndexOf(m)), num(scienceCodingPercent(m)), b?.outputTokensPerSecond ? String(Math.round(b.outputTokensPerSecond)) : '-',
@@ -106,6 +107,8 @@ Generated ${date} from the AWS Price List, AWS Bedrock model cards, and Artifici
 - SciCode (%) is a separate scientific-programming pass rate, not Coding Index. Missing Coding Index values remain unavailable in this connected dataset and are never inferred from SciCode.
 - In-region and Geo prices differ by Region; Global CRIS prices are the same in every commercial Region (except Amazon Nova).
 - 4:1 blended price = (4 x input + output) / 5, ignoring caching.
+- Model ID is the bare Bedrock id for In-region calls; Geo CRIS prepends the geography (e.g. us.), Global CRIS prepends global.
+- ZDR = zero data retention by default. Not ZDR: OpenAI models other than gpt-oss-120b/20b and GPT OSS Safeguard 120B/20B (ZDR is an option requested through the AWS account team, approved per model version, so a new version needs a new request; without approval the default policy applies) and Claude Fable 5 / 5.1 (all traffic kept up to 30 days; ZDR only for Enterprise Frontier Safeguards customers through 2026-12-31). Source: AWS Bedrock abuse detection page. Every other model keeps its previous policy (ZDR).
 
 ## Highest Intelligence Index available in ${region}
 
@@ -184,7 +187,9 @@ const schema = `# Data schema
 ${SITE}/data/models.json is { generatedAt, models: Model[] }.
 
 Model fields (USD per 1M tokens unless noted):
-- id, name, provider
+- id (site slug, not the Bedrock id), name, provider
+- modelId: Bedrock model id without a CRIS prefix (from the AWS model card, else models.dev); geoSources[prefix]: source regions of each Geo CRIS profile
+- ZDR is not stored: derived from provider and name (OpenAI except gpt-oss, and Claude Fable, are not ZDR by default; rule and AWS source in src/zdr.ts)
 - contextWindow, maxOutput (tokens); lifecycle details in card.{lifecycle, launchDate, eolDate}
 - pricing[region][scope][tier][kind]: scope is "regional" (In-region and Geo CRIS share it) or "global" (Global CRIS); tier "standard" | "batch" | "priority" | "flex"; kind "input" | "output" | "cacheRead" | "cacheWrite" | "cacheWrite1h"
 - longContext: { thresholdTokens, pricing } with the same shape; applies to the whole request once the prompt exceeds the threshold

@@ -61,6 +61,10 @@ export interface Model {
   /** Prices that replace the base prices above the threshold (Price List `long_ctx` SKUs). */
   longContext?: { thresholdTokens?: number; pricing: PriceTable };
   firstSeen: string;
+  /** Bedrock model id without a CRIS prefix (e.g. "openai.gpt-6.1-sol"), from the model card or models.dev. */
+  modelId?: string;
+  /** Source regions per Geo CRIS prefix (us, eu, jp…), from the model card; picks the geo profile id for a region. */
+  geoSources?: Record<string, string[]>;
   benchmarks?: BenchmarkScores;
   /** The Artificial Analysis entry the scores came from; AA lists reasoning/effort variants separately, so this says which one. */
   benchmarkSource?: { name: string; slug: string; url?: string; verifiedAt?: string; kind?: 'public-page' };

@@ -14,6 +14,9 @@ import { allRegions } from './data.ts';
 import { DEFAULT_REGION, state, subscribe, update } from './state.ts';
 import { renderCompareDock } from './components/compare-dock.ts';
 import { emptyState, icon } from './components/ui.ts';
+import { lang, t } from './i18n.ts';
+
+document.documentElement.lang = lang;
 
 try {
   const saved = localStorage.getItem('bme-theme');
@@ -25,8 +28,8 @@ try {
 const app = document.getElementById('app')!;
 app.replaceChildren(h('main', { class: 'loading-state', role: 'status' },
   h('span', { class: 'brand-mark' }, icon('layers')),
-  h('h1', null, '모델 정보를 불러오고 있습니다'),
-  h('p', null, '잠시 후 가격과 성능을 한눈에 비교할 수 있습니다.'),
+  h('h1', null, t('모델 정보를 불러오고 있습니다', 'Loading model data')),
+  h('p', null, t('잠시 후 가격과 성능을 한눈에 비교할 수 있습니다.', 'Prices and performance will be ready to compare in a moment.')),
   h('div', { class: 'loading-line' })));
 
 async function start() {
@@ -40,8 +43,8 @@ async function start() {
   const view = h('div', { id: 'view', tabindex: -1 });
   const footer = h('footer', { class: 'site-footer' },
     h('span', null, 'Bedrock Model Explorer'),
-    h('span', null, '가격 · AWS Price List 및 모델 카드', h('span', { class: 'footer-divider' }, ' / '), h('a', { href: 'https://artificialanalysis.ai/', rel: 'noopener' }, '벤치마크 · Artificial Analysis')));
-  app.replaceChildren(h('a', { class: 'skip-link', href: '#view', onclick: (e: Event) => { e.preventDefault(); view.focus(); view.scrollIntoView(); } }, '본문으로 건너뛰기'), header, view, footer, renderCompareDock(models));
+    h('span', null, t('가격 · AWS Price List 및 모델 카드', 'Prices · AWS Price List and model cards'), h('span', { class: 'footer-divider' }, ' / '), h('a', { href: 'https://artificialanalysis.ai/', rel: 'noopener' }, t('벤치마크 · Artificial Analysis', 'Benchmarks · Artificial Analysis'))));
+  app.replaceChildren(h('a', { class: 'skip-link', href: '#view', onclick: (e: Event) => { e.preventDefault(); view.focus(); view.scrollIntoView(); } }, t('본문으로 건너뛰기', 'Skip to content')), header, view, footer, renderCompareDock(models));
   // Keep the table's sticky comparison action below the actual responsive header.
   const headerSize = new ResizeObserver(() => document.documentElement.style.setProperty('--header-height', `${header.getBoundingClientRect().height}px`));
   headerSize.observe(header);
@@ -77,6 +80,6 @@ async function start() {
 }
 
 start().catch((e: Error) => app.replaceChildren(h('main', null,
-  emptyState('모델 정보를 불러오지 못했습니다', '연결을 확인한 후 다시 시도해 주세요.',
-    h('button', { type: 'button', class: 'button primary', onclick: () => location.reload() }, icon('reset'), '다시 불러오기')),
-  h('details', { class: 'error-details' }, h('summary', null, '오류 정보'), h('p', null, e.message)))));
+  emptyState(t('모델 정보를 불러오지 못했습니다', 'Could not load model data'), t('연결을 확인한 후 다시 시도해 주세요.', 'Check your connection and try again.'),
+    h('button', { type: 'button', class: 'button primary', onclick: () => location.reload() }, icon('reset'), t('다시 불러오기', 'Reload'))),
+  h('details', { class: 'error-details' }, h('summary', null, t('오류 정보', 'Error details')), h('p', null, e.message)))));

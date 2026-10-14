@@ -187,6 +187,7 @@ for (const m of models.values()) {
     m.reasoning = ctx.reasoning;
     m.modes = ctx.modes;
     m.geoPrefixes = ctx.geoPrefixes;
+    m.modelId = ctx.bedrockId;
     if (m.longContext) m.longContext.thresholdTokens ??= ctx.longContextThreshold;
   } else if (!card) unmatched.push(m.name);
   if (card) {
@@ -197,6 +198,9 @@ for (const m of models.values()) {
     if (Object.keys(card.availability).length) m.availability = card.availability;
     if (card.eol && Object.keys(card.eol).length) m.availabilityEol = card.eol;
     if (card.geoPrefixes.length) m.geoPrefixes = card.geoPrefixes;
+    if (Object.keys(card.geoSources).length) m.geoSources = card.geoSources;
+    // The card's Programmatic Access table is what AWS tells callers to use; models.dev's id is the fallback.
+    m.modelId = card.modelIds[0] ?? m.modelId;
     const longRow = card.prices.find((x) => x.long && x.thresholdTokens);
     if (m.longContext && longRow) m.longContext.thresholdTokens = longRow.thresholdTokens;
     m.card = { url: `https://docs.aws.amazon.com/bedrock/latest/userguide/${card.slug}.html`, lifecycle: card.lifecycle, launchDate: card.launchDate, eolDate: /\d{4}/.test(card.eolDate ?? '') ? card.eolDate : undefined };

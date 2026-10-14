@@ -1,4 +1,5 @@
 import { h } from '../dom.ts';
+import { t } from '../i18n.ts';
 
 export interface MultiSelectOptions {
   /** Stable key; lets the open/closed state survive the full repaint that every state change triggers. */
@@ -55,14 +56,14 @@ export function multiSelect(o: MultiSelectOptions): HTMLElement {
     } else if (openId === o.id) openId = null;
   });
 
-  const clear = h('button', { type: 'button', class: 'text-button', disabled: !chosen.size, onclick: () => o.onChange([]) }, '선택 해제');
+  const clear = h('button', { type: 'button', class: 'text-button', disabled: !chosen.size, onclick: () => o.onChange([]) }, t('선택 해제', 'Clear'));
   details.append(
-    h('summary', { 'aria-label': `${o.label} 필터${chosen.size ? `, ${chosen.size}개 선택` : ''}`, title: chosen.size ? [...chosen].join(', ') : undefined },
+    h('summary', { 'aria-label': t(`${o.label} 필터${chosen.size ? `, ${chosen.size}개 선택` : ''}`, `${o.label} filter${chosen.size ? `, ${chosen.size} selected` : ''}`), title: chosen.size ? [...chosen].join(', ') : undefined },
       h('span', null, chosen.size ? `${o.label} ${chosen.size}` : o.allLabel)),
     h('div', { class: 'multi-panel', role: 'group', 'aria-label': o.label },
-      h('div', { class: 'multi-head' }, h('span', null, `${o.options.length}개 중 ${chosen.size}개`), clear,
+      h('div', { class: 'multi-head' }, h('span', null, t(`${o.options.length}개 중 ${chosen.size}개`, `${chosen.size} of ${o.options.length}`)), clear,
         // The panel is a bottom sheet on phones and covers most of the screen, so give it an explicit way out.
-        h('button', { type: 'button', class: 'text-button multi-close', onclick: () => { const summary = details.querySelector<HTMLElement>('summary'); closeAll(); summary?.focus(); } }, '닫기')),
+        h('button', { type: 'button', class: 'text-button multi-close', onclick: () => { const summary = details.querySelector<HTMLElement>('summary'); closeAll(); summary?.focus(); } }, t('닫기', 'Close'))),
       ...o.options.map((name) =>
         h('label', { class: 'multi-option' },
           h('input', { type: 'checkbox', 'aria-label': `${o.label} ${name}`, checked: chosen.has(name),

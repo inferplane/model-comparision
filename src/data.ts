@@ -1,4 +1,5 @@
 import type { Mode, Model, PriceTable, Scope, Tier, TokenKind } from './types.ts';
+import { t } from './i18n.ts';
 
 export interface Dataset {
   generatedAt: string;
@@ -88,9 +89,41 @@ export function usd(n?: number): string {
 }
 
 export function tokens(n?: number): string {
-  if (n === undefined) return '미확인';
+  if (n === undefined) return t('미확인', 'Unknown');
   if (n >= 1_000_000) return `${+(n / 1_000_000).toFixed(2)}M`;
   return `${Math.round(n / 1000)}K`;
+}
+
+/** Geo CRIS prefix for `region`: the profile whose source regions include it, else the one prefix the region's name starts with. */
+function geoPrefix(m: Model, region: string): string | undefined {
+  const bySource = Object.entries(m.geoSources ?? {}).find(([, regions]) => regions.includes(region))?.[0];
+  if (bySource) return bySource;
+  const named = (m.geoPrefixes ?? []).filter((p) => region.startsWith(`${p}-`));
+  return named.length === 1 ? named[0] : m.geoPrefixes?.length === 1 ? m.geoPrefixes[0] : undefined;
+}
+
+/** The modelId to pass when invoking from `region`, per supported mode: the bare id in-region, a us./eu./… profile for Geo, global. for Global. */
+export function inferenceIds(m: Model, region: string, modes: Mode[] = MODES): { mode: Mode; id: string; via?: string }[] {
+  if (!m.modelId) return [];
+  const out: { mode: Mode; id: string; via?: string }[] = [];
+  for (const mode of modes) {
+    const s = supports(m, mode, region);
+    if (!s.ok) continue;
+    const prefix = mode === 'global' ? 'global' : mode === 'geo' ? geoPrefix(m, region) : '';
+    if (prefix === undefined) continue;
+    out.push({ mode, id: prefix ? `${prefix}.${m.modelId}` : m.modelId, via: s.via });
+  }
+  return out;
+}
+
+/**
+ * The id a table row stands for: Global CRIS rows get the global profile; regional rows prefer the bare in-region id, but a
+ * Geo profile over an in-region id that only works on bedrock-mantle, since most callers use bedrock-runtime.
+ */
+export function rowModelId(r: Row, region: string, modes: Mode[]): string | undefined {
+  const ids = inferenceIds(r.m, region, modes.filter((mode) => scopeOf(mode) === r.scope));
+  const inRegion = ids.find((x) => x.mode === 'in-region');
+  return (inRegion && !inRegion.via ? inRegion : ids.find((x) => x.mode === 'geo') ?? inRegion ?? ids[0])?.id;
 }
 
 export function allRegions(models: Model[]): string[] {

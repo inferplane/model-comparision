@@ -1,4 +1,5 @@
 import { h, s } from '../dom.ts';
+import { t } from '../i18n.ts';
 
 const PATHS = {
   layers: ['m12 3 9 5-9 5-9-5 9-5Z', 'm3 12 9 5 9-5', 'm3 16 9 5 9-5'],
@@ -20,6 +21,7 @@ const PATHS = {
   context: ['M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5', 'M8 8h8v8H8z'],
   history: ['M3 12a9 9 0 1 0 3-6.7', 'M3 4v5h5', 'M12 7v5l3 2'],
   info: ['M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0', 'M12 11v6', 'M12 7v.01'],
+  copy: ['M9 9h11v11H9z', 'M5 15H4V4h11v1'],
 } as const;
 
 export type IconName = keyof typeof PATHS;
@@ -34,6 +36,35 @@ export function pageHeading(eyebrow: string, title: string, description: string)
     h('span', { class: 'eyebrow' }, eyebrow),
     h('h1', { class: 'chart-title' }, title),
     h('p', { class: 'page-description' }, description));
+}
+
+/** Live region shared by every copy button, so screen readers hear the confirmation even though views repaint. */
+let copyStatus: HTMLElement | undefined;
+
+/** Icon button that copies `text`, flashing a check mark. Falls back to a prompt where the clipboard API is blocked. */
+export function copyButton(text: string, label: string, className = 'copy-btn'): HTMLElement {
+  if (!copyStatus) {
+    copyStatus = h('span', { class: 'sr-only', role: 'status' });
+    document.body.append(copyStatus);
+  }
+  const status = copyStatus;
+  let timer: ReturnType<typeof setTimeout>;
+  const btn = h('button', { type: 'button', class: className, 'aria-label': label, title: `${t('복사', 'Copy')}: ${text}`, onclick: async (e: Event) => {
+    // Rows and cards are often links or toggles themselves; a copy must not also trigger them.
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.replaceChildren(icon('check'));
+      btn.classList.add('done');
+      status.textContent = t(`${text} 복사됨`, `Copied ${text}`);
+      clearTimeout(timer);
+      timer = setTimeout(() => { btn.replaceChildren(icon('copy')); btn.classList.remove('done'); status.textContent = ''; }, 1500);
+    } catch {
+      window.prompt(t('이 ID를 복사하세요', 'Copy this ID'), text);
+    }
+  } }, icon('copy'));
+  return btn;
 }
 
 export function emptyState(title: string, description: string, action?: HTMLElement): HTMLElement {

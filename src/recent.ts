@@ -1,4 +1,5 @@
 import { h } from './dom.ts';
+import { t } from './i18n.ts';
 import { NO_CHANGES, parseChanges, type ChangesFile } from './changes.ts';
 
 /** Fetch the daily change history. It is optional: a missing or broken file must never stop the app from loading. */
@@ -23,5 +24,5 @@ export const addedOn = (id: string): string | undefined => added.get(id);
 /** "NEW" marker for a model the daily check added recently, or null. */
 export function newBadge(id: string): HTMLElement | null {
   const day = added.get(id);
-  return day ? h('em', { class: 'badge new', title: `이 사이트가 ${day}에 Bedrock 목록에서 처음 감지한 모델입니다 (AWS 출시일과는 다를 수 있음)` }, 'NEW') : null;
+  return day ? h('em', { class: 'badge new', title: t(`이 사이트가 ${day}에 Bedrock 목록에서 처음 감지한 모델입니다 (AWS 출시일과는 다를 수 있음)`, `First seen in the Bedrock catalogue by this site on ${day} (may differ from the AWS launch date)`) }, 'NEW') : null;
 }
