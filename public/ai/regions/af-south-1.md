@@ -1,6 +1,6 @@
 # Amazon Bedrock model comparison: af-south-1
 
-Generated 2026-10-14 from the AWS Price List, AWS Bedrock model cards, and Artificial Analysis. Interactive version: https://inferplane.github.io/model-comparision/ . This file lists the 57 models that can be invoked from **af-south-1** by at least one method. Other regions: https://inferplane.github.io/model-comparision/ai/ . Per-region prices for every model: https://inferplane.github.io/model-comparision/ai/prices.csv . Full data: https://inferplane.github.io/model-comparision/data/models.json .
+Generated 2026-10-15 from the AWS Price List, AWS Bedrock model cards, and Artificial Analysis. Interactive version: https://inferplane.github.io/model-comparision/ . This file lists the 57 models that can be invoked from **af-south-1** by at least one method. Other regions: https://inferplane.github.io/model-comparision/ai/ . Per-region prices for every model: https://inferplane.github.io/model-comparision/ai/prices.csv . Full data: https://inferplane.github.io/model-comparision/data/models.json .
 
 ## How to read this
 
@@ -65,9 +65,9 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Claude 3.5 Sonnet v2 | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | 7.9 | 30.2 | - | - | - | - | - | - | - | - |
 | Claude 3.7 Sonnet | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | 15.3 | - | - | - | - | - | - | - | - | - |
 | Claude Fable 5 | Anthropic | anthropic.claude-fable-5 | no | no | no | yes | 1M | 128K | 49.6 | 76.5 | 61.0 | - | - | - | $10.00 / $50.00 | $1.00 / $12.50 | - | - |
-| Claude Fable 5.1 | Anthropic | anthropic.claude-fable-5-1 | no | no | no | yes | 1M | 128K | 53.4 | 81.6 | 63.1 | 64 | - | - | $10.00 / $50.00 | $0.25 / $12.50 | - | - |
+| Claude Fable 5.1 | Anthropic | anthropic.claude-fable-5-1 | no | no | no | yes | 1M | 128K | 53.4 | 81.6 | 63.1 | 66 | - | - | $10.00 / $50.00 | $0.25 / $12.50 | - | - |
 | Claude Haiku 4.5 | Anthropic | anthropic.claude-haiku-4-5 | yes | no | no | yes | 200K | 64K | 15.4 | - | - | - | - | - | $1.00 / $5.00 | $0.10 / $1.25 | - | - |
-| Claude Haiku 5.5 | Anthropic | anthropic.claude-haiku-5-5 | yes | no | no | yes | 1M | 128K | 43.4 | - | 55.0 | 239 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >100K global $0.50 / $2.50 | - |
+| Claude Haiku 5.5 | Anthropic | anthropic.claude-haiku-5-5 | yes | no | no | yes | 1M | 128K | 43.4 | - | 55.0 | 241 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >100K global $0.50 / $2.50 | - |
 | Claude Instant | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | 5.0 | 7.8 | - | - | - | - | - | - | - | - |
 | Claude Instant (100K) | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | 5.0 | 7.8 | - | - | - | - | - | - | - | - |
 | Claude Mythos 5.1 | Anthropic | anthropic.claude-mythos-5-1 | yes | no | no | yes | 1M | 128K | - | - | - | - | - | - | $10.00 / $50.00 | $0.25 / $12.50 | - | - |
@@ -82,7 +82,7 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Claude Sonnet 4.5 | Anthropic | anthropic.claude-sonnet-4-5-20250929-v1:0 | yes | no | no | yes | 200K | 64K | 19.3 | - | - | - | - | - | $3.00 / $15.00 | $0.30 / $3.75 | - | 2027-04-08 |
 | Claude Sonnet 4.6 | Anthropic | anthropic.claude-sonnet-4-6 | yes | no | no | yes | 1M | 64K | 24.7 | - | - | - | - | - | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
 | Claude Sonnet 5 | Anthropic | anthropic.claude-sonnet-5 | yes | no | no | yes | 1M | 128K | 38.2 | 71.5 | 54.3 | - | - | - | $2.00 / $10.00 | $0.20 / $2.50 | - | - |
-| Claude Sonnet 5.5 | Anthropic | anthropic.claude-sonnet-5-5 | yes | no | no | yes | 1M | 128K | 56.0 | - | 61.0 | 134 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | - | - |
+| Claude Sonnet 5.5 | Anthropic | anthropic.claude-sonnet-5-5 | yes | no | no | yes | 1M | 128K | 56.0 | - | 61.0 | 138 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | - | - |
 | Cohere Embed 3 Model - English | Cohere | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Cohere Embed 4 Model | Cohere | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Cohere Embed Model 3 - Multilingual | Cohere | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
@@ -93,11 +93,11 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Meta Llama 2 Chat 13B | Meta | - | yes | yes? | yes? | no | 미확인 | 미확인 | 5.3 | - | - | - | - | - | - | - | - | - |
 | Meta Llama 2 Chat 70B | Meta | - | yes | yes? | yes? | no | 미확인 | 미확인 | 5.3 | - | - | - | - | - | - | - | - | - |
 | Mistral Large 2407 | Mistral | - | yes | yes? | yes? | no | 미확인 | 미확인 | 6.8 | - | - | - | - | - | - | - | - | - |
-| Kimi K3 | Moonshot AI | moonshotai.kimi-k3 | yes | no | no | yes | 1M | 128K | 43.6 | 76.2 | 59.5 | 45 | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
-| GPT-6 Luna [price: model card] | OpenAI | openai.gpt-6-luna | no | no | no | yes | 1.05M | 128K | 38.1 | - | 54.6 | 128 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >272K global $0.20 / $0.75 | - |
+| Kimi K3 | Moonshot AI | moonshotai.kimi-k3 | yes | no | no | yes | 1M | 128K | 43.6 | 76.2 | 59.5 | 42 | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
+| GPT-6 Luna [price: model card] | OpenAI | openai.gpt-6-luna | no | no | no | yes | 1.05M | 128K | 38.1 | - | 54.6 | 123 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >272K global $0.20 / $0.75 | - |
 | GPT-6 Sol [price: model card] | OpenAI | openai.gpt-6-sol | no | no | no | yes | 1.05M | 128K | 47.6 | - | 57.6 | - | - | - | $2.00 / $10.00 | $0.20 / $2.50 | >272K global $4.00 / $15.00 | - |
-| GPT-6.1 Sol [price: model card] | OpenAI | openai.gpt-6.1-sol | no | no | no | yes | 1M | 131K | 51.8 | - | 54.2 | 54 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
-| OpenAI GPT-6 Astra | OpenAI | openai.gpt-6-astra | no | no | no | yes | 1.05M | 128K | 52.7 | 76.9 | 56.5 | 51 | - | - | $10.00 / $50.00 | $1.00 / $12.50 | >272K global $20.00 / $75.00 | - |
+| GPT-6.1 Sol [price: model card] | OpenAI | openai.gpt-6.1-sol | no | no | no | yes | 1M | 131K | 51.8 | - | 54.2 | 51 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
+| OpenAI GPT-6 Astra | OpenAI | openai.gpt-6-astra | no | no | no | yes | 1.05M | 128K | 52.7 | 76.9 | 56.5 | 46 | - | - | $10.00 / $50.00 | $1.00 / $12.50 | >272K global $20.00 / $75.00 | - |
 | TwelveLabs Pegasus 1.2 | TwelveLabs | - | yes | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - | - / $7.50 | - | - | - |
 | TwelveLabs Pegasus 1.5 | TwelveLabs | - | yes | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - | - / $7.50 | - | - | - |
-| GLM 5.3 [price: manual] | Z AI | zai.glm-5.3 | yes | no | no | yes | 1M | 128K | 44.8 | 74.8 | 59.0 | 66 | - | - | $1.68 / $5.28 | $0.312 / $2.10 | - | - |
+| GLM 5.3 [price: manual] | Z AI | zai.glm-5.3 | yes | no | no | yes | 1M | 128K | 44.8 | 74.8 | 59.0 | 70 | - | - | $1.68 / $5.28 | $0.312 / $2.10 | - | - |
