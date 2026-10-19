@@ -1,6 +1,6 @@
 # Amazon Bedrock model comparison
 
-> Prices (USD per 1M tokens), context windows, cache pricing, in-region / Geo CRIS / Global CRIS availability per Region, EOL dates, and Artificial Analysis benchmark scores for every Amazon Bedrock model. Rebuilt daily from the AWS Price List, AWS Bedrock model cards, and Artificial Analysis. Last generated 2026-10-18. The interactive site (https://inferplane.github.io/model-comparision/) is a JavaScript app; use these static files instead.
+> Prices (USD per 1M tokens), context windows, cache pricing, in-region / Geo CRIS / Global CRIS availability per Region, EOL dates, and Artificial Analysis benchmark scores for every Amazon Bedrock model. Rebuilt daily from the AWS Price List, AWS Bedrock model cards, and Artificial Analysis. Last generated 2026-10-19. The interactive site (https://inferplane.github.io/model-comparision/) is a JavaScript app; use these static files instead.
 
 ## Start here
 
