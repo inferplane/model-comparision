@@ -108,10 +108,10 @@ model,provider,region,scope,input,output,cache_read,cache_write,long_context_thr
 "Nova 2.0 Pro",Amazon,us-west-1,global,1.61,12.84,,,,,,Global CRIS
 "Nova 2.0 Pro",Amazon,us-west-2,regional,1.375,11,,,,,,In-region+Geo CRIS
 "Nova 2.0 Pro",Amazon,us-west-2,global,1.25,10,,,,,,Global CRIS
-"Nova 2.5 Sonic",Amazon,ap-northeast-1,regional,0.396,3.311,,,,,,In-region+Geo CRIS
-"Nova 2.5 Sonic",Amazon,eu-north-1,regional,0.363,2.992,,,,,,In-region+Geo CRIS
-"Nova 2.5 Sonic",Amazon,us-east-1,regional,0.33,2.75,,,,,,In-region+Geo CRIS
-"Nova 2.5 Sonic",Amazon,us-west-2,regional,0.319,2.651,,,,,,In-region+Geo CRIS
+"Nova 2.5 Sonic",Amazon,ap-northeast-1,regional,0.396,3.311,,,,,,In-region
+"Nova 2.5 Sonic",Amazon,eu-north-1,regional,0.363,2.992,,,,,,In-region
+"Nova 2.5 Sonic",Amazon,us-east-1,regional,0.33,2.75,,,,,,In-region
+"Nova 2.5 Sonic",Amazon,us-west-2,regional,0.319,2.651,,,,,,In-region
 "Nova Lite",Amazon,ap-northeast-1,regional,0.072,0.288,0.018,,,,,In-region+Geo CRIS
 "Nova Lite",Amazon,ap-northeast-2,regional,0.071,0.284,0.01775,,,,,Geo CRIS
 "Nova Lite",Amazon,ap-south-1,regional,0.071,0.284,0.01775,,,,,Geo CRIS
