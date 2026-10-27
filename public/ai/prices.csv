@@ -1694,6 +1694,42 @@ model,provider,region,scope,input,output,cache_read,cache_write,long_context_thr
 "GPT-6.1 Sol",OpenAI,us-west-1,global,2,10,0.1,2.5,272000,4,15,Global CRIS
 "GPT-6.1 Sol",OpenAI,us-west-2,regional,2.2,11,0.11,2.75,272000,4.4,16.5,Geo CRIS
 "GPT-6.1 Sol",OpenAI,us-west-2,global,2,10,0.1,2.5,272000,4,15,Global CRIS
+"GPT-6.1 Terra",OpenAI,af-south-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-east-2,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-northeast-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-northeast-2,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-northeast-3,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-south-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-south-2,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-southeast-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-southeast-2,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-southeast-3,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-southeast-4,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-southeast-5,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-southeast-6,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ap-southeast-7,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ca-central-1,regional,1.1,5.5,0.055,1.375,272000,2.2,8.25,Geo CRIS
+"GPT-6.1 Terra",OpenAI,ca-central-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,ca-west-1,regional,1.1,5.5,0.055,1.375,272000,2.2,8.25,Geo CRIS
+"GPT-6.1 Terra",OpenAI,ca-west-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,eu-central-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,eu-central-2,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,eu-north-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,eu-south-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,eu-south-2,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,eu-west-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,eu-west-2,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,eu-west-3,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,il-central-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,mx-central-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,us-east-1,regional,1.1,5.5,0.055,1.375,272000,2.2,8.25,In-region+Geo CRIS
+"GPT-6.1 Terra",OpenAI,us-east-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,us-east-2,regional,1.1,5.5,0.055,1.375,272000,2.2,8.25,Geo CRIS
+"GPT-6.1 Terra",OpenAI,us-east-2,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,us-west-1,regional,1.1,5.5,0.055,1.375,272000,2.2,8.25,Geo CRIS
+"GPT-6.1 Terra",OpenAI,us-west-1,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
+"GPT-6.1 Terra",OpenAI,us-west-2,regional,1.1,5.5,0.055,1.375,272000,2.2,8.25,Geo CRIS
+"GPT-6.1 Terra",OpenAI,us-west-2,global,1,5,0.05,1.25,272000,2,7.5,Global CRIS
 "gpt-oss-120b",OpenAI,ap-northeast-1,regional,0.18,0.73,,,,,,In-region
 "gpt-oss-120b",OpenAI,ap-south-1,regional,0.18,0.71,,,,,,In-region
 "gpt-oss-120b",OpenAI,ap-southeast-2,regional,0.1545,0.618,,,,,,In-region
