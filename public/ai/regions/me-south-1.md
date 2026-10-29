@@ -1,6 +1,6 @@
 # Amazon Bedrock model comparison: me-south-1
 
-Generated 2026-10-28 from the AWS Price List, AWS Bedrock model cards, and Artificial Analysis. Interactive version: https://inferplane.github.io/model-comparision/ . This file lists the 55 models that can be invoked from **me-south-1** by at least one method. Other regions: https://inferplane.github.io/model-comparision/ai/ . Per-region prices for every model: https://inferplane.github.io/model-comparision/ai/prices.csv . Full data: https://inferplane.github.io/model-comparision/data/models.json .
+Generated 2026-10-29 from the AWS Price List, AWS Bedrock model cards, and Artificial Analysis. Interactive version: https://inferplane.github.io/model-comparision/ . This file lists the 55 models that can be invoked from **me-south-1** by at least one method. Other regions: https://inferplane.github.io/model-comparision/ai/ . Per-region prices for every model: https://inferplane.github.io/model-comparision/ai/prices.csv . Full data: https://inferplane.github.io/model-comparision/data/models.json .
 
 ## How to read this
 
@@ -39,40 +39,40 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Jurassic-2 Mid | AI21 Labs | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Jurassic-2 Ultra | AI21 Labs | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Nova 2.0 Omni | Amazon | - | yes | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - | $0.30 / $2.70 | - | - | - |
-| Nova 2.0 Pro | Amazon | - | yes | yes? | yes? | yes? | 미확인 | 미확인 | - | 20.9 | - | 144 | - | - | - | - | - | - |
+| Nova 2.0 Pro | Amazon | - | yes | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | 140 | - | - | - | - | - | - |
 | Nova Premier | Amazon | amazon.nova-premier-v1:0 | yes | no | yes? | no | 1M | 10K | - | - | - | - | - | - | - | - | - | - |
 | Nova Pro Latency Optimized | Amazon | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Nova Sonic | Amazon | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Nova Sonic 2.0 | Amazon | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Claude | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Claude (100K) | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
-| Claude 2.0 | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | 12.9 | - | - | - | - | - | - | - | - |
-| Claude 2.1 | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | 14.0 | - | - | - | - | - | - | - | - |
-| Claude 3 Opus | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | 19.5 | - | - | - | - | - | - | - | - |
+| Claude 2.0 | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
+| Claude 2.1 | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
+| Claude 3 Opus | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Claude 3 Sonnet | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
-| Claude 3.5 Haiku | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | 15.9 | - | - | - | - | - | - | - | - |
-| Claude 3.5 Sonnet | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | 26.0 | - | - | - | - | - | - | - | - |
-| Claude 3.5 Sonnet v2 | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | 30.2 | - | - | - | - | - | - | - | - |
+| Claude 3.5 Haiku | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
+| Claude 3.5 Sonnet | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
+| Claude 3.5 Sonnet v2 | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Claude 3.7 Sonnet | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
-| Claude Fable 5 | Anthropic | anthropic.claude-fable-5 | no | no | no | yes | 1M | 128K | - | 76.5 | 61.0 | - | - | - | $10.00 / $50.00 | $1.00 / $12.50 | - | - |
-| Claude Fable 5.1 | Anthropic | anthropic.claude-fable-5-1 | no | no | no | yes | 1M | 128K | 49.0 | 81.6 | 63.1 | 66 | - | - | $10.00 / $50.00 | $0.25 / $12.50 | - | - |
+| Claude Fable 5 | Anthropic | anthropic.claude-fable-5 | no | no | no | yes | 1M | 128K | - | - | 61.0 | - | - | - | $10.00 / $50.00 | $1.00 / $12.50 | - | - |
+| Claude Fable 5.1 | Anthropic | anthropic.claude-fable-5-1 | no | no | no | yes | 1M | 128K | 49.0 | - | 63.1 | 67 | - | - | $10.00 / $50.00 | $0.25 / $12.50 | - | - |
 | Claude Haiku 4.5 | Anthropic | anthropic.claude-haiku-4-5 | yes | no | no | yes | 200K | 64K | - | - | - | - | - | - | $1.00 / $5.00 | $0.10 / $1.25 | - | - |
-| Claude Haiku 5.5 | Anthropic | anthropic.claude-haiku-5-5 | yes | no | no | yes | 1M | 128K | 36.2 | - | 55.0 | 239 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >100K global $0.50 / $2.50 | - |
-| Claude Instant | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | 7.8 | - | - | - | - | - | - | - | - |
-| Claude Instant (100K) | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | 7.8 | - | - | - | - | - | - | - | - |
+| Claude Haiku 5.5 | Anthropic | anthropic.claude-haiku-5-5 | yes | no | no | yes | 1M | 128K | 36.2 | - | 55.0 | 235 | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >100K global $0.50 / $2.50 | - |
+| Claude Instant | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
+| Claude Instant (100K) | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Claude Mythos 5.1 | Anthropic | anthropic.claude-mythos-5-1 | yes | no | no | yes | 1M | 128K | - | - | - | - | - | - | $10.00 / $50.00 | $0.25 / $12.50 | - | - |
 | Claude Mythos Preview | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Claude Opus 4 | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Claude Opus 4.5 | Anthropic | anthropic.claude-opus-4-5-20251101-v1:0 | yes | no | no | yes | 200K | 64K | - | - | - | - | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
 | Claude Opus 4.6 | Anthropic | anthropic.claude-opus-4-6-v1 | yes | no | no | yes | 1M | 128K | - | - | - | - | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
-| Claude Opus 4.7 | Anthropic | anthropic.claude-opus-4-7 | yes | no | no | yes | 1M | 128K | - | 73.6 | - | - | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
-| Claude Opus 4.8 | Anthropic | anthropic.claude-opus-4-8 | yes | no | no | yes | 1M | 128K | - | 74.3 | 54.4 | - | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
-| Claude Opus 5 | Anthropic | anthropic.claude-opus-5 | yes | no | no | yes | 1M | 128K | - | 78.0 | 56.4 | - | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
-| Claude Opus 5.5 | Anthropic | anthropic.claude-opus-5-5 | yes | no | no | yes | 1M | 128K | 58.4 | - | 66.9 | 97 | - | - | $4.00 / $20.00 | $0.20 / $5.00 | - | - |
+| Claude Opus 4.7 | Anthropic | anthropic.claude-opus-4-7 | yes | no | no | yes | 1M | 128K | - | - | - | - | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
+| Claude Opus 4.8 | Anthropic | anthropic.claude-opus-4-8 | yes | no | no | yes | 1M | 128K | - | - | 54.4 | - | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
+| Claude Opus 5 | Anthropic | anthropic.claude-opus-5 | yes | no | no | yes | 1M | 128K | - | - | 56.4 | - | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
+| Claude Opus 5.5 | Anthropic | anthropic.claude-opus-5-5 | yes | no | no | yes | 1M | 128K | 58.4 | - | 66.9 | 96 | - | - | $4.00 / $20.00 | $0.20 / $5.00 | - | - |
 | Claude Sonnet 4.5 | Anthropic | anthropic.claude-sonnet-4-5-20250929-v1:0 | yes | no | no | yes | 200K | 64K | - | - | - | - | - | - | $3.00 / $15.00 | $0.30 / $3.75 | - | 2027-04-08 |
 | Claude Sonnet 4.6 | Anthropic | anthropic.claude-sonnet-4-6 | yes | no | no | yes | 1M | 64K | - | - | - | - | - | - | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
-| Claude Sonnet 5 | Anthropic | anthropic.claude-sonnet-5 | yes | no | no | yes | 1M | 128K | - | 71.5 | 54.3 | - | - | - | $2.00 / $10.00 | $0.20 / $2.50 | - | - |
-| Claude Sonnet 5.5 | Anthropic | anthropic.claude-sonnet-5-5 | yes | no | no | yes | 1M | 128K | 54.2 | - | 61.0 | 139 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | - | - |
+| Claude Sonnet 5 | Anthropic | anthropic.claude-sonnet-5 | yes | no | no | yes | 1M | 128K | - | - | 54.3 | - | - | - | $2.00 / $10.00 | $0.20 / $2.50 | - | - |
+| Claude Sonnet 5.5 | Anthropic | anthropic.claude-sonnet-5-5 | yes | no | no | yes | 1M | 128K | 54.2 | - | 61.0 | 136 | - | - | $2.00 / $10.00 | $0.10 / $2.50 | - | - |
 | Cohere Embed 3 Model - English | Cohere | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Cohere Embed 4 Model | Cohere | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Cohere Embed Model 3 - Multilingual | Cohere | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
@@ -83,10 +83,10 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Meta Llama 2 Chat 13B | Meta | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Meta Llama 2 Chat 70B | Meta | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
 | Mistral Large 2407 | Mistral | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - |
-| Kimi K3 | Moonshot AI | moonshotai.kimi-k3 | yes | no | no | yes | 1M | 128K | - | 76.2 | 59.5 | - | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
-| GPT-5.6 Luna | OpenAI | openai.gpt-5.6-luna | no | no | no | yes | 1.05M | 128K | - | 71.4 | 53.6 | - | - | - | $0.20 / $1.20 | $0.02 / $0.25 | >272K global $0.40 / $1.80 | - |
-| GPT-5.6 Sol [price: model card] | OpenAI | openai.gpt-5.6-sol | no | no | no | yes | 1.05M | 128K | - | 77.4 | 57.1 | - | - | - | $4.00 / $20.00 | $0.40 / $5.00 | >272K global $8.00 / $30.00 | - |
-| GPT-5.6 Terra | OpenAI | openai.gpt-5.6-terra | no | no | no | yes | 1.05M | 128K | - | 76.7 | 55.0 | 129 | - | - | $2.00 / $12.00 | $0.20 / $2.50 | >272K global $4.00 / $18.00 | - |
+| Kimi K3 | Moonshot AI | moonshotai.kimi-k3 | yes | no | no | yes | 1M | 128K | - | - | 59.5 | - | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
+| GPT-5.6 Luna | OpenAI | openai.gpt-5.6-luna | no | no | no | yes | 1.05M | 128K | - | - | 53.6 | - | - | - | $0.20 / $1.20 | $0.02 / $0.25 | >272K global $0.40 / $1.80 | - |
+| GPT-5.6 Sol [price: model card] | OpenAI | openai.gpt-5.6-sol | no | no | no | yes | 1.05M | 128K | - | - | 57.1 | - | - | - | $4.00 / $20.00 | $0.40 / $5.00 | >272K global $8.00 / $30.00 | - |
+| GPT-5.6 Terra | OpenAI | openai.gpt-5.6-terra | no | no | no | yes | 1.05M | 128K | - | - | 55.0 | 109 | - | - | $2.00 / $12.00 | $0.20 / $2.50 | >272K global $4.00 / $18.00 | - |
 | TwelveLabs Pegasus 1.2 | TwelveLabs | - | yes | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - | - / $7.50 | - | - | - |
 | TwelveLabs Pegasus 1.5 | TwelveLabs | - | yes | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - | - / $7.50 | - | - | - |
-| Grok 4.6 | xAI | xai.grok-4.6 | yes | no | no | yes | 500K | 500K | - | 76.8 | 56.5 | - | $2.20 / $6.60 | $0.55 / - | $2.00 / $6.00 | $0.50 / - | - | - |
+| Grok 4.6 | xAI | xai.grok-4.6 | yes | no | no | yes | 500K | 500K | - | - | 56.5 | - | $2.20 / $6.60 | $0.55 / - | $2.00 / $6.00 | $0.50 / - | - | - |
