@@ -1,10 +1,10 @@
-import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, readdirSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { parse } from 'yaml';
 import type { Model, PriceEntry, PriceTable, Scope, Tier, TokenKind } from '../src/types.ts';
 import type { BenchmarkRecord } from './fetch-benchmarks.ts';
 import type { ContextRecord } from './fetch-context.ts';
-import type { CardRecord } from './parse-card.ts';
+import { parseCard, type CardRecord } from './parse-card.ts';
 import { providerFromName } from './parse-pricing.ts';
 import { applyBenchmarkFallbacks, type BenchmarkFallback } from './benchmark-fallbacks.ts';
 import { findBenchmark } from './benchmark-matching.ts';
@@ -24,6 +24,15 @@ const readYaml = <T>(path: string, fallback: T): T => (existsSync(path) ? ((pars
 const prices = readJson<PriceEntry[]>('data/raw/prices.json');
 const contexts = readJson<ContextRecord[]>('data/raw/context.json');
 const cards = existsSync('data/raw/cards.json') ? readJson<CardRecord[]>('data/raw/cards.json') : [];
+// Checked-in card excerpts cover new models while the live feed is unavailable or lagging.
+// Never override a fetched card: upstream updates (including retirement) remain authoritative.
+if (existsSync('data/cards')) {
+  for (const file of readdirSync('data/cards').filter((f) => /^model-card-.*\.md$/.test(f)).sort()) {
+    const slug = file.slice(0, -3);
+    if (cards.some((c) => c.slug === slug)) continue;
+    cards.push({ ...parseCard(slug, readFileSync(`data/cards/${file}`, 'utf8')), availabilitySource: 'card' });
+  }
+}
 const benchmarks = existsSync('data/raw/benchmarks.json') ? readJson<BenchmarkRecord[]>('data/raw/benchmarks.json') : [];
 const overrides = readYaml<Overrides>('data/overrides.yaml', {});
 const aliasFile = readYaml<{ aliases?: Record<string, string>; benchmarkAliases?: Record<string, string> }>('data/aliases.yaml', {});

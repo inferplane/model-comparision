@@ -3,7 +3,9 @@
 https://inferplane.github.io/model-comparision/data/models.json is { generatedAt, models: Model[] }.
 
 Model fields (USD per 1M tokens unless noted):
-- id, name, provider
+- id (site slug, not the Bedrock id), name, provider
+- modelId: Bedrock model id without a CRIS prefix (from the AWS model card, else models.dev); geoSources[prefix]: source regions of each Geo CRIS profile
+- ZDR is not stored: derived from provider and name (OpenAI except gpt-oss, and Claude Fable, are not ZDR by default; rule and AWS source in src/zdr.ts)
 - contextWindow, maxOutput (tokens); lifecycle details in card.{lifecycle, launchDate, eolDate}
 - pricing[region][scope][tier][kind]: scope is "regional" (In-region and Geo CRIS share it) or "global" (Global CRIS); tier "standard" | "batch" | "priority" | "flex"; kind "input" | "output" | "cacheRead" | "cacheWrite" | "cacheWrite1h"
 - longContext: { thresholdTokens, pricing } with the same shape; applies to the whole request once the prompt exceeds the threshold

@@ -62,3 +62,9 @@ The cost-performance view starts with a numerical ranking and candidates for hig
 - **A standing issue "신규 Bedrock 모델 매칭 확인 필요"** (label `data-review`) lists models added in the last 7 days that still lack a model card, context window, price, or benchmark match, and which `data/aliases.yaml` entry to add. It updates daily and closes itself when nothing is left.
 - **Sanity guard:** if 10+ models (≥10%) vanish or prices move on ≥50% of models in one run, the run stops before committing, leaving the previous deployment in place. Check the run summary, then re-run with "allow_big_change" ticked (Actions → Run workflow) if the change is real.
 - **A failed scheduled/manual run opens an issue** (label `data-refresh-failed`); the next successful run closes it. The site keeps serving the last good data meanwhile.
+
+### GPT-6.1 Terra card fallback
+
+`data/cards/model-card-openai-gpt-6-1-terra.md` contains the data-relevant excerpt of the AWS model card supplied by the user on 2026-10-29 (live retrieval was blocked). `scripts/build-data.ts` uses checked-in card excerpts only when the fetched card with the same slug is absent; fetched cards take precedence. Remove the fallback when upstream coverage is reliable, particularly if the model is retired or its card is removed.
+
+The Terra addition preserves the existing catalog rather than rebuilding other models from older local feeds. It includes Standard-tier short/long-context and cache prices, a 272K long-context threshold, limits, launch date, and endpoint-specific availability. “EOL no sooner than” is not treated as an announced EOL date. No Artificial Analysis scores were supplied. The user also provided a [Lotte Tower test example](https://inferplane.github.io/llm-benchmark/models/gpt-6.1-terra/lotte-tower/); it was not independently retrieved and is not used as a comparable benchmark score.

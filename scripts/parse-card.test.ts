@@ -51,3 +51,22 @@ describe('GPT-6 Sol card (alternate headings, text cells)', () => {
     expect(c.contextWindow).toBe(1_050_000);
   });
 });
+
+describe('user-supplied GPT-6.1 Terra card excerpt', () => {
+  const c = parseCard('model-card-openai-gpt-6-1-terra', readFileSync(new URL('../data/cards/model-card-openai-gpt-6-1-terra.md', import.meta.url), 'utf8'));
+  it('retains all six short/long-context price rows and exact limits', () => {
+    expect(c).toMatchObject({ title: 'GPT-6.1 Terra', vendor: 'OpenAI', modelIds: ['openai.gpt-6.1-terra'], contextWindow: 1_050_000, maxOutput: 128_000, launchDate: 'October 26, 2026', eolDate: 'N/A' });
+    expect(c.prices).toHaveLength(6);
+    expect(c.prices.every((p) => p.thresholdTokens === 272_000)).toBe(true);
+    expect(c.prices.find((p) => p.label === 'Geo CRIS' && !p.long)).toMatchObject({ input: 1.1, output: 5.5, cacheWrite: 1.375, cacheRead: 0.055 });
+    expect(c.prices.find((p) => p.scope === 'global' && p.long)).toMatchObject({ input: 2, output: 7.5, cacheWrite: 2.5, cacheRead: 0.1 });
+  });
+  it('keeps the explicit US geo sources and excludes unsupported regions', () => {
+    expect(c.geoSources).toEqual({ us: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2', 'ca-central-1', 'ca-west-1'] });
+    expect(Object.keys(c.availability)).toHaveLength(31);
+    expect(c.availability['ap-southeast-6']).toEqual({ runtime: 'G' });
+    expect(c.availability['mx-central-1']).toEqual({ runtime: 'G' });
+    expect(c.availability['af-south-1']).toEqual({ runtime: 'G' });
+    expect(c.availability['me-south-1']).toBeUndefined();
+  });
+});

@@ -3,3 +3,4 @@ dist
 data/raw
 .remember
 .env
+/videos/
