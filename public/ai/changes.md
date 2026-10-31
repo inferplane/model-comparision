@@ -1,6 +1,11 @@
 # Recent changes to the Bedrock model data
 
-New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-10-30.
+New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-10-31.
+
+## 2026-10-31
+
+### Availability changes (1 models)
+- Daybreak Red: GPT-5.6 Cyber: in-region regions 1 → 2
 
 ## 2026-10-28
 
