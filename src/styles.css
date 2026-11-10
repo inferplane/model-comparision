@@ -175,6 +175,20 @@ td.name a { color: var(--ink); }
 td.name a:hover { color: var(--accent); }
 .model-cell { display: flex; align-items: center; gap: 10px; }
 .model-cell > a { display: block; max-width: 245px; white-space: normal; line-height: 1.5; }
+.model-identity { min-width: 0; }
+.model-identity > a { display: block; max-width: 245px; white-space: normal; line-height: 1.5; }
+.model-base-id { display: block; max-width: 230px; margin-top: 5px; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font: 9px/1.5 var(--mono); }
+.model-group td { vertical-align: middle; }
+.explorer td.scope-cell { padding-top: 4px; padding-bottom: 4px; }
+.scope-stack { display: flex; flex-direction: column; }
+.scope-line { position: relative; display: flex; align-items: center; justify-content: flex-end; gap: 8px; height: 54px; }
+.scope-line + .scope-line { border-top: 1px dashed var(--line); }
+.scope-cell.mode { min-width: 160px; max-width: 210px; }
+.scope-cell.mode .scope-line { justify-content: space-between; }
+.scope-label { font-size: 10.5px; line-height: 1.5; }
+.scope-line.global .scope-label { color: var(--accent); }
+.scope-line .copy-btn { flex-shrink: 0; }
+.benchmark-verified { display: block; margin-top: 3px; color: var(--accent); font-size: 9px; line-height: 1.4; }
 .provider-tag { display: inline-block; padding: 3px 7px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); color: var(--muted); font-size: 10px; white-space: nowrap; }
 td.mode { color: var(--muted); white-space: normal; min-width: 90px; max-width: 140px; font-size: 10.5px; line-height: 1.6; }
 tr.bands th { text-align: center; font-size: 9.5px; letter-spacing: 0.1px; padding: 8px 10px; border-bottom: 1px solid var(--line); font-weight: 550; background: var(--surface); }
@@ -557,6 +571,8 @@ table.avail td.eol { color: var(--accent); font-size: 11px; }
   .explorer td:first-child { min-width: 175px; max-width: 200px; }
   .model-cell { gap: 7px; }
   .model-cell > a { max-width: 155px; font-size: 11px; }
+  .model-identity > a { max-width: 140px; font-size: 11px; }
+  .model-base-id { max-width: 140px; }
   .explorer .scroll { border-radius: 8px; }
   .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .card { padding: 14px; gap: 6px; }

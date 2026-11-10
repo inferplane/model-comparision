@@ -1,4 +1,4 @@
-# Used only while the normal Artificial Analysis API match is absent.
+# Fill absent API metrics, or refresh retained historical measurements from the same measured variant.
 # These are measurements from the public model page, not vendor marketing claims.
 # Do not infer absent scores (e.g. Coding Index) or map a newer benchmark to an older one.
 - modelId: gpt-6.1-sol
@@ -11,3 +11,17 @@
     hle: 0.529193697868397
     scicode: 0.541666666666667
     outputTokensPerSecond: 62.6513581758851
+- modelId: claude-opus-5
+  name: Claude Opus 5 (Max)
+  slug: claude-opus-5
+  source: https://artificialanalysis.ai/models/claude-opus-5
+  verifiedAt: '2026-11-10'
+  # Exact values from currentModel and currentModel.headline in the public page.
+  # The page publishes no Coding Index; any retained API Coding Index keeps its own provenance.
+  scores:
+    intelligenceIndex: 44.1646231569372
+    gpqa: 0.932323232323232
+    hle: 0.548656163113994
+    scicode: 0.563657407407407
+    outputTokensPerSecond: 80.64722850000157
+    timeToFirstTokenSeconds: 52.4720865027572

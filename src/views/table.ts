@@ -9,6 +9,7 @@ import { newBadge } from '../recent.ts';
 import { multiSelect } from '../components/multi-select.ts';
 import { locale, t } from '../i18n.ts';
 import { zdrOf } from '../zdr.ts';
+import { groupModelRows, groupSortValue } from '../model-groups.ts';
 
 interface Col {
   key: string;
@@ -18,6 +19,8 @@ interface Col {
   bar?: boolean;
   /** Hidden until "상세 열 보기" is on, so the default table fits a normal screen. */
   more?: boolean;
+  /** Stack scope-specific prices in the same order as the mode labels. */
+  scoped?: boolean;
   label: string;
   num?: boolean;
   value: (r: Row) => string | number | undefined;
@@ -74,6 +77,8 @@ const COLS: Col[] = [
   { key: 'bout', more: true, group: 'Batch', label: 'Out', num: true, value: p('output', 'batch') },
 ];
 
+for (const c of COLS) c.scoped = c.key === 'mode' || c.group === PRICE || c.group === 'Batch' || c.key === 'lc';
+
 function buildRows(models: Model[]): Row[] {
   return variantRows(models.filter((m) => matches(m, state.query) && providerSelected(state.providers, m.provider)), state)
     .filter((r) => !state.onlyCache || p('cacheRead')(r) !== undefined)
@@ -95,29 +100,28 @@ export function renderTable(models: Model[]): HTMLElement {
 
   const draw = () => {
     const col = COLS.find((c) => c.key === state.sort.key) ?? COLS[1];
-    const rows = filtered.sort((a, b) => {
-      const [x, y] = [col.value(a), col.value(b)];
+    const groups = groupModelRows(filtered).sort((a, b) => {
+      const [x, y] = [groupSortValue(a, col.value), groupSortValue(b, col.value)];
       // Unknown values always sort last, whichever direction is active.
       if (x === undefined || y === undefined) return x === y ? 0 : x === undefined ? 1 : -1;
       const c = (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y))) * state.sort.dir;
-      return c || a.m.name.localeCompare(b.m.name) || a.scope.localeCompare(b.scope);
+      return c || a.m.name.localeCompare(b.m.name);
     });
-    count.textContent = t(`${visibleModels.length}개 모델 · ${rows.length}개 단가`, `${visibleModels.length} models · ${rows.length} price rows`);
+    count.textContent = t(`${groups.length}개 모델 · ${filtered.length}개 추론 단가`, `${groups.length} models · ${filtered.length} inference prices`);
     // In-cell bars share one scale per column, taken from the rows currently shown.
-    const barMax = new Map(cols.filter((c) => c.bar).map((c) => [c.key, Math.max(...rows.map((r) => Number(c.value(r) ?? 0)), 0) || 1]));
+    const barMax = new Map(cols.filter((c) => c.bar).map((c) => [c.key, Math.max(...filtered.map((r) => Number(c.value(r) ?? 0)), 0) || 1]));
     body.replaceChildren(
-      ...rows.map((r) =>
-        h('tr', { class: state.compare.includes(r.m.id) ? 'selected' : undefined },
+      ...groups.map(({ m, rows }) => {
+        const r = rows[0];
+        return h('tr', { class: `${state.compare.includes(m.id) ? 'selected ' : ''}model-group`, 'data-model': m.id },
           ...cols.map((c) => {
             if (c.key === 'name') {
               const on = state.compare.includes(r.m.id);
-              const modelId = rowModelId(r, state.region, state.modes);
               return h('td', { class: 'name' },
                 h('div', { class: 'model-cell' },
                   h('button', { type: 'button', class: 'cmp mini-btn', 'aria-label': t(`${r.m.name} 비교 선택`, `Select ${r.m.name} for comparison`), 'aria-pressed': on, disabled: !on && state.compare.length >= MAX_COMPARE, title: on ? t('비교에서 제거', 'Remove from comparison') : state.compare.length >= MAX_COMPARE ? t(`비교는 최대 ${MAX_COMPARE}개`, `Up to ${MAX_COMPARE} models`) : t('비교에 추가', 'Add to comparison'), onclick: () => toggleCompare(r.m.id) }, on ? icon('check') : '＋'),
-                  h('a', { href: `#/model/${r.m.id}` }, r.m.name), newBadge(r.m.id),
-                  // A model with In-region and Global rows gets one button per row, so the label names the scope too.
-                  modelId ? copyButton(modelId, t(`${r.m.name} ${r.label} 모델 ID 복사`, `Copy ${r.m.name} ${r.label} model ID`)) : null));
+                  h('div', { class: 'model-identity' }, h('a', { href: `#/model/${r.m.id}` }, r.m.name),
+                    m.modelId ? h('small', { class: 'model-base-id' }, m.modelId) : null), newBadge(r.m.id)));
             }
             if (c.key === 'provider') return h('td', null, h('span', { class: 'provider-tag' }, r.m.provider));
             if (c.key === 'zdr') {
@@ -125,17 +129,33 @@ export function renderTable(models: Model[]): HTMLElement {
               return h('td', { class: `zdr${on ? ' on' : ' off'}`, title: on ? t('ZDR 지원', 'ZDR supported') : t('ZDR 미지원', 'ZDR not supported') },
                 h('span', { 'aria-hidden': 'true' }, on ? '✓' : '✕'), h('span', { class: 'sr-only' }, on ? t('지원', 'Supported') : t('미지원', 'Not supported')));
             }
+            if (c.scoped) {
+              return h('td', { class: `${c.num ? 'num ' : ''}scope-cell${c.key === 'mode' ? ' mode' : ''}` },
+                h('div', { class: 'scope-stack' }, ...rows.map((variant) => {
+                  const v = c.value(variant);
+                  const text = c.show ? c.show(variant) : typeof v === 'number' ? usd(v) : (v ?? '—');
+                  const modelId = c.key === 'mode' ? rowModelId(variant, state.region, state.modes) : undefined;
+                  const note = c.note?.(variant);
+                  return h('div', { class: `scope-line ${variant.scope}${v === undefined ? ' na' : ''}`, 'data-scope': variant.scope, title: c.title?.(variant) },
+                    c.key === 'mode' ? h('span', { class: 'scope-label' }, String(text)) :
+                      h('span', null, h('span', { class: 'sr-only' }, `${variant.label}: `), note ? h('small', { class: 'cnote' }, note) : null, String(text)),
+                    modelId ? copyButton(modelId, t(`${m.name} ${variant.label} 모델 ID 복사`, `Copy ${m.name} ${variant.label} model ID`)) : null);
+                })));
+            }
             const v = c.value(r);
             const text = c.show ? c.show(r) : typeof v === 'number' ? usd(v) : (v ?? '—');
             if (c.bar && typeof v === 'number') {
-              return h('td', { class: 'num barcell', title: c.title?.(r) }, h('div', { class: 'cb' }, h('i', { style: `width:${(v / barMax.get(c.key)!) * 100}%` }), h('span', null, String(text))));
+              const source = c.key === 'ai' ? m.benchmarkSources?.intelligenceIndex ?? m.benchmarkSource : undefined;
+              return h('td', { class: 'num barcell', title: source?.verifiedAt ? `${source.name} · ${source.verifiedAt}` : c.title?.(r) },
+                h('div', { class: 'cb' }, h('i', { style: `width:${(v / barMax.get(c.key)!) * 100}%` }), h('span', null, String(text))),
+                source?.verifiedAt ? h('small', { class: 'benchmark-verified' }, t(`확인 ${source.verifiedAt}`, `Checked ${source.verifiedAt}`)) : null);
             }
             const note = c.note?.(r);
             return h('td', { class: [c.num ? 'num' : '', v === undefined ? 'na' : '', c.key === 'mode' ? 'mode' : ''].join(' '), title: c.title?.(r) }, note ? h('small', { class: 'cnote' }, note) : null, String(text));
-          })),
-      ),
+          }));
+      }),
     );
-    if (!rows.length) body.append(h('tr', null, h('td', { colspan: cols.length },
+    if (!groups.length) body.append(h('tr', null, h('td', { colspan: cols.length },
       emptyState(t('조건에 맞는 모델이 없습니다', 'No models match'), t('검색어를 바꾸거나 필터를 초기화해 보세요. 리전과 추론 방식도 확인할 수 있습니다.', 'Try another search or reset the filters. Check the region and inference modes too.'),
         h('button', { type: 'button', class: 'button secondary', onclick: reset }, icon('reset'), t('필터 초기화', 'Reset filters'))))));
   };
@@ -198,8 +218,8 @@ export function renderTable(models: Model[]): HTMLElement {
       filters, activeFilters.childElementCount ? activeFilters : null,
       compareToolbar,
       state.expandCols ? codingNotice(visibleModels) : null,
-      h('div', { class: 'table-hint' }, h('span', null, t('＋로 비교할 모델을 선택하세요. 모델 이름을 누르면 상세 정보를 볼 수 있습니다. 복사 버튼은 해당 행의 모델 ID를 복사합니다.', 'Use ＋ to pick models to compare. Click a name for details; the copy button copies that row\'s model ID.')), h('span', { class: 'unit-label' }, 'USD / 1M tokens')),
+      h('div', { class: 'table-hint' }, h('span', null, t('모델별 성능은 한 번만 표시합니다. 각 추론 방식과 같은 줄의 가격을 비교하세요. 복사 버튼은 해당 방식의 ID를 복사하며, 가격 정렬은 선택한 방식 중 최저 단가를 기준으로 합니다.', 'Performance appears once per model. Compare prices on the same line as each inference mode. Copy buttons copy that mode’s ID; price sorts use the lowest price among selected modes.')), h('span', { class: 'unit-label' }, 'USD / 1M tokens')),
       h('div', { class: 'scroll', tabindex: 0, 'aria-label': t('모델 가격 및 성능 비교 표', 'Model price and performance table') }, h('table', null, h('caption', { class: 'sr-only' }, t(`${state.region} 리전의 모델별 가격 및 성능`, `Model prices and performance in ${state.region}`)), head, body)),
       h('details', { class: 'data-guide' }, h('summary', null, icon('info'), t('가격과 데이터 읽는 방법', 'How to read the prices and data')),
-        h('p', null, t('선택한 추론 방식을 지원하는 모델만 표시합니다. In-region과 Geo CRIS는 같은 단가표를 사용하므로 한 행으로 합치고, Global CRIS는 별도 행으로 표시합니다. “—”는 해당 리전·티어의 단가 또는 측정값이 없거나 미확인이라는 뜻입니다. 혼합 단가는 캐시 없이 입력 4 : 출력 1 비율입니다. 리전별 지원 방식은 AWS 모델 카드를 우선하며, 카드가 없으면 models.dev와 가격 정보를 사용해 추정합니다. Context는 모델 카드 및 models.dev 기준입니다. ZDR은 Zero Data Retention 지원 여부이며, 현재 GPT 계열과 Fable 모델은 지원하지 않습니다.', 'Only models that support the selected inference modes are shown. In-region and Geo CRIS share one price list, so they are merged into one row; Global CRIS gets its own row. “—” means no price or measurement for that region and tier, or that it is unknown. The blended price is 4 input : 1 output without caching. Per-region support comes from the AWS model cards first, and is inferred from models.dev and prices when there is no card. Context is per the model cards and models.dev. ZDR is zero data retention support; GPT and Fable models currently do not offer it.')))));
+        h('p', null, t('선택한 추론 방식을 지원하는 모델만 표시합니다. 한 모델은 한 행으로 표시하며, In-region·Geo CRIS 공통 단가와 Global CRIS 단가를 모델 안에 묶어 보여줍니다. “—”는 해당 리전·티어의 단가 또는 측정값이 없거나 미확인이라는 뜻입니다. 혼합 단가는 캐시 없이 입력 4 : 출력 1 비율입니다. 리전별 지원 방식은 AWS 모델 카드를 우선하며, 카드가 없으면 models.dev와 가격 정보를 사용해 추정합니다. Context는 모델 카드 및 models.dev 기준입니다. ZDR은 Zero Data Retention 지원 여부이며, 현재 GPT 계열과 Fable 모델은 지원하지 않습니다.', 'Only models that support the selected inference modes are shown. Each model appears once, grouping its shared In-region / Geo CRIS price and its Global CRIS price within the model row. “—” means no price or measurement for that region and tier, or that it is unknown. The blended price is 4 input : 1 output without caching. Per-region support comes from the AWS model cards first, and is inferred from models.dev and prices when there is no card. Context is per the model cards and models.dev. ZDR is zero data retention support; GPT and Fable models currently do not offer it.')))));
 }
