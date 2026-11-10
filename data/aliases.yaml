@@ -11,6 +11,8 @@ aliases:
   NVIDIA Nemotron Nano 2 VL: nvidia.nemotron-nano-12b-v2
   Cohere Command R: cohere.command-r-v1:0
   Cohere Command R+: cohere.command-r-plus-v1:0
+  # Overrides entry (not in the Price List yet); its card is titled "Kimi K3.1 Pro - Highspeed", so match it by id.
+  Kimi K3.1: moonshotai.kimi-k3.1
 
 # Price List model name -> Artificial Analysis slug, for names that do not match after normalization.
 benchmarkAliases:
@@ -49,3 +51,4 @@ benchmarkAliases:
   Magistral Small 1.2: magistral-small-2509
   Claude 2.1: claude-21
   Claude 2.0: claude-2
+  Kimi K3.1: kimi-k3-1-pro

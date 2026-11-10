@@ -9,3 +9,18 @@ extraModels:
       us-east-1:
         regional: { input: 1.848, output: 5.808, cacheRead: 0.3432, cacheWrite: 2.31 }  # "US CRIS"
         global:   { input: 1.68,  output: 5.28,  cacheRead: 0.312,  cacheWrite: 2.10 }  # "Global CRIS"
+  - name: Kimi K3.1
+    provider: Moonshot AI
+    source: https://aws.amazon.com/bedrock/pricing/ (Moonshot AI > Kimi K3.1 Pro - Highspeed), checked 2026-11-10
+    # Global is copied to every Global CRIS region from the card; US/IN CRIS apply to the card's geo source regions.
+    pricing:
+      us-east-1:
+        regional: &kimiK31Us { input: 4.40, output: 22.00, cacheRead: 0.22, cacheWrite: 5.50 }  # "US CRIS"
+        global:   { input: 4.00, output: 20.00, cacheRead: 0.20, cacheWrite: 5.00 }  # "Global CRIS"
+      us-east-2: { regional: *kimiK31Us }
+      us-west-1: { regional: *kimiK31Us }
+      us-west-2: { regional: *kimiK31Us }
+      ca-central-1: { regional: *kimiK31Us }
+      ca-west-1: { regional: *kimiK31Us }
+      ap-south-1: { regional: &kimiK31In { input: 4.40, output: 22.00, cacheRead: 0.22, cacheWrite: 5.50 } }  # "IN CRIS"
+      ap-south-2: { regional: *kimiK31In }
