@@ -35,6 +35,15 @@ export interface BenchmarkScores {
   timeToFirstTokenSeconds?: number;
 }
 
+export interface BenchmarkSource {
+  name: string;
+  slug: string;
+  url?: string;
+  verifiedAt?: string;
+  kind?: 'public-page';
+  snapshotAt?: string;
+}
+
 export interface Model {
   id: string;
   name: string;
@@ -67,7 +76,9 @@ export interface Model {
   geoSources?: Record<string, string[]>;
   benchmarks?: BenchmarkScores;
   /** The measured AA variant. snapshotAt records the original data snapshot when an API gap retains prior measurements. */
-  benchmarkSource?: { name: string; slug: string; url?: string; verifiedAt?: string; kind?: 'public-page'; snapshotAt?: string };
+  benchmarkSource?: BenchmarkSource;
+  /** Per-field provenance when verified public measurements supplement or refresh a partial/historical API record. */
+  benchmarkSources?: Partial<Record<keyof BenchmarkScores, BenchmarkSource>>;
 }
 
 /** Per region and endpoint: "i" in-region, "g" geo CRIS, "G" global CRIS. */

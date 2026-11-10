@@ -1,7 +1,7 @@
 import { h } from '../dom.ts';
 import { blended, inferenceIds, longPriceOf, MODE_LABEL, MODES, priceOf, supports, tokens, usd } from '../data.ts';
 import { MAX_COMPARE, state, toggleCompare } from '../state.ts';
-import type { BenchmarkScores, Model, Scope, Tier, TokenKind } from '../types.ts';
+import type { BenchmarkScores, BenchmarkSource, Model, Scope, Tier, TokenKind } from '../types.ts';
 import { codingNotice } from '../components/coding-notice.ts';
 import { newBadge } from '../recent.ts';
 import { copyButton } from '../components/ui.ts';
@@ -40,6 +40,15 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
   });
 
   const b = m.benchmarks;
+  const publicSources = new Map<string, { source: BenchmarkSource; labels: string[] }>();
+  for (const [key, source] of Object.entries(m.benchmarkSources ?? {})) {
+    const identity = `${source.url}:${source.verifiedAt}`;
+    const label = BENCH.find(([metric]) => metric === key)?.[1] ??
+      (key === 'outputTokensPerSecond' ? t('출력 속도', 'Output speed') : key === 'timeToFirstTokenSeconds' ? 'TTFT' : key);
+    const group = publicSources.get(identity);
+    if (group) group.labels.push(label);
+    else publicSources.set(identity, { source, labels: [label] });
+  }
   const bench = b
     ? h('div', { class: 'bars' }, ...BENCH.filter(([k]) => b[k] !== undefined).map(([k, label, scale]) => {
         const v = b[k] as number;
@@ -96,8 +105,12 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
       h('a', { href: m.benchmarkSource.url ?? `https://artificialanalysis.ai/models/${m.benchmarkSource.slug}`, rel: 'noopener' }, m.benchmarkSource.name),
       m.benchmarkSource.kind === 'public-page' ? t(` · 공개 페이지 측정값으로 보완 · 확인일 ${m.benchmarkSource.verifiedAt}`, ` · filled from public-page measurements · checked ${m.benchmarkSource.verifiedAt}`) : t('. 같은 모델의 설정 변형이 여럿이면 기본 항목 또는 지능 지수가 가장 높은 변형입니다.', '. When a model has several setting variants, this is the default entry or the one with the highest Intelligence Index.')) : null,
     m.benchmarkSource?.snapshotAt ? h('p', { class: 'note' }, t(
-      `새 API 측정값을 받지 못해 ${m.benchmarkSource.snapshotAt.slice(0, 10)} 데이터의 이전 측정값을 유지합니다.`,
-      `No new API measurement was available for this build. Retaining measurements from the ${m.benchmarkSource.snapshotAt.slice(0, 10)} data snapshot.`)) : null,
+      `새 API 측정값을 받지 못한 지표는 ${m.benchmarkSource.snapshotAt.slice(0, 10)} 데이터의 이전 측정값을 유지합니다. 아래 공개 페이지 보충 지표는 별도 확인일을 따릅니다.`,
+      `Metrics without new API measurements retain the ${m.benchmarkSource.snapshotAt.slice(0, 10)} snapshot. Public-page supplements below have their own verification date.`)) : null,
+    ...[...publicSources.values()].map(({ source, labels }) => h('p', { class: 'note' },
+      t('공개 페이지 측정값: ', 'Public-page measurements: '),
+      h('a', { href: source.url, rel: 'noopener' }, source.name),
+      ` · ${labels.join(', ')} · ${t('확인일', 'checked')} ${source.verifiedAt}`)),
     codingNotice([m]), bench,
     h('p', { class: 'note' }, t('벤치마크: ', 'Benchmarks: '), h('a', { href: 'https://artificialanalysis.ai/', rel: 'noopener' }, 'Artificial Analysis'), t(' · 가격: AWS Price List API · context: ', ' · prices: AWS Price List API · context: '), h('a', { href: 'https://models.dev/', rel: 'noopener' }, 'models.dev')));
 }

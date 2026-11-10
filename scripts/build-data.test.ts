@@ -104,6 +104,42 @@ describe('model catalog rebuild', () => {
     expect(build()[0].benchmarks).toEqual({ intelligenceIndex: 54.6, scicode: 0.542 });
   });
 
+  it('keeps verified per-field provenance across rebuilds and clears it when fresh API values arrive', () => {
+    json('data/benchmark-fallbacks.yaml', [{
+      modelId: 'gpt-6.1-sol', name: 'GPT-6.1 Sol (Max)', slug: 'gpt-6-1-sol',
+      source: 'https://artificialanalysis.ai/models/gpt-6-1-sol', verifiedAt: '2026-11-10',
+      scores: { intelligenceIndex: 51.8332597011541 },
+    }]);
+    build();
+    const retained = build()[0];
+    expect(retained.benchmarks).toEqual({ intelligenceIndex: 51.8332597011541, scicode: 0.542 });
+    expect(retained.benchmarkSources?.intelligenceIndex).toMatchObject({ kind: 'public-page', verifiedAt: '2026-11-10' });
+    expect(retained.benchmarkSource?.snapshotAt).toBe('2026-11-04T05:16:46.984Z');
+    json('data/raw/benchmarks.json', [{
+      id: 'sol', name: 'GPT-6.1 Sol (Max)', slug: 'gpt-6-1-sol', creator: 'OpenAI',
+      scores: { intelligenceIndex: 56, scicode: 0.55 },
+    }]);
+    const fresh = build()[0];
+    expect(fresh.benchmarks).toEqual({ intelligenceIndex: 56, scicode: 0.55 });
+    expect(fresh.benchmarkSources).toBeUndefined();
+    expect(fresh.benchmarkSource?.snapshotAt).toBeUndefined();
+  });
+
+  it('fills the Intelligence Index when an API entry publishes only component benchmarks', () => {
+    json('data/raw/benchmarks.json', [{
+      id: 'sol', name: 'GPT-6.1 Sol (Max)', slug: 'gpt-6-1-sol', creator: 'OpenAI', scores: { scicode: 0.55 },
+    }]);
+    json('data/benchmark-fallbacks.yaml', [{
+      modelId: 'gpt-6.1-sol', name: 'GPT-6.1 Sol (Max)', slug: 'gpt-6-1-sol',
+      source: 'https://artificialanalysis.ai/models/gpt-6-1-sol', verifiedAt: '2026-11-10',
+      scores: { intelligenceIndex: 51.8332597011541 },
+    }]);
+    const m = build()[0];
+    expect(m.benchmarks).toEqual({ intelligenceIndex: 51.8332597011541, scicode: 0.55 });
+    expect(m.benchmarkSources?.intelligenceIndex?.kind).toBe('public-page');
+    expect(m.benchmarkSource?.snapshotAt).toBeUndefined();
+  });
+
   it('does not transfer a prior release measurement to an unmeasured new version', () => {
     json('data/raw/prices.json', [price('OpenAI GPT-6.2 Sol')]);
     json('data/raw/context.json', [{

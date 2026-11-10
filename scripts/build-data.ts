@@ -301,6 +301,7 @@ for (const m of models.values()) {
   if (!previous) continue;
   m.benchmarks = { ...previous.model.benchmarks };
   m.benchmarkSource = { ...previous.model.benchmarkSource!, snapshotAt: previous.snapshotAt };
+  if (previous.model.benchmarkSources) m.benchmarkSources = structuredClone(previous.model.benchmarkSources);
   retainedBenchmarks.push(m.name);
 }
 const fallbackNames = applyBenchmarkFallbacks(models.values(), benchmarkFallbacks);
