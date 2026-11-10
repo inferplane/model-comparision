@@ -95,6 +95,9 @@ export function renderDetail(models: Model[], id: string): HTMLElement {
     m.benchmarkSource ? h('p', { class: 'note' }, t('Artificial Analysis 항목: ', 'Artificial Analysis entry: '),
       h('a', { href: m.benchmarkSource.url ?? `https://artificialanalysis.ai/models/${m.benchmarkSource.slug}`, rel: 'noopener' }, m.benchmarkSource.name),
       m.benchmarkSource.kind === 'public-page' ? t(` · 공개 페이지 측정값으로 보완 · 확인일 ${m.benchmarkSource.verifiedAt}`, ` · filled from public-page measurements · checked ${m.benchmarkSource.verifiedAt}`) : t('. 같은 모델의 설정 변형이 여럿이면 기본 항목 또는 지능 지수가 가장 높은 변형입니다.', '. When a model has several setting variants, this is the default entry or the one with the highest Intelligence Index.')) : null,
+    m.benchmarkSource?.snapshotAt ? h('p', { class: 'note' }, t(
+      `새 API 측정값을 받지 못해 ${m.benchmarkSource.snapshotAt.slice(0, 10)} 데이터의 이전 측정값을 유지합니다.`,
+      `No new API measurement was available for this build. Retaining measurements from the ${m.benchmarkSource.snapshotAt.slice(0, 10)} data snapshot.`)) : null,
     codingNotice([m]), bench,
     h('p', { class: 'note' }, t('벤치마크: ', 'Benchmarks: '), h('a', { href: 'https://artificialanalysis.ai/', rel: 'noopener' }, 'Artificial Analysis'), t(' · 가격: AWS Price List API · context: ', ' · prices: AWS Price List API · context: '), h('a', { href: 'https://models.dev/', rel: 'noopener' }, 'models.dev')));
 }

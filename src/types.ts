@@ -66,8 +66,8 @@ export interface Model {
   /** Source regions per Geo CRIS prefix (us, eu, jp…), from the model card; picks the geo profile id for a region. */
   geoSources?: Record<string, string[]>;
   benchmarks?: BenchmarkScores;
-  /** The Artificial Analysis entry the scores came from; AA lists reasoning/effort variants separately, so this says which one. */
-  benchmarkSource?: { name: string; slug: string; url?: string; verifiedAt?: string; kind?: 'public-page' };
+  /** The measured AA variant. snapshotAt records the original data snapshot when an API gap retains prior measurements. */
+  benchmarkSource?: { name: string; slug: string; url?: string; verifiedAt?: string; kind?: 'public-page'; snapshotAt?: string };
 }
 
 /** Per region and endpoint: "i" in-region, "g" geo CRIS, "G" global CRIS. */

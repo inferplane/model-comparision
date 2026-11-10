@@ -4,29 +4,15 @@ New and removed models, price changes (Standard tier, input/output/cache read), 
 
 ## 2026-11-10
 
-### New models (11)
+### New models (3)
 - Claude Fable 5.2 (Anthropic)
 - Claude Mythos 5.2 (Anthropic)
-- OpenAI GPT-5.4 (OpenAI)
-- OpenAI GPT-5.5 (OpenAI)
-- OpenAI GPT-5.6 Luna (OpenAI)
-- OpenAI GPT-5.6 Sol (OpenAI)
-- OpenAI GPT-5.6 Terra (OpenAI)
-- OpenAI GPT-6 Luna (OpenAI)
-- OpenAI GPT-6 Sol (OpenAI)
-- OpenAI GPT-6.1 Sol (OpenAI)
-- OpenAI GPT-6.1 Terra (OpenAI)
+- Cohere Command R (Cohere)
 
-### Removed models (6)
-- GPT-5.5 (OpenAI)
-- GPT-5.6 Sol (OpenAI)
-- GPT-6 Luna (OpenAI)
-- GPT-6 Sol (OpenAI)
-- GPT-6.1 Sol (OpenAI)
-- GPT-6.1 Terra (OpenAI)
-
-### Price changes (1 models)
+### Price changes (3 models)
 - Claude 3.5 Haiku: us-east-2 regional output $5 → $4
+- Cohere Command R+: us-east-1 regional input $0.5 → $3
+- OpenAI GPT-5.5: us-east-2 regional input $5.5 → $0.55
 
 ### Availability changes (2 models)
 - GPT-5.6 Luna: geo regions 8 → 10
