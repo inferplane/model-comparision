@@ -1,0 +1,45 @@
+name: Check Bedrock What's New
+
+# Claude Haiku 5.5 reads the AWS What's New feed for models newly available on Bedrock. When one is missing from the data or
+# still has no benchmark scores, the data refresh (prices, cards, Artificial Analysis benchmarks) is dispatched right away
+# instead of waiting for its 00:00 UTC schedule.
+on:
+  schedule:
+    - cron: '0 22 * * *' # 07:00 KST
+  workflow_dispatch:
+    inputs:
+      lookback_hours:
+        description: 'How far back to read the feed (the feed itself covers about two weeks)'
+        default: '48'
+
+permissions:
+  contents: read
+  id-token: write # OIDC role for Bedrock
+  actions: write # dispatch the refresh workflow
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.BEDROCK_ROLE_ARN }}
+          aws-region: us-east-1
+      - id: check
+        env:
+          BEDROCK_MODEL_ID: global.anthropic.claude-haiku-5-5
+          LOOKBACK_HOURS: ${{ inputs.lookback_hours || '48' }}
+        run: npx tsx scripts/check-whats-new.ts
+      - name: Dispatch the data refresh
+        if: steps.check.outputs.trigger == 'true'
+        # workflow_dispatch is one of the events GITHUB_TOKEN may start; the refresh queues behind a running one (concurrency: pages).
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run update-and-deploy.yml --ref main
