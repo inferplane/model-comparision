@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import type { BenchmarkScores } from '../src/types.ts';
 
 export interface BenchmarkRecord {
@@ -21,7 +21,8 @@ interface AaModel {
 
 const key = process.env.AA_API_KEY;
 if (!key) {
-  console.log('AA_API_KEY not set: skipping benchmarks (the site renders without them)');
+  await rm('data/raw/benchmarks.json', { force: true });
+  console.log('AA_API_KEY not set: clearing stale benchmark cache; retaining previously sourced measurements during the build');
   process.exit(0);
 }
 

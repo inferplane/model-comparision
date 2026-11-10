@@ -30,16 +30,18 @@ const aliasFile = readYaml<{ aliases?: Record<string, string>; benchmarkAliases?
 const aliases = aliasFile.aliases ?? {};
 const benchmarkAliases = aliasFile.benchmarkAliases ?? {};
 const benchmarkFallbacks = readYaml<BenchmarkFallback[]>('data/benchmark-fallbacks.yaml', []);
-const previous = existsSync('public/data/models.json') ? readJson<{ models: Model[] }>('public/data/models.json').models : [];
-const firstSeenById = new Map(previous.map((m) => [m.id, m.firstSeen]));
+const snapshots = ['data/raw/models.prev.json', 'public/data/models.json']
+  .filter(existsSync)
+  .map((path) => readJson<{ generatedAt: string; models: Model[] }>(path));
 const today = new Date().toISOString().slice(0, 10);
 
-const norm = (s: string) => s.toLowerCase().replace(/\s*\(.*?\)\s*/g, '').replace(/[^a-z0-9.]+/g, '');
+const norm = (s: string) => s.toLowerCase().replace(/\+/g, 'plus').replace(/\s*\(.*?\)\s*/g, '').replace(/[^a-z0-9.]+/g, '');
 // Looser key for naming drift between the Price List and models.dev ("Gemma 3 12B" vs "Gemma 3 12B IT", "Nova 2.0 Lite" vs "Nova 2 Lite").
 const NOISE = new Set(['cohere', 'meta', 'nvidia', 'openai', 'deepseek', 'google', 'writer', 'instruct', 'it', 'v1', 'us', 'india']);
 const loose = (s: string) =>
   s
     .toLowerCase()
+    .replace(/\+/g, ' plus ')
     .replace(/[()\-_:]/g, ' ')
     .replace(/\b(\d+)\.0\b/g, '$1')
     .split(/\s+/)
@@ -49,7 +51,7 @@ const loose = (s: string) =>
 // The Price List spells the same vendor several ways ("Kimi AI"/"Moonshot AI", "Minimax AI"/"MiniMax"), so fold them before grouping in the UI.
 const CANON: Record<string, string> = { 'kimi ai': 'Moonshot AI', 'moonshot ai': 'Moonshot AI', 'mistral ai': 'Mistral', minimax: 'MiniMax', 'minimax ai': 'MiniMax', nvidia: 'NVIDIA' };
 const canonProvider = (p: string) => CANON[p.toLowerCase()] ?? p;
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/^-|-$/g, '');
+const slug = (s: string) => s.toLowerCase().replace(/\+/g, '-plus').replace(/[^a-z0-9.]+/g, '-').replace(/^-|-$/g, '');
 
 const contextByName = new Map<string, ContextRecord>();
 const contextById = new Map(contexts.map((c) => [c.bedrockId, c]));
@@ -59,20 +61,57 @@ for (const c of contexts) {
   if (!contextByLoose.has(loose(c.name))) contextByLoose.set(loose(c.name), c);
 }
 
+const cardsById = new Map<string, CardRecord>();
+for (const c of cards) for (const id of c.modelIds) cardsById.set(id.toLowerCase(), c);
+const cardsByTitle = new Map(cards.map((c) => [loose(c.title), c]));
+const ctxFor = (m: Pick<Model, 'name'>) => aliases[m.name] ? contextById.get(aliases[m.name]) : contextByName.get(norm(m.name)) || contextByLoose.get(loose(m.name)) || contextById.get(m.name);
+function cardFor(m: Pick<Model, 'name'>, ctx?: ContextRecord): CardRecord | undefined {
+  return cardsById.get((ctx?.bedrockId ?? '').toLowerCase()) || cardsById.get((aliases[m.name] ?? '').toLowerCase()) || cardsById.get(m.name.toLowerCase()) || cardsByTitle.get(loose(m.name));
+}
+function bedrockIdFor(name: string): string | undefined {
+  const ctx = ctxFor({ name });
+  const card = cardFor({ name }, ctx);
+  return (ctx && card?.modelIds.find((id) => id === ctx.bedrockId)) ?? card?.modelIds[0] ?? ctx?.bedrockId;
+}
+const identity = (name: string, modelId = bedrockIdFor(name)) => modelId ? `bedrock:${modelId.toLowerCase()}` : `name:${slug(name)}`;
+const hasMeasurements = (scores: Model['benchmarks']) => Object.values(scores ?? {}).some((value) => typeof value === 'number' && Number.isFinite(value));
+const previousByIdentity = new Map<string, Model>();
+const previousBenchmarks = new Map<string, { model: Model; snapshotAt: string }>();
+for (const snapshot of snapshots) {
+  for (const m of snapshot.models) {
+    const key = identity(m.name, m.modelId);
+    const existing = previousByIdentity.get(key);
+    if (!existing || m.firstSeen < existing.firstSeen) previousByIdentity.set(key, m);
+    if (!hasMeasurements(m.benchmarks) || !m.benchmarkSource) continue;
+    const snapshotAt = m.benchmarkSource.snapshotAt ?? snapshot.generatedAt;
+    if (!snapshotAt || (previousBenchmarks.get(key)?.snapshotAt ?? '') >= snapshotAt) continue;
+    previousBenchmarks.set(key, { model: m, snapshotAt });
+  }
+}
+
+const reservedIds = new Map<string, string>();
+for (const [key, m] of previousByIdentity) if (!reservedIds.has(m.id)) reservedIds.set(m.id, key);
 const models = new Map<string, Model>();
 function modelFor(name: string, provider?: string): Model {
-  const id = slug(name);
-  let m = models.get(id);
+  const modelId = bedrockIdFor(name);
+  const key = identity(name, modelId);
+  let m = models.get(key);
   if (!m) {
+    const previous = previousByIdentity.get(key);
+    let id = previous?.id ?? slug(name);
+    if (reservedIds.has(id) && reservedIds.get(id) !== key) id = slug(modelId ?? `${name} model`);
+    if (reservedIds.has(id) && reservedIds.get(id) !== key) throw new Error(`Conflicting site model ID: ${id}`);
+    reservedIds.set(id, key);
     m = {
       id,
       name,
+      modelId,
       provider: canonProvider(provider ?? providerFromName(name) ?? (/^(nova|titan)/i.test(name) ? 'Amazon' : 'Other')),
       pricing: {},
       regions: [],
-      firstSeen: firstSeenById.get(id) ?? today,
+      firstSeen: previous?.firstSeen ?? today,
     };
-    models.set(id, m);
+    models.set(key, m);
   } else if (provider && m.provider === 'Other') m.provider = canonProvider(provider);
   return m;
 }
@@ -89,7 +128,7 @@ for (const p of prices) {
   setPrice(table, p.region, p.scope, p.tier, p.kind, p.usdPer1M);
 }
 for (const x of overrides.extraModels ?? []) {
-  const isNew = !models.has(slug(x.name));
+  const isNew = !models.has(identity(x.name));
   const m = modelFor(x.name, x.provider);
   if (isNew) m.priceSource = 'override';
   for (const [region, scopes] of Object.entries(x.pricing))
@@ -98,14 +137,6 @@ for (const x of overrides.extraModels ?? []) {
 }
 
 // ---- AWS model cards: exact per-region availability, context, lifecycle, and prices for models the Price List does not list yet.
-const cardsById = new Map<string, CardRecord>();
-for (const c of cards) for (const id of c.modelIds) cardsById.set(id.toLowerCase(), c);
-const cardsByTitle = new Map(cards.map((c) => [loose(c.title), c]));
-const ctxFor = (m: Model) => aliases[m.name] ? contextById.get(aliases[m.name]) : contextByName.get(norm(m.name)) || contextByLoose.get(loose(m.name)) || contextById.get(m.name);
-function cardFor(m: Model, ctx?: ContextRecord): CardRecord | undefined {
-  // Ids are unambiguous; fall back to the title only when no id matches.
-  return cardsById.get((ctx?.bedrockId ?? '').toLowerCase()) || cardsById.get((aliases[m.name] ?? '').toLowerCase()) || cardsById.get(m.name.toLowerCase()) || cardsByTitle.get(loose(m.name));
-}
 const cardOf = new Map<Model, CardRecord>();
 const usedCards = new Set<CardRecord>();
 for (const m of models.values()) {
@@ -257,14 +288,23 @@ function nearestBenchmarks(name: string): string {
 if (benchmarks.length) {
   for (const m of models.values()) {
     const b = findBenchmark(m.name, benchmarks, benchmarkAliases);
-    if (b) {
+    if (b && hasMeasurements(b.scores)) {
       m.benchmarks = b.scores;
       m.benchmarkSource = { name: b.name, slug: b.slug };
     } else noBenchmark.push(`${m.name} -> ${nearestBenchmarks(m.name) || '?'}`);
   }
 }
+const retainedBenchmarks: string[] = [];
+for (const m of models.values()) {
+  if (m.benchmarks) continue;
+  const previous = previousBenchmarks.get(identity(m.name, m.modelId));
+  if (!previous) continue;
+  m.benchmarks = { ...previous.model.benchmarks };
+  m.benchmarkSource = { ...previous.model.benchmarkSource!, snapshotAt: previous.snapshotAt };
+  retainedBenchmarks.push(m.name);
+}
 const fallbackNames = applyBenchmarkFallbacks(models.values(), benchmarkFallbacks);
-const missingBenchmarks = noBenchmark.filter((line) => !fallbackNames.some((name) => line.startsWith(`${name} ->`)));
+const missingBenchmarks = noBenchmark.filter((line) => ![...fallbackNames, ...retainedBenchmarks].some((name) => line.startsWith(`${name} ->`)));
 
 // Cross-check the Price List against models.dev's list prices (us-east-1 vs bare/us. ids). A mismatch means a parsing bug or a stale source.
 const mismatches: string[] = [];
@@ -312,7 +352,8 @@ const report = [
   `no context match (${unmatched.length}): ${unmatched.join(', ')}`,
   `Global price extended to other commercial regions for ${[...models.values()].filter((m) => m.copiedGlobalRegions).length} models: ${[...models.values()].filter((m) => m.copiedGlobalRegions).map((m) => `${m.name} (+${m.copiedGlobalRegions!.length})`).join(', ')}`,
   `price cross-check vs models.dev (${compared} values compared, ${mismatches.length} mismatches)${mismatches.length ? ':\n  ' + mismatches.join('\n  ') : ''}`,
-  benchmarks.length ? `no benchmark match after fallbacks (${missingBenchmarks.length}), model -> closest AA slugs:\n  ${missingBenchmarks.join('\n  ')}` : 'benchmark API: skipped (no AA_API_KEY)',
+  benchmarks.length ? `no benchmark match after fallbacks (${missingBenchmarks.length}), model -> closest AA slugs:\n  ${missingBenchmarks.join('\n  ')}` : 'benchmark API: unavailable; retaining previously sourced measurements when possible',
+  `benchmark measurements retained from previous snapshots (${retainedBenchmarks.length}): ${retainedBenchmarks.join(', ') || 'none'}`,
   `benchmark public-page fallbacks (${fallbackNames.length}): ${fallbackNames.join(', ') || 'none'}`,
 ].join('\n');
 console.log(report);

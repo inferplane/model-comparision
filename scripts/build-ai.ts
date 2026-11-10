@@ -55,7 +55,7 @@ const threshold = (m: Model) => (m.longContext?.thresholdTokens ? `>${tokens(m.l
 const eol = (m: Model, region: string) => m.availabilityEol?.[region] ?? (m.card?.eolDate ? m.card.eolDate : '');
 const ptag = (m: Model) => (m.priceSource === 'model-card' ? ' [price: model card]' : m.priceSource === 'override' ? ' [price: manual]' : '');
 
-const COLUMNS = ['Model', 'Provider', 'Model ID', 'ZDR', 'In-region', 'Geo CRIS', 'Global CRIS', 'Context', 'Max out', 'Intelligence', 'Coding Index', 'SciCode (%)', 'tok/s', 'Regional in/out', 'Regional cache read/write', 'Global in/out', 'Global cache read/write', 'Long-context (regional in/out)', 'EOL'];
+const COLUMNS = ['Model', 'Provider', 'Model ID', 'ZDR', 'In-region', 'Geo CRIS', 'Global CRIS', 'Context', 'Max out', 'Intelligence', 'Coding Index', 'SciCode (%)', 'tok/s', 'Retained benchmark snapshot', 'Regional in/out', 'Regional cache read/write', 'Global in/out', 'Global cache read/write', 'Long-context (regional in/out)', 'EOL'];
 
 function cells(e: Entry): string[] {
   const { m, price: p } = e;
@@ -66,6 +66,7 @@ function cells(e: Entry): string[] {
     e.modes['in-region'] ?? 'no', e.modes.geo ?? 'no', e.modes.global ?? 'no',
     tokens(m.contextWindow), tokens(m.maxOutput),
     num(b?.intelligenceIndex), num(codingIndexOf(m)), num(scienceCodingPercent(m)), b?.outputTokensPerSecond ? String(Math.round(b.outputTokensPerSecond)) : '-',
+    m.benchmarkSource?.snapshotAt?.slice(0, 10) ?? '-',
     pair(p.regional.input, p.regional.output), pair(p.regional.cacheRead, p.regional.cacheWrite),
     pair(p.global.input, p.global.output), pair(p.global.cacheRead, p.global.cacheWrite),
     long, eol(m, e.region) || '-',
@@ -104,6 +105,7 @@ Generated ${date} from the AWS Price List, AWS Bedrock model cards, and Artifici
 - "yes?" means availability is inferred (no AWS model card matched), not confirmed.
 - Long-context: when a prompt exceeds the threshold (e.g. >272K tokens) the whole request is billed at the long-context price instead.
 - Intelligence / Coding Index are Artificial Analysis indices (higher is better); tok/s is median output speed. An individual metric can be unpublished even when other measurements exist for a model. Public-page measurement fallbacks include their source and verification date in models.json.
+- Retained benchmark snapshot gives the date of previously sourced measurements kept when no new matching API measurement was available for this build. These are historical measurements; an actual API measurement replaces them. "-" means no retained snapshot.
 - SciCode (%) is a separate scientific-programming pass rate, not Coding Index. Missing Coding Index values remain unavailable in this connected dataset and are never inferred from SciCode.
 - In-region and Geo prices differ by Region; Global CRIS prices are the same in every commercial Region (except Amazon Nova).
 - 4:1 blended price = (4 x input + output) / 5, ignoring caching.
@@ -196,7 +198,7 @@ Model fields (USD per 1M tokens unless noted):
 - availability[region] = { runtime?: flags, mantle?: flags } where flags contain "i" (in-region), "g" (Geo CRIS), "G" (Global CRIS); runtime = bedrock-runtime endpoint, mantle = bedrock-mantle (OpenAI-compatible) endpoint
 - availabilityEol[region]: earliest end-of-life date (YYYY-MM-DD) for that region
 - benchmarks: Artificial Analysis scores (intelligenceIndex, codingIndex, mathIndex are indices; gpqa, hle, mmluPro, ... are fractions 0-1; outputTokensPerSecond; timeToFirstTokenSeconds)
-- benchmarkSource: name and slug of the measured variant; optional url, verifiedAt (YYYY-MM-DD), and kind: "public-page" identify a verified public-page fallback used while the API match is absent. API matches take priority on later rebuilds.
+- benchmarkSource: name and slug of the measured variant; optional url, verifiedAt (YYYY-MM-DD), and kind: "public-page" identify a verified public-page fallback used while the API match is absent. snapshotAt (ISO timestamp) identifies previously sourced measurements retained from that data snapshot when the API entry is missing; it is preserved on subsequent rebuilds, not reset to today's date. API matches take priority on later rebuilds.
 - priceSource: absent = AWS Price List; "model-card" or "mixed" = filled from the AWS model card; "override" = entered manually
 - copiedGlobalRegions: regions whose Global CRIS price was copied from the model's other commercial regions
 `;
