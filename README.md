@@ -16,7 +16,7 @@ The UI is in Korean and English: the KO/EN button in the header switches and rem
 | In-region (runtime / mantle) / Geo CRIS / Global CRIS per region, plus per-region EOL | [Regional availability by models](https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html): one uniform table per model; preferred over the cards' own tables, which sometimes only give a scope row |
 | Context window, max output, lifecycle/EOL, long-context threshold | [AWS Bedrock model cards](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html) (one markdown page per model, fetched as `.md`). Cards without a regions-page entry keep their own availability tables |
 | Fallback for context / profile ids | [models.dev](https://models.dev) `amazon-bedrock` (third party; used when no card matches, and for the long-context threshold of models without a card) |
-| Benchmarks | [Artificial Analysis](https://artificialanalysis.ai/) API (attribution required); needs the `AA_API_KEY` repo secret, skipped without it |
+| Benchmarks | [Artificial Analysis Free API](https://artificialanalysis.ai/data-api/docs/reference) (`/api/v2/language/models/free`, all pages; attribution required); needs the `AA_API_KEY` repo secret, skipped without it |
 | Benchmark API gaps | `data/benchmark-fallbacks.yaml`: verified Artificial Analysis public-page measurements with source URL and confirmation date. Fills absent individual metrics and refreshes older retained measurements from the same effort variant; fresh API values take priority. `benchmarkSources` records field-level provenance for partial supplements |
 | Prices for models the Price List lacks | The model card's price tables (commercial regions, standard tier), e.g. GPT-6.1 Sol; shown as `priceSource: model-card` |
 | Gaps | `data/overrides.yaml` for anything else (each entry names its source) |
@@ -24,6 +24,8 @@ The UI is in Korean and English: the KO/EN button in the header switches and rem
 Only text-token prices are shown. Image, video, audio, provisioned-throughput and customization SKUs are skipped. The AWS price list has no long-context pricing tiers.
 
 Coding Index and SciCode are separate measurements. A latest model can have Intelligence Index and SciCode measurements while its Coding Index is not provided by the connected source. The UI and AI exports label that gap explicitly; no composite score is inferred from individual benchmarks. SciCode remains a scientific-programming pass-rate percentage with its own tab, comparison panel and detailed column.
+
+The legacy benchmark endpoint was retired on November 4, 2026. The replacement Free API provides headline indices and nested median performance, but omits per-benchmark evaluations. Artificial Analysis no longer publishes its Coding Index; null and omitted metrics stay absent. Verified public-page measurements can supplement missing fields under the policy above. Collection validates pagination and writes the cache only after every page succeeds, so an API failure cannot publish a partial catalog.
 
 ## Commands
 
