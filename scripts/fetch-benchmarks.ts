@@ -15,8 +15,15 @@ interface AaModel {
   slug: string;
   model_creator?: { name?: string };
   evaluations?: Record<string, number | null | undefined>;
-  median_output_tokens_per_second?: number | null;
-  median_time_to_first_token_seconds?: number | null;
+  performance?: {
+    median_output_tokens_per_second?: number | null;
+    median_time_to_first_token_seconds?: number | null;
+  };
+}
+
+interface AaResponse {
+  data: AaModel[];
+  pagination: { page: number; total_pages: number; has_more: boolean };
 }
 
 const key = process.env.AA_API_KEY;
@@ -26,10 +33,27 @@ if (!key) {
   process.exit(0);
 }
 
-// Documented limit is 1,000 requests/day and attribution to artificialanalysis.ai is required; one call per data build is well inside it.
-const res = await fetch('https://artificialanalysis.ai/api/v2/data/llms/models', { headers: { 'x-api-key': key } });
-if (!res.ok) throw new Error(`Artificial Analysis -> ${res.status}`);
-const { data } = (await res.json()) as { data: AaModel[] };
+// The legacy /data endpoint was retired on 2026-11-04.
+// Free accepts any valid API key. Its 100 requests/day quota covers one call per
+// 200-model page; attribution to artificialanalysis.ai is required.
+// https://artificialanalysis.ai/data-api/docs/reference
+const data: AaModel[] = [];
+for (let page = 1; ; page++) {
+  const url = new URL('https://artificialanalysis.ai/api/v2/language/models/free');
+  url.searchParams.set('page', String(page));
+  const res = await fetch(url, { headers: { 'x-api-key': key } });
+  if (!res.ok) throw new Error(`Artificial Analysis -> ${res.status} (page ${page})`);
+  const body = (await res.json()) as AaResponse;
+  const pagination = body?.pagination;
+  if (!Array.isArray(body?.data) || !pagination
+    || pagination.page !== page || !Number.isInteger(pagination.total_pages)
+    || pagination.total_pages < page
+    || pagination.has_more !== (page < pagination.total_pages)) {
+    throw new Error(`Invalid Artificial Analysis response (page ${page})`);
+  }
+  data.push(...body.data);
+  if (!pagination.has_more) break;
+}
 
 const num = (v: number | null | undefined) => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
 const records: BenchmarkRecord[] = data.map((m) => {
@@ -50,8 +74,8 @@ const records: BenchmarkRecord[] = data.map((m) => {
       scicode: num(e.scicode),
       math500: num(e.math_500),
       aime: num(e.aime),
-      outputTokensPerSecond: num(m.median_output_tokens_per_second),
-      timeToFirstTokenSeconds: num(m.median_time_to_first_token_seconds),
+      outputTokensPerSecond: num(m.performance?.median_output_tokens_per_second),
+      timeToFirstTokenSeconds: num(m.performance?.median_time_to_first_token_seconds),
     },
   };
 });
