@@ -4,12 +4,10 @@ New and removed models, price changes (Standard tier, input/output/cache read), 
 
 ## 2026-11-12
 
-### New models (2)
-- gpt-oss-120b (OpenAI)
+### New models (1)
 - gpt-oss-20b (OpenAI)
 
-### Removed models (2)
-- gpt-oss-120b (OpenAI)
+### Removed models (1)
 - gpt-oss-20b (OpenAI)
 
 ## 2026-11-11
