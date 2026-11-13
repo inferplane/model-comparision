@@ -1,6 +1,19 @@
 # Recent changes to the Bedrock model data
 
-New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-11-12.
+New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-11-13.
+
+## 2026-11-13
+
+### New models (2)
+- gpt-oss-120b (OpenAI)
+- gpt-oss-20b (OpenAI)
+
+### Removed models (2)
+- gpt-oss-120b (OpenAI)
+- gpt-oss-20b (OpenAI)
+
+### Availability changes (1 models)
+- GPT-5.4: geo regions 3 → 5
 
 ## 2026-11-12
 
