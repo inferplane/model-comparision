@@ -8,26 +8,49 @@ import { changesMarkdown, commitMessage, computeChanges, needsReview, sanityGuar
  * Compares the freshly built public/data/models.json with the previous one and records what moved: new/removed models, price and
  * availability changes. Also stops the run when the change looks like a broken source rather than real news.
  */
-const readModels = (json: string) => (JSON.parse(json) as { models: Model[] }).models;
+interface Snapshot {
+  generatedAt: string;
+  models: Model[];
+}
 
-function previous(): Model[] | undefined {
-  // CI copies the committed file here before refreshing; locally fall back to what git has.
-  if (existsSync('data/raw/models.prev.json')) return readModels(readFileSync('data/raw/models.prev.json', 'utf8'));
+const parseSnapshot = (json: string): Snapshot => JSON.parse(json);
+const modelPath = 'public/data/models.json';
+const fromGit = (ref: string) => parseSnapshot(execFileSync('git', ['show', ref + ':' + modelPath],
+  { encoding: 'utf8', maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'] }));
+
+function previous(): Snapshot | undefined {
+  if (existsSync('data/raw/models.prev.json')) return parseSnapshot(readFileSync('data/raw/models.prev.json', 'utf8'));
   try {
-    return readModels(execFileSync('git', ['show', 'HEAD:public/data/models.json'], { encoding: 'utf8', maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'] }));
+    return fromGit('HEAD');
   } catch {
     return undefined;
   }
 }
 
-const next = readModels(readFileSync('public/data/models.json', 'utf8'));
+// The guard and commit message compare consecutive refreshes. The published timeline compares UTC days.
+function startOfDay(previous: Snapshot, date: string): Model[] {
+  if (previous.generatedAt.slice(0, 10) < date) return previous.models;
+  const commits = execFileSync('git', ['log', '--first-parent', '--format=%H', '--', modelPath], { encoding: 'utf8' });
+  let earliest = previous;
+  for (const ref of commits.trim().split(/\s+/).filter(Boolean)) {
+    earliest = fromGit(ref);
+    if (earliest.generatedAt.slice(0, 10) < date) return earliest.models;
+  }
+  if (execFileSync('git', ['rev-parse', '--is-shallow-repository'], { encoding: 'utf8' }).trim() === 'true') {
+    throw new Error('Full catalog history is required to compare repeated refreshes on the same UTC day.');
+  }
+  return earliest.models; // The initial import is the baseline when the catalog itself began today.
+}
+
+const snapshot = parseSnapshot(readFileSync(modelPath, 'utf8'));
+const next = snapshot.models;
 const prev = previous();
-const date = new Date().toISOString().slice(0, 10);
+const date = snapshot.generatedAt.slice(0, 10);
 const summary = (text: string) => process.env.GITHUB_STEP_SUMMARY && appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${text}\n`);
 
 const empty: Changes = { added: [], removed: [], priceChanges: [], availabilityChanges: [] };
-const changes = prev ? computeChanges(prev, next) : empty;
-const guard = prev ? sanityGuard(changes, prev.length) : { ok: true };
+const changes = prev ? computeChanges(prev.models, next) : empty;
+const guard = prev ? sanityGuard(changes, prev.models.length) : { ok: true };
 
 if (!guard.ok && process.env.ALLOW_BIG_CHANGE !== '1') {
   const msg = `Refusing to publish: ${guard.reason}. This usually means a source page changed or a parser broke. Re-run with ALLOW_BIG_CHANGE=1 (workflow_dispatch input) once checked.`;
@@ -42,9 +65,10 @@ interface Entry extends Changes {
 }
 const historyPath = 'public/data/changes.json';
 const old: Entry[] = existsSync(historyPath) ? (JSON.parse(readFileSync(historyPath, 'utf8')) as { entries: Entry[] }).entries : [];
-const moved = changes.added.length + changes.removed.length + changes.priceChanges.length + changes.availabilityChanges.length > 0;
+const daily = prev ? computeChanges(startOfDay(prev, date), next) : empty;
+const moved = daily.added.length + daily.removed.length + daily.priceChanges.length + daily.availabilityChanges.length > 0;
 const cutoff = new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10);
-const entries = [...old.filter((e) => e.date !== date && e.date >= cutoff), ...(moved ? [{ date, ...changes }] : [])].sort((a, b) => b.date.localeCompare(a.date));
+const entries = [...old.filter((e) => e.date !== date && e.date >= cutoff), ...(moved ? [{ date, ...daily }] : [])].sort((a, b) => b.date.localeCompare(a.date));
 await writeFile(historyPath, JSON.stringify({ updatedAt: new Date().toISOString(), entries }));
 
 await mkdir('public/ai', { recursive: true });

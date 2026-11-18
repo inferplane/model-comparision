@@ -2,52 +2,16 @@
 
 New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-11-18.
 
-## 2026-11-17
-
-### New models (1)
-- gpt-oss-120b (OpenAI)
-
-### Removed models (1)
-- gpt-oss-120b (OpenAI)
-
-## 2026-11-16
-
-### New models (1)
-- gpt-oss-20b (OpenAI)
-
-### Removed models (1)
-- gpt-oss-20b (OpenAI)
-
-## 2026-11-15
+## 2026-11-18
 
 ### New models (2)
-- gpt-oss-120b (OpenAI)
-- gpt-oss-20b (OpenAI)
-
-### Removed models (2)
-- gpt-oss-120b (OpenAI)
-- gpt-oss-20b (OpenAI)
+- GPT-6.2 Astra (OpenAI)
+- GPT-6.2 Sol (OpenAI)
 
 ## 2026-11-13
 
-### New models (2)
-- gpt-oss-120b (OpenAI)
-- gpt-oss-20b (OpenAI)
-
-### Removed models (2)
-- gpt-oss-120b (OpenAI)
-- gpt-oss-20b (OpenAI)
-
 ### Availability changes (1 models)
 - GPT-5.4: geo regions 3 → 5
-
-## 2026-11-12
-
-### New models (1)
-- gpt-oss-20b (OpenAI)
-
-### Removed models (1)
-- gpt-oss-20b (OpenAI)
 
 ## 2026-11-11
 
