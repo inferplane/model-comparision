@@ -2,12 +2,6 @@
 
 New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-11-18.
 
-## 2026-11-18
-
-### New models (2)
-- GPT-6.2 Astra (OpenAI)
-- GPT-6.2 Sol (OpenAI)
-
 ## 2026-11-17
 
 ### New models (1)
