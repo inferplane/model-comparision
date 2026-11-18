@@ -27,7 +27,7 @@ export function renderChanges(models: Model[], changes: ChangesFile): HTMLElemen
     : [emptyState(t(`최근 ${WINDOW_DAYS}일 동안 변경이 없습니다`, `No changes in the last ${WINDOW_DAYS} days`), t('매일 AWS 가격표·모델 카드·리전 표를 확인하며, 신규·삭제 모델과 가격·가용성 변경이 생기면 여기에 쌓입니다.', 'The AWS Price List, model cards and regions page are checked daily; new and removed models and price or availability changes show up here.'))];
 
   return h('main', null,
-    pageHeading('CHANGES', t('최근 변경', 'Recent changes'), t('매일 한 번 AWS 공개 자료를 다시 확인해 달라진 점을 기록합니다. 신규 모델에는 14일 동안 NEW 표시가 붙습니다.', 'Public AWS sources are re-checked once a day and every difference is recorded. New models carry a NEW badge for 14 days.')),
+    pageHeading('CHANGES', t('최근 변경', 'Recent changes'), t('전체 리전의 모델 목록·가격·가용성을 이전 날짜의 마지막 확인 결과와 비교합니다. 날짜는 UTC 기준이며 신규 모델에는 14일 동안 NEW 표시가 붙습니다.', 'Each UTC day compares the catalog across all regions with the last snapshot from a previous day. New models carry a NEW badge for 14 days.')),
     h('p', { class: 'note change-meta' }, h('span', null, t('마지막 확인 ', 'Last checked '), h('time', { datetime: changes.updatedAt }, formatChecked(changes.updatedAt))), ' · ',
       h('a', { href: `${import.meta.env.BASE_URL}ai/changes.md`, rel: 'noopener' }, t('AI용 마크다운 ↗', 'Markdown for AI ↗'))),
     ...body);

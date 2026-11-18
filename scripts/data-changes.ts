@@ -1,5 +1,7 @@
 import type { Model, Scope, TokenKind } from '../src/types.ts';
 
+import { gptOssCatalogId } from './gpt-oss-id.ts';
+
 export interface Brief {
   id: string;
   name: string;
@@ -56,13 +58,15 @@ function modeCounts(m: Model): Record<string, number> {
 }
 
 export function computeChanges(prev: Model[], next: Model[]): Changes {
-  const before = new Map(prev.map((m) => [m.id, m]));
-  const after = new Map(next.map((m) => [m.id, m]));
+  // Older snapshots predate modelId and already used the unprefixed GPT OSS site ID.
+  const key = (m: Model) => gptOssCatalogId(m.modelId)?.slice('openai.'.length) ?? m.id;
+  const before = new Map(prev.map((m) => [key(m), m]));
+  const after = new Map(next.map((m) => [key(m), m]));
   const changes: Changes = { added: [], removed: [], priceChanges: [], availabilityChanges: [] };
-  for (const m of next) if (!before.has(m.id)) changes.added.push(brief(m));
-  for (const m of prev) if (!after.has(m.id)) changes.removed.push(brief(m));
+  for (const m of next) if (!before.has(key(m))) changes.added.push(brief(m));
+  for (const m of prev) if (!after.has(key(m))) changes.removed.push(brief(m));
   for (const m of next) {
-    const old = before.get(m.id);
+    const old = before.get(key(m));
     if (!old) continue;
     const price = priceDiff(old, m);
     if (price) changes.priceChanges.push(price);

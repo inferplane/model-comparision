@@ -7,6 +7,7 @@ import type { ContextRecord } from './fetch-context.ts';
 import type { CardRecord } from './parse-card.ts';
 import { providerFromName } from './parse-pricing.ts';
 import { applyBenchmarkFallbacks, type BenchmarkFallback } from './benchmark-fallbacks.ts';
+import { gptOssCatalogId } from './gpt-oss-id.ts';
 import { findBenchmark } from './benchmark-matching.ts';
 
 interface Overrides {
@@ -73,7 +74,7 @@ function bedrockIdFor(name: string): string | undefined {
   const card = cardFor({ name }, ctx);
   return (ctx && card?.modelIds.find((id) => id === ctx.bedrockId)) ?? card?.modelIds[0] ?? ctx?.bedrockId;
 }
-const identity = (name: string, modelId = bedrockIdFor(name)) => modelId ? `bedrock:${modelId.toLowerCase()}` : `name:${slug(name)}`;
+const identity = (name: string, modelId = bedrockIdFor(name)) => modelId ? `bedrock:${gptOssCatalogId(modelId) ?? modelId.toLowerCase()}` : `name:${slug(name)}`;
 const hasMeasurements = (scores: Model['benchmarks']) => Object.values(scores ?? {}).some((value) => typeof value === 'number' && Number.isFinite(value));
 const previousByIdentity = new Map<string, Model>();
 const previousBenchmarks = new Map<string, { model: Model; snapshotAt: string }>();

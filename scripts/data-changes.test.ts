@@ -49,6 +49,17 @@ describe('needsReview', () => {
   });
 });
 
+it('compares both GPT OSS endpoint identifiers as the same catalog model and keeps real price changes', () => {
+  const previous = model('gpt-oss-120b', { modelId: 'openai.gpt-oss-120b-1:0',
+    pricing: { 'us-east-1': { regional: { standard: { input: 1 } } } } });
+  const next = { ...previous, id: 'openai.gpt-oss-120b', modelId: 'openai.gpt-oss-120b',
+    pricing: { 'us-east-1': { regional: { standard: { input: 2 } } } } };
+  const changes = computeChanges([previous], [next]);
+  expect(changes.added).toEqual([]);
+  expect(changes.removed).toEqual([]);
+  expect(changes.priceChanges[0]).toMatchObject({ id: next.id, example: { from: 1, to: 2 } });
+});
+
 describe('sanityGuard', () => {
   const many = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `m${i}`, name: `M${i}`, provider: 'x' }));
   it('blocks a run that loses a tenth of the catalogue', () => {

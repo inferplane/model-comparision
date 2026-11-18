@@ -64,6 +64,16 @@ describe('model catalog rebuild', () => {
     expect(build()[0]).toMatchObject({ id: 'gpt-6.1-sol', firstSeen: '2026-10-08' });
   });
 
+  it('keeps the GPT OSS site URL and discovery date when the matched endpoint ID changes', () => {
+    const original = { ...oldModel('gpt-oss-20b', 'openai.gpt-oss-20b'), name: 'gpt-oss-20b' };
+    json('public/data/models.json', { generatedAt: '2026-11-04T05:16:46Z', models: [original] });
+    json('data/raw/prices.json', [price('gpt-oss-20b')]);
+    json('data/raw/context.json', [{
+      bedrockId: 'openai.gpt-oss-20b-1:0', name: 'gpt-oss-20b', modes: ['in-region'], geoPrefixes: [], cost: {},
+    }]);
+    expect(build()[0]).toMatchObject({ id: original.id, firstSeen: original.firstSeen, modelId: 'openai.gpt-oss-20b-1:0' });
+  });
+
   it('recovers stable identity and measurements from the pre-refresh snapshot after a broken draft', () => {
     json('data/raw/models.prev.json', { generatedAt: '2026-11-04T05:16:46.984Z', models: [oldModel()] });
     json('public/data/models.json', {
