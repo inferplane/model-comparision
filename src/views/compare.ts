@@ -1,7 +1,7 @@
 import { h } from '../dom.ts';
 import { matches, variantRows, type Row } from '../data.ts';
 import { METRICS, type Metric } from '../metrics.ts';
-import { MAX_COMPARE, state, toggleCompare } from '../state.ts';
+import { MAX_COMPARE, state, toggleCompare, update } from '../state.ts';
 import type { Model } from '../types.ts';
 import { emptyState, icon, pageHeading } from '../components/ui.ts';
 import { codingNotice } from '../components/coding-notice.ts';
@@ -72,9 +72,14 @@ export function renderCompare(models: Model[]): HTMLElement {
   });
 
   if (!picked.length) {
+    const codexPair = ['gpt-6.2-astra', 'gpt-6.2-sol'];
     return h('main', null,
       pageHeading('SIDE BY SIDE', t('같은 기준으로, 꼼꼼하게 비교하세요', 'Compare on the same footing'), t('최대 6개 모델의 성능, 속도, 가격을 나란히 비교할 수 있습니다.', 'Put up to 6 models side by side on performance, speed and price.')),
-      adder, emptyState(t('어떤 모델이 더 잘 맞을까요?', 'Which model fits better?'), t('위에서 모델을 검색하거나, 모델 탐색에서 ＋ 버튼을 눌러 비교할 모델을 담아보세요.', 'Search for a model above, or use the ＋ button in Explore to add models.'),
+      adder,
+      codexPair.every((id) => byId.has(id)) ? h('button', {
+        type: 'button', class: 'button secondary', onclick: () => update({ compare: codexPair }),
+      }, t('GPT-6.2 Astra와 Sol 비교', 'Compare GPT-6.2 Astra and Sol')) : null,
+      emptyState(t('어떤 모델이 더 잘 맞을까요?', 'Which model fits better?'), t('위에서 모델을 검색하거나, 모델 탐색에서 ＋ 버튼을 눌러 비교할 모델을 담아보세요.', 'Search for a model above, or use the ＋ button in Explore to add models.'),
         h('a', { href: '#/', class: 'button secondary' }, t('모델 탐색하기', 'Explore models'), icon('arrow'))));
   }
 
