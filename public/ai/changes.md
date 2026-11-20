@@ -1,6 +1,13 @@
 # Recent changes to the Bedrock model data
 
-New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-11-19.
+New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-11-20.
+
+## 2026-11-20
+
+### Price changes (3 models)
+- OpenAI GPT-5.5: ca-west-1 regional input $5.5 → $0.55
+- OpenAI GPT-6.1 Sol: us-east-1 regional input $2.2 → $13.2 (+61 more prices)
+- OpenAI GPT-6.2 Astra: us-east-1 regional input $8.8 → $26.4 (+51 more prices)
 
 ## 2026-11-18
 
@@ -48,8 +55,3 @@ New and removed models, price changes (Standard tier, input/output/cache read), 
 
 ### New models (1)
 - GPT-6.1 Terra (OpenAI)
-
-## 2026-10-20
-
-### Availability changes (1 models)
-- Grok 4.7: geo regions 6 → 8
