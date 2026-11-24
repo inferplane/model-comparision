@@ -1,6 +1,11 @@
 # Recent changes to the Bedrock model data
 
-New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-11-23.
+New and removed models, price changes (Standard tier, input/output/cache read), and changes in how many Regions offer In-region / Geo / Global CRIS. Newest first. Only days where something changed are listed. Updated 2026-11-24.
+
+## 2026-11-24
+
+### Price changes (1 models)
+- OpenAI GPT-6 Astra: us-east-1 regional output $55 → $330 (+33 more prices)
 
 ## 2026-11-20
 

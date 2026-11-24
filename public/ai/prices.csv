@@ -1731,41 +1731,41 @@ model,provider,region,scope,input,output,cache_read,cache_write,long_context_thr
 "OpenAI GPT-5.6 Sol",OpenAI,us-west-2,global,4,20,0.4,5,272000,8,30,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,af-south-1,global,10,50,1,12.5,272000,20,75,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,ap-east-2,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,ap-northeast-1,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,ap-northeast-2,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,ap-northeast-3,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,ap-south-1,global,10,50,1,12.5,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,ap-northeast-1,global,60,300,6,12.5,272000,120,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,ap-northeast-2,global,60,300,1,75,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,ap-northeast-3,global,10,300,6,12.5,272000,120,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,ap-south-1,global,10,300,1,75,272000,120,75,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,ap-south-2,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,ap-southeast-1,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,ap-southeast-2,global,10,50,1,12.5,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,ap-southeast-1,global,60,50,6,12.5,272000,120,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,ap-southeast-2,global,60,50,6,75,272000,20,450,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,ap-southeast-3,global,10,50,1,12.5,272000,20,75,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,ap-southeast-4,global,10,50,1,12.5,272000,20,75,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,ap-southeast-5,global,10,50,1,12.5,272000,20,75,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,ap-southeast-6,global,10,50,1,12.5,272000,20,75,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,ap-southeast-7,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,ca-central-1,regional,11,55,1.1,13.75,272000,22,82.5,Geo CRIS
-"OpenAI GPT-6 Astra",OpenAI,ca-central-1,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,ca-west-1,regional,11,55,1.1,13.75,272000,22,82.5,Geo CRIS
-"OpenAI GPT-6 Astra",OpenAI,ca-west-1,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,eu-central-1,global,10,50,1,12.5,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,ca-central-1,regional,11,330,1.1,13.75,272000,22,495,Geo CRIS
+"OpenAI GPT-6 Astra",OpenAI,ca-central-1,global,10,50,6,75,272000,120,450,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,ca-west-1,regional,11,330,1.1,13.75,272000,132,495,Geo CRIS
+"OpenAI GPT-6 Astra",OpenAI,ca-west-1,global,10,50,1,75,272000,120,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,eu-central-1,global,60,50,1,12.5,272000,20,450,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,eu-central-2,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,eu-north-1,global,10,50,1,12.5,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,eu-north-1,global,10,300,1,12.5,272000,20,450,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,eu-south-1,global,10,50,1,12.5,272000,20,75,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,eu-south-2,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,eu-west-1,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,eu-west-2,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,eu-west-3,global,10,50,1,12.5,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,eu-west-1,global,10,50,1,75,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,eu-west-2,global,60,50,6,75,272000,120,450,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,eu-west-3,global,10,50,6,12.5,272000,20,450,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,il-central-1,global,10,50,1,12.5,272000,20,75,Global CRIS
 "OpenAI GPT-6 Astra",OpenAI,mx-central-1,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,sa-east-1,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,us-east-1,regional,11,55,1.1,13.75,272000,22,82.5,In-region+Geo CRIS
+"OpenAI GPT-6 Astra",OpenAI,sa-east-1,global,60,300,1,75,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,us-east-1,regional,11,330,6.6,13.75,272000,132,495,In-region+Geo CRIS
 "OpenAI GPT-6 Astra",OpenAI,us-east-1,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,us-east-2,regional,11,55,1.1,13.75,272000,22,82.5,Geo CRIS
-"OpenAI GPT-6 Astra",OpenAI,us-east-2,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,us-west-1,regional,11,55,1.1,13.75,272000,22,82.5,Geo CRIS
-"OpenAI GPT-6 Astra",OpenAI,us-west-1,global,10,50,1,12.5,272000,20,75,Global CRIS
-"OpenAI GPT-6 Astra",OpenAI,us-west-2,regional,11,55,1.1,13.75,272000,22,82.5,In-region+Geo CRIS
-"OpenAI GPT-6 Astra",OpenAI,us-west-2,global,10,50,1,12.5,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,us-east-2,regional,66,330,6.6,82.5,272000,132,82.5,Geo CRIS
+"OpenAI GPT-6 Astra",OpenAI,us-east-2,global,10,50,6,75,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,us-west-1,regional,11,55,6.6,13.75,272000,132,82.5,Geo CRIS
+"OpenAI GPT-6 Astra",OpenAI,us-west-1,global,10,300,6,75,272000,20,75,Global CRIS
+"OpenAI GPT-6 Astra",OpenAI,us-west-2,regional,66,330,6.6,82.5,272000,132,82.5,In-region+Geo CRIS
+"OpenAI GPT-6 Astra",OpenAI,us-west-2,global,10,50,1,12.5,272000,120,450,Global CRIS
 "OpenAI GPT-6 Luna",OpenAI,af-south-1,global,0.1,0.5,0.01,0.125,272000,0.2,0.75,Global CRIS
 "OpenAI GPT-6 Luna",OpenAI,ap-east-2,global,0.1,0.5,0.01,0.125,272000,0.2,0.75,Global CRIS
 "OpenAI GPT-6 Luna",OpenAI,ap-northeast-1,global,0.1,0.5,0.01,0.125,272000,0.2,0.75,Global CRIS
@@ -2035,16 +2035,6 @@ model,provider,region,scope,input,output,cache_read,cache_write,long_context_thr
 "Qwen3 Coder Next",Qwen,ap-southeast-2,regional,0.52,1.24,,,,,,In-region
 "Qwen3 Coder Next",Qwen,eu-west-2,regional,0.78,1.86,,,,,,In-region
 "Qwen3 Coder Next",Qwen,us-east-1,regional,0.5,1.2,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,ap-northeast-1,regional,0.168,1.44,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,ap-south-1,regional,0.168,1.44,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,ap-southeast-2,regional,0.1442,1.236,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,eu-south-1,regional,0.168,1.44,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,eu-west-1,regional,0.168,1.44,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,eu-west-2,regional,0.217,1.86,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,sa-east-1,regional,0.168,1.44,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,us-east-1,regional,0.14,1.2,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,us-east-2,regional,0.14,1.2,,,,,,In-region
-"Qwen3 Next 80B A3B",Qwen,us-west-2,regional,0.14,1.2,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,ap-northeast-1,regional,0.64,3.22,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,ap-south-1,regional,0.62,3.13,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,ap-southeast-2,regional,0.5459,2.7398,,,,,,In-region
@@ -2055,6 +2045,16 @@ model,provider,region,scope,input,output,cache_read,cache_write,long_context_thr
 "Qwen3 VL 235B A22B",Qwen,us-east-1,regional,0.53,2.66,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,us-east-2,regional,0.53,2.66,,,,,,In-region
 "Qwen3 VL 235B A22B",Qwen,us-west-2,regional,0.53,2.66,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,ap-northeast-1,regional,0.168,1.44,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,ap-south-1,regional,0.168,1.44,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,ap-southeast-2,regional,0.1442,1.236,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,eu-south-1,regional,0.168,1.44,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,eu-west-1,regional,0.168,1.44,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,eu-west-2,regional,0.217,1.86,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,sa-east-1,regional,0.168,1.44,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,us-east-1,regional,0.14,1.2,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,us-east-2,regional,0.14,1.2,,,,,,In-region
+"qwen3-next-80b-a3b",Qwen,us-west-2,regional,0.14,1.2,,,,,,In-region
 "TwelveLabs Pegasus 1.2",TwelveLabs,af-south-1,global,,7.5,,,,,,Global CRIS
 "TwelveLabs Pegasus 1.2",TwelveLabs,ap-east-2,global,,7.5,,,,,,Global CRIS
 "TwelveLabs Pegasus 1.2",TwelveLabs,ap-northeast-1,global,,7.5,,,,,,Global CRIS
