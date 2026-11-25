@@ -66,10 +66,10 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Claude 3.5 Sonnet | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | 7.2 | 26.0 | - | - | 2026-11-10 | - | - | - | - | - | - | - |
 | Claude 3.5 Sonnet v2 | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | 7.9 | 30.2 | - | - | 2026-11-10 | - | - | - | - | - | - | - |
 | Claude 3.7 Sonnet | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | 15.3 | - | - | - | 2026-11-10 | - | - | - | - | - | - | - |
-| Claude Fable 5 | Anthropic | anthropic.claude-fable-5 | no | no | no | yes | 1M | 128K | - | - | - | 66 | - | - | - | - | $10.00 / $50.00 | $1.00 / $12.50 | - | - |
+| Claude Fable 5 | Anthropic | anthropic.claude-fable-5 | no | no | no | yes | 1M | 128K | - | - | - | 67 | - | - | - | - | $10.00 / $50.00 | $1.00 / $12.50 | - | - |
 | Claude Fable 5.1 | Anthropic | anthropic.claude-fable-5-1 | no | no | no | yes | 1M | 128K | 49.3 | - | - | 68 | - | - | - | - | $10.00 / $50.00 | $0.25 / $12.50 | - | - |
-| Claude Fable 5.2 | Anthropic | anthropic.claude-fable-5-2 | no | no | no | yes | 1M | 128K | 64.8 | - | - | 92 | - | - | - | - | $8.00 / $40.00 | $0.20 / $10.00 | - | - |
-| Claude Haiku 4.5 | Anthropic | anthropic.claude-haiku-4-5 | yes | no | yes | yes | 200K | 64K | - | - | - | 86 | - | - | $1.10 / $5.50 | $0.11 / $1.375 | $1.00 / $5.00 | $0.10 / $1.25 | - | - |
+| Claude Fable 5.2 | Anthropic | anthropic.claude-fable-5-2 | no | no | no | yes | 1M | 128K | 64.8 | - | - | 91 | - | - | - | - | $8.00 / $40.00 | $0.20 / $10.00 | - | - |
+| Claude Haiku 4.5 | Anthropic | anthropic.claude-haiku-4-5 | yes | no | yes | yes | 200K | 64K | - | - | - | 85 | - | - | $1.10 / $5.50 | $0.11 / $1.375 | $1.00 / $5.00 | $0.10 / $1.25 | - | - |
 | Claude Haiku 5.5 | Anthropic | anthropic.claude-haiku-5-5 | yes | no | no | yes | 1M | 128K | 36.5 | - | - | 226 | - | - | - | - | $0.10 / $0.50 | $0.01 / $0.125 | >100K global $0.50 / $2.50 | - |
 | Claude Instant | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | 5.0 | 7.8 | - | - | 2026-11-10 | - | - | - | - | - | - | - |
 | Claude Instant (100K) | Anthropic | - | yes | yes? | yes? | no | 미확인 | 미확인 | 5.0 | 7.8 | - | - | 2026-11-10 | - | - | - | - | - | - | - |
@@ -83,10 +83,10 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | Claude Opus 4.8 | Anthropic | anthropic.claude-opus-4-8 | yes | no | no | yes | 1M | 128K | - | - | - | 62 | - | - | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
 | Claude Opus 5 | Anthropic | anthropic.claude-opus-5 | yes | no | no | yes | 1M | 128K | 44.2 | - | 56.4 | 53 | - | gpqa, hle, scicode: 2026-11-10 (https://artificialanalysis.ai/models/claude-opus-5) | - | - | $5.00 / $25.00 | $0.50 / $6.25 | - | - |
 | Claude Opus 5.5 | Anthropic | anthropic.claude-opus-5-5 | yes | no | no | yes | 1M | 128K | 59.1 | - | - | 97 | - | - | - | - | $4.00 / $20.00 | $0.20 / $5.00 | - | - |
-| Claude Sonnet 4.5 | Anthropic | anthropic.claude-sonnet-4-5-20250929-v1:0 | yes | no | yes | yes | 200K | 64K | - | - | - | 45 | - | - | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | 2027-04-08 |
+| Claude Sonnet 4.5 | Anthropic | anthropic.claude-sonnet-4-5-20250929-v1:0 | yes | no | yes | yes | 200K | 64K | - | - | - | 46 | - | - | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | 2027-04-08 |
 | Claude Sonnet 4.6 | Anthropic | anthropic.claude-sonnet-4-6 | yes | no | yes | yes | 1M | 64K | - | - | - | 45 | - | - | $3.30 / $16.50 | $0.33 / $4.125 | $3.00 / $15.00 | $0.30 / $3.75 | - | - |
 | Claude Sonnet 5 | Anthropic | anthropic.claude-sonnet-5 | yes | no | no | yes | 1M | 128K | - | - | - | 83 | - | - | - | - | $2.00 / $10.00 | $0.20 / $2.50 | - | - |
-| Claude Sonnet 5.5 | Anthropic | anthropic.claude-sonnet-5-5 | yes | no | no | yes | 1M | 128K | 54.7 | - | - | 135 | - | - | - | - | $2.00 / $10.00 | $0.10 / $2.50 | - | - |
+| Claude Sonnet 5.5 | Anthropic | anthropic.claude-sonnet-5-5 | yes | no | no | yes | 1M | 128K | 54.7 | - | - | 134 | - | - | - | - | $2.00 / $10.00 | $0.10 / $2.50 | - | - |
 | Cohere Embed 3 Model - English | Cohere | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - | - | - |
 | Cohere Embed 4 Model | Cohere | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - | - | - |
 | Cohere Embed Model 3 - Multilingual | Cohere | - | yes | yes? | yes? | no | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - | - | - |
@@ -108,4 +108,4 @@ No other model here is both cheaper and higher scoring than these (sorted by pri
 | OpenAI GPT-6.2 Sol | OpenAI | openai.gpt-6.2-sol | no | no | no | yes | 1.05M | 128K | 57.3 | - | - | 77 | - | - | - | - | $2.00 / $10.00 | $0.10 / $2.50 | >272K global $4.00 / $15.00 | - |
 | TwelveLabs Pegasus 1.2 | TwelveLabs | - | yes | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - | - | - |
 | TwelveLabs Pegasus 1.5 | TwelveLabs | - | yes | yes? | yes? | yes? | 미확인 | 미확인 | - | - | - | - | - | - | - | - | - | - | - | - |
-| GLM 5.3 [price: manual] | Z AI | zai.glm-5.3 | yes | no | no | yes | 1M | 128K | 31.6 | - | - | 77 | - | - | - | - | $1.68 / $5.28 | $0.312 / $2.10 | - | - |
+| GLM 5.3 [price: manual] | Z AI | zai.glm-5.3 | yes | no | no | yes | 1M | 128K | 31.6 | - | - | 80 | - | - | - | - | $1.68 / $5.28 | $0.312 / $2.10 | - | - |
