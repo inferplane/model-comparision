@@ -147,9 +147,9 @@ model,provider,region,scope,input,output,cache_read,cache_write,long_context_thr
 "Nova Micro",Amazon,us-east-1,regional,0.035,0.14,0.00875,0,,,,In-region+Geo CRIS
 "Nova Micro",Amazon,us-east-2,regional,0.035,0.14,0.00875,0,,,,Geo CRIS
 "Nova Micro",Amazon,us-west-2,regional,0.035,0.14,0.00875,0,,,,Geo CRIS
-"Nova Premier",Amazon,us-east-1,regional,2.5,12.5,0.625,,,,,Geo CRIS
-"Nova Premier",Amazon,us-east-2,regional,2.5,12.5,0.625,,,,,Geo CRIS
-"Nova Premier",Amazon,us-west-2,regional,2.5,12.5,0.625,,,,,Geo CRIS
+"Nova Premier",Amazon,us-east-1,regional,2.5,12.5,0.625,,,,,In-region+Geo CRIS
+"Nova Premier",Amazon,us-east-2,regional,2.5,12.5,0.625,,,,,In-region+Geo CRIS
+"Nova Premier",Amazon,us-west-2,regional,2.5,12.5,0.625,,,,,In-region+Geo CRIS
 "Nova Pro",Amazon,ap-northeast-1,regional,0.96,3.84,0.24,,,,,In-region+Geo CRIS
 "Nova Pro",Amazon,ap-northeast-2,regional,0.95,3.8,0.2375,,,,,Geo CRIS
 "Nova Pro",Amazon,ap-south-1,regional,0.94,3.76,0.235,,,,,Geo CRIS
